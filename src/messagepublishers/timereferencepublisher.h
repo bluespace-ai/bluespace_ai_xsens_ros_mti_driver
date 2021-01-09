@@ -25,27 +25,27 @@
 #define TIMEREFERENCEPUBLISHER_H
 
 #include "packetcallback.h"
-#include <sensor_msgs/TimeReference.h>
+#include <sensor_msgs/msg/time_reference.hpp>
 
 struct TimeReferencePublisher : public PacketCallback
 {
-    ros::Publisher pub;
+    rclcpp::Publisher<sensor_msgs::msg::TimeReference>::SharedPtr pub;
 
-    TimeReferencePublisher(ros::NodeHandle &node)
+    TimeReferencePublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<sensor_msgs::TimeReference>("/imu/time_ref", pub_queue_size);
+        node->get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node->create_publisher<sensor_msgs::msg::TimeReference>("/imu/time_ref", pub_queue_size);
     }
 
-    void operator()(const XsDataPacket &packet, ros::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsSampleTimeFine())
         {
             const uint32_t SAMPLE_TIME_FINE_HZ = 10000UL;
             const uint32_t ONE_GHZ = 1000000000UL;
             uint32_t sec, nsec, t_fine;
-            sensor_msgs::TimeReference msg;
+            sensor_msgs::msg::TimeReference msg;
 
             t_fine = packet.sampleTimeFine();
             sec = t_fine / SAMPLE_TIME_FINE_HZ;
@@ -63,7 +63,7 @@ struct TimeReferencePublisher : public PacketCallback
             msg.time_ref = sample_time;
             // msg.source = optional
 
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 };

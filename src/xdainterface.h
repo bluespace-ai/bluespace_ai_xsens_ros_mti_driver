@@ -24,7 +24,7 @@
 #ifndef XDAINTERFACE_H
 #define XDAINTERFACE_H
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include "xdacallback.h"
 #include <xstypes/xsportinfo.h>
@@ -37,7 +37,7 @@ struct XsDevice;
 
 class PacketCallback;
 
-class XdaInterface
+class XdaInterface : public rclcpp::Node
 {
 public:
 	XdaInterface();
@@ -53,6 +53,7 @@ public:
 private:
 	void registerCallback(PacketCallback *cb);
 	bool handleError(std::string error);
+	void declareCommonParameters();
 
 	XsControl *m_control;
 	XsDevice *m_device;

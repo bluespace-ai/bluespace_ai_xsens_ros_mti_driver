@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>xsens_mti_driver</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>ROS driver for Xsens MTi IMU sensors</description>
   <maintainer email="support@xsens.com">Xsens</maintainer>
   <license>BSD</license>
@@ -27,6 +27,8 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
   <export>
     <build_type>ament_cmake</build_type>
   </export>

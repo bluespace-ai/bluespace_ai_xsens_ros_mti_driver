@@ -25,25 +25,24 @@
 #define TRANSFORMPUBLISHER_H
 
 #include "packetcallback.h"
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 
 struct TransformPublisher : public PacketCallback
 {
     tf2_ros::TransformBroadcaster tf_broadcaster;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
     TransformPublisher(ros::NodeHandle &node) : tf_broadcaster()
     {
+        node->get_parameter("frame_id", frame_id);
     }
 
     void operator()(const XsDataPacket &packet, ros::Time timestamp)
     {
         if (packet.containsOrientation())
         {
-            geometry_msgs::TransformStamped tf;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            ros::param::getCached("~frame_id", frame_id);
+            geometry_msgs::msg::TransformStamped tf;
 
             XsQuaternion q = packet.orientationQuaternion();
 

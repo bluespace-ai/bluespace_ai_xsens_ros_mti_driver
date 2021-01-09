@@ -25,27 +25,27 @@
 #define PRESSUREPUBLISHER_H
 
 #include "packetcallback.h"
-#include <sensor_msgs/FluidPressure.h>
+#include <sensor_msgs/msg/fluid_pressure.hpp>
 
 struct PressurePublisher : public PacketCallback
 {
-    ros::Publisher pub;
+    rclcpp::Publisher<sensor_msgs::msg::FluidPressure>::SharedPtr pub;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
-    PressurePublisher(ros::NodeHandle &node)
+    PressurePublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<sensor_msgs::FluidPressure>("/pressure", pub_queue_size);
+        node->get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node->create_publisher<sensor_msgs::msg::FluidPressure>("/pressure", pub_queue_size);
+        node->get_parameter("frame_id", frame_id);
+        pub = node.advertise<sensor_msgs::msg::FluidPressure>("/pressure", pub_queue_size);
     }
 
-    void operator()(const XsDataPacket &packet, ros::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsPressure())
         {
-            sensor_msgs::FluidPressure msg;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            ros::param::getCached("~frame_id", frame_id);
+            sensor_msgs::msg::FluidPressure msg;
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
@@ -55,7 +55,7 @@ struct PressurePublisher : public PacketCallback
             msg.variance = 0; // unknown
             // unused sample.m_pressureAge, age in samples
 
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 };

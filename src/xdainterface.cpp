@@ -46,9 +46,11 @@
 #define XS_DEFAULT_BAUDRATE (115200)
 
 XdaInterface::XdaInterface()
-	: m_device(nullptr)
+	: Node("xsens_driver", rclcpp::NodeOptions())
+	, m_device(nullptr)
 {
-	ROS_INFO("Creating XsControl object...");
+	declareCommonParameters();
+	RCLCPP_INFO(get_logger(), "Creating XsControl object...");
 	m_control = XsControl::construct();
 	assert(m_control != 0);
 }
@@ -72,9 +74,10 @@ void XdaInterface::spinFor(std::chrono::milliseconds timeout)
 	}
 }
 
-void XdaInterface::registerPublishers(ros::NodeHandle &node)
+void XdaInterface::registerPublishers()
 {
 	bool should_publish;
+	rclcpp::Node& node = *this;
 
 	if (ros::param::get("~pub_imu", should_publish) && should_publish)
 	{
@@ -238,4 +241,14 @@ bool XdaInterface::handleError(std::string error)
 {
 	ROS_ERROR("%s", error.c_str());
 	return false;
+}
+
+void XdaInterface::declareCommonParameters()
+{
+	// Declare ROS parameters common to all the publishers
+	std::string frame_id = DEFAULT_FRAME_ID;
+	node->declare_parameter("frame_id", frame_id);
+
+	int pub_queue_size = 5;
+	node->declare_parameter("publisher_queue_size", pub_queue_size);
 }

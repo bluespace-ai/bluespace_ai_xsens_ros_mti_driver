@@ -25,27 +25,27 @@
 #define TEMPERATUREPUBLISHER_H
 
 #include "packetcallback.h"
-#include <sensor_msgs/Temperature.h>
+#include <sensor_msgs/msg/temperature.hpp>
 
 struct TemperaturePublisher : public PacketCallback
 {
-    ros::Publisher pub;
+    rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr pub;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
-    TemperaturePublisher(ros::NodeHandle &node)
+    TemperaturePublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
         ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<sensor_msgs::Temperature>("/temperature", pub_queue_size);
+        node->get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node->create_publisher<sensor_msgs::msg::Temperature>("/temperature", pub_queue_size);
+        node->get_parameter("frame_id", frame_id);
     }
 
-    void operator()(const XsDataPacket &packet, ros::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsTemperature())
         {
-            sensor_msgs::Temperature msg;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            ros::param::getCached("~frame_id", frame_id);
+            sensor_msgs::msg::Temperature msg;
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
@@ -53,7 +53,7 @@ struct TemperaturePublisher : public PacketCallback
             msg.temperature = packet.temperature();
             msg.variance = 0; // unknown
 
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 };

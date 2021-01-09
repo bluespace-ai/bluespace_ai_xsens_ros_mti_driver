@@ -25,27 +25,27 @@
 #define ORIENTATIONINCREMENTSPUBLISHER_H
 
 #include "packetcallback.h"
-#include <geometry_msgs/QuaternionStamped.h>
+#include <geometry_msgs/msg/quaternion_stamped.hpp>
 
 struct OrientationIncrementsPublisher : public PacketCallback
 {
-    ros::Publisher pub;
+    rclcpp::Publisher<geometry_msgs::msg::QuaternionStamped>::SharedPtr pub;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
-    OrientationIncrementsPublisher(ros::NodeHandle &node)
+    OrientationIncrementsPublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
         ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<geometry_msgs::QuaternionStamped>("/imu/dq", pub_queue_size);
+        node->get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node->create_publisher<geometry_msgs::msg::QuaternionStamped>("/imu/dq", pub_queue_size);
+        node->get_parameter("frame_id", frame_id);
     }
 
-    void operator()(const XsDataPacket &packet, ros::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsOrientationIncrement())
         {
-            geometry_msgs::QuaternionStamped msg;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            ros::param::getCached("~frame_id", frame_id);
+            geometry_msgs::msg::QuaternionStamped msg;
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
@@ -57,7 +57,7 @@ struct OrientationIncrementsPublisher : public PacketCallback
             msg.quaternion.y = dq.y();
             msg.quaternion.z = dq.z();
 
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 };

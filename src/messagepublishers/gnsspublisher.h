@@ -25,7 +25,7 @@
 #define GNSSPUBLISHER_H
 
 #include "packetcallback.h"
-#include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
 
 #define FIX_TYPE_2D_FIX (2)
 #define FIX_TYPE_3D_FIX (3)
@@ -33,23 +33,22 @@
 
 struct GnssPublisher : public PacketCallback
 {
-    ros::Publisher pub;
+    rclcpp::Publisher<sensor_msgs::msg::NavSatFix>::SharedPtr pub;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
-    GnssPublisher(ros::NodeHandle &node)
+    GnssPublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<sensor_msgs::NavSatFix>("/gnss", pub_queue_size);
+        node->get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node->create_publisher<sensor_msgs::msg::NavSatFix>("/gnss", pub_queue_size);
+        node->get_parameter("frame_id", frame_id);
     }
 
-    void operator()(const XsDataPacket &packet, ros::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsRawGnssPvtData())
         {
-            sensor_msgs::NavSatFix msg;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            ros::param::getCached("~frame_id", frame_id);
+            sensor_msgs::msg::NavSatFix msg;
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
@@ -63,21 +62,21 @@ struct GnssPublisher : public PacketCallback
             double sh = ((double)gnss.m_hAcc * 1e-3);
             double sv = ((double)gnss.m_vAcc * 1e-3);
             msg.position_covariance = {sh * sh, 0, 0, 0, sh * sh, 0, 0, 0, sv * sv};
-            msg.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+            msg.position_covariance_type = sensor_msgs::msg::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
             switch (gnss.m_fixType)
             {
             case FIX_TYPE_2D_FIX: // fall through
             case FIX_TYPE_3D_FIX: // fall through
             case FIX_TYPE_GNSS_AND_DEAD_RECKONING:
-                msg.status.status = sensor_msgs::NavSatStatus::STATUS_FIX;
+                msg.status.status = sensor_msgs::msg::NavSatStatus::STATUS_FIX;
                 break;
             default:
-                msg.status.status = sensor_msgs::NavSatStatus::STATUS_NO_FIX;
+                msg.status.status = sensor_msgs::msg::NavSatStatus::STATUS_NO_FIX;
             }
             msg.status.service = 0; // unknown
 
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 };

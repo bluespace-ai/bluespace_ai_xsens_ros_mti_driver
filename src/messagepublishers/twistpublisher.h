@@ -25,27 +25,26 @@
 #define TWISTPUBLISHER_H
 
 #include "packetcallback.h"
-#include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 
 struct TwistPublisher : public PacketCallback
 {
-    ros::Publisher pub;
+    rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr pub;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
-    TwistPublisher(ros::NodeHandle &node)
+    TwistPublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<geometry_msgs::TwistStamped>("/filter/twist", pub_queue_size);
+        node->get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node->create_publisher<geometry_msgs::msg::TwistStamped>("/filter/twist", pub_queue_size);
+        node->get_parameter("frame_id", frame_id);
     }
 
-    void operator()(const XsDataPacket &packet, ros::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsVelocity() && packet.containsCalibratedGyroscopeData())
         {
-            geometry_msgs::TwistStamped msg;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            ros::param::getCached("~frame_id", frame_id);
+            geometry_msgs::msg::TwistStamped msg;
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
@@ -61,7 +60,7 @@ struct TwistPublisher : public PacketCallback
             msg.twist.angular.y = gyro[1];
             msg.twist.angular.z = gyro[2];
 
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 };

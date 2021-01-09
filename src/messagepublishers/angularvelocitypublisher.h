@@ -25,27 +25,26 @@
 #define ANGULARVELOCITYPUBLISHER_H
 
 #include "packetcallback.h"
-#include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/msg/vector3_stamped.hpp>
 
 struct AngularVelocityPublisher : public PacketCallback
 {
-    ros::Publisher pub;
+    rclcpp::Publisher<geometry_msgs::msg::Vector3Stamped>::SharedPtr pub;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
-    AngularVelocityPublisher(ros::NodeHandle &node)
+    AngularVelocityPublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        ros::param::get("~publisher_queue_size", pub_queue_size);
-        pub = node.advertise<geometry_msgs::Vector3Stamped>("/imu/angular_velocity", pub_queue_size);
+        node->get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node->create_publisher<geometry_msgs::msg::Vector3Stamped>("/imu/angular_velocity", pub_queue_size);
+        node->get_parameter("frame_id", frame_id);
     }
 
-    void operator()(const XsDataPacket &packet, ros::Time timestamp)
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsCalibratedGyroscopeData())
         {
-            geometry_msgs::Vector3Stamped msg;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            ros::param::getCached("~frame_id", frame_id);
+            geometry_msgs::msg::Vector3Stamped msg;
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
@@ -56,7 +55,7 @@ struct AngularVelocityPublisher : public PacketCallback
             msg.vector.y = gyro[1];
             msg.vector.z = gyro[2];
 
-            pub.publish(msg);
+            pub->publish(msg);
         }
     }
 };

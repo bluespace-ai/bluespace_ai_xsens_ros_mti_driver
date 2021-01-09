@@ -21,8 +21,8 @@
 //  ==> Icon Creative Commons 3.0: https://creativecommons.org/licenses/by/3.0/legalcode <==
 //  
 
-#include <ros/ros.h>
-#include "xdainterface.h"
+#include <rclcpp/rclcpp.hpp>
+// #include "xdainterface.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -35,27 +35,32 @@ Journaller *gJournal = 0;
 
 int main(int argc, char *argv[])
 {
-	ros::init(argc, argv, "xsens_driver");
-	ros::NodeHandle node;
+	// ros::init(argc, argv, "xsens_driver");
+	rclcpp::init(argc, argv);
+	rclcpp::executors::SingleThreadedExecutor exec;
 
-	XdaInterface *xdaInterface = new XdaInterface();
+	// auto xdaInterface = std::make_shared<XdaInterface>();
+	// exec.add_node(xdaInterface);
 
-	xdaInterface->registerPublishers(node);
+	// xdaInterface->registerPublishers(node);
 
-	if (!xdaInterface->connectDevice())
-		return -1;
+	// if (!xdaInterface->connectDevice())
+	// 	return -1;
 
-	if (!xdaInterface->prepare())
-		return -1;
-
-	while (ros::ok())
+	// if (!xdaInterface->prepare())
+	// 	return -1;
+	auto nh = std::make_shared<rclcpp::Node>("xsens_test");
+	exec.add_node(nh);
+	while (rclcpp::ok())
 	{
-		xdaInterface->spinFor(milliseconds(100));
-
-		ros::spinOnce();
+		// xdaInterface->spinFor(milliseconds(100));
+		std::cout << "test\n";
+		// ros::spinOnce();
+		exec.spin_once();
 	}
 
-	xdaInterface->close();
+	// xdaInterface->close();
+	rclcpp::shutdown();
 
 	return 0;
 }
