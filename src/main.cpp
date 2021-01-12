@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
 
 	auto xdaInterface = std::make_shared<XdaInterface>();
 	exec.add_node(xdaInterface);
-
 	xdaInterface->registerPublishers();
 
 	if (!xdaInterface->connectDevice())
