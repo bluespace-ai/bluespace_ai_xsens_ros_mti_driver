@@ -44,11 +44,13 @@ public:
 	~XdaInterface();
 
 	void spinFor(std::chrono::milliseconds timeout);
-	void registerPublishers(ros::NodeHandle &node);
+	void registerPublishers();
 
 	bool connectDevice();
 	bool prepare();
 	void close();
+
+	const int XS_DEFAULT_BAUDRATE = 115200;
 
 private:
 	void registerCallback(PacketCallback *cb);

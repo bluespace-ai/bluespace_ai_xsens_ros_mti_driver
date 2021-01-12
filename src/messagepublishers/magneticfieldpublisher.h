@@ -36,9 +36,9 @@ struct MagneticFieldPublisher : public PacketCallback
     MagneticFieldPublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        node->get_parameter("publisher_queue_size", pub_queue_size);
-        pub = node->create_publisher<geometry_msgs::msg::Vector3Stamped>("/imu/mag", pub_queue_size);
-        node->get_parameter("frame_id", frame_id);
+        node.get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node.create_publisher<geometry_msgs::msg::Vector3Stamped>("/imu/mag", pub_queue_size);
+        node.get_parameter("frame_id", frame_id);
         // variance_from_stddev_param("~magnetic_field_stddev", magnetic_field_variance);
     }
 

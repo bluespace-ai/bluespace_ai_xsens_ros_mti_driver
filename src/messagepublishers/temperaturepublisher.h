@@ -35,10 +35,9 @@ struct TemperaturePublisher : public PacketCallback
     TemperaturePublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        ros::param::get("~publisher_queue_size", pub_queue_size);
-        node->get_parameter("publisher_queue_size", pub_queue_size);
-        pub = node->create_publisher<sensor_msgs::msg::Temperature>("/temperature", pub_queue_size);
-        node->get_parameter("frame_id", frame_id);
+        node.get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node.create_publisher<sensor_msgs::msg::Temperature>("/temperature", pub_queue_size);
+        node.get_parameter("frame_id", frame_id);
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)

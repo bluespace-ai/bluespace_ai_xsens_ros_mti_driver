@@ -26,8 +26,9 @@
 #include <xscontroller/xsdevice_def.h>
 #include <xstypes/xsdatapacket.h>
 
-XdaCallback::XdaCallback(size_t maxBufferSize)
+XdaCallback::XdaCallback(rclcpp::Node& node, size_t maxBufferSize)
 	: m_maxBufferSize(maxBufferSize)
+	, parent_node(node)
 {
 }
 
@@ -56,7 +57,7 @@ RosXsDataPacket XdaCallback::next(const std::chrono::milliseconds &timeout)
 void XdaCallback::onLiveDataAvailable(XsDevice *, const XsDataPacket *packet)
 {
 	std::unique_lock<std::mutex> lock(m_mutex);
-	ros::Time now = ros::Time::now();
+	rclcpp::Time now = parent_node.now();
 
 	assert(packet != 0);
 

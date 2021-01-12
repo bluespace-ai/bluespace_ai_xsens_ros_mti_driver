@@ -39,18 +39,20 @@ struct ImuPublisher : public PacketCallback
     ImuPublisher(rclcpp::Node &node)
         : node_handle(node)
     {
-        node->declare_parameter("orientation_stddev", orientation_variance);
-        node->declare_parameter("angular_velocity_stddev", angular_velocity_variance);
-        node->declare_parameter("linear_acceleration_stddev", linear_acceleration_variance);
+	// TODO: Port this for allow_undeclared_parameters
+        // node.declare_parameter("orientation_stddev", orientation_variance);
+        // node.declare_parameter("angular_velocity_stddev", angular_velocity_variance);
+        // node.declare_parameter("linear_acceleration_stddev", linear_acceleration_variance);
 
         int pub_queue_size = 5;
-        node->get_parameter("publisher_queue_size", pub_queue_size);
-        pub = node->create_publisher<sensor_msgs::msg::Imu>("/imu/data", pub_queue_size);
+        node.get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node.create_publisher<sensor_msgs::msg::Imu>("/imu/data", pub_queue_size);
 
         // REP 145: Conventions for IMU Sensor Drivers (http://www.ros.org/reps/rep-0145.html)
-        variance_from_stddev_param("orientation_stddev", orientation_variance);
-        variance_from_stddev_param("angular_velocity_stddev", angular_velocity_variance);
-        variance_from_stddev_param("linear_acceleration_stddev", linear_acceleration_variance);
+	// TODO: Port this for allow_undeclared_parameters
+        // variance_from_stddev_param("orientation_stddev", orientation_variance);
+        // variance_from_stddev_param("angular_velocity_stddev", angular_velocity_variance);
+        // variance_from_stddev_param("linear_acceleration_stddev", linear_acceleration_variance);
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
@@ -94,7 +96,7 @@ struct ImuPublisher : public PacketCallback
             sensor_msgs::msg::Imu msg;
 
             std::string frame_id = DEFAULT_FRAME_ID;
-            node_handle->get_parameter("frame_id", frame_id);
+            node_handle.get_parameter("frame_id", frame_id);
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
@@ -141,20 +143,21 @@ struct ImuPublisher : public PacketCallback
 
     void variance_from_stddev_param(std::string param, double *variance_out)
     {
-        std::vector<double> stddev;
-        if (node_handle->get_parameter(param, stddev))
-        {
-            if (stddev.size() == 3)
-            {
-                auto squared = [](double x) { return x * x; };
-                std::transform(stddev.begin(), stddev.end(), variance_out, squared);
-            }
-            else
-            {
-                node_handle->RCLCPP_WARN("Wrong size of param: %s, must be of size 3", param.c_str());
-            }
-        }
-        else
+    	// TODO: Port this for allow_undeclared_parameters
+        // std::vector<double> stddev;
+        // if (node_handle.get_parameter(param, stddev))
+        // {
+        //     if (stddev.size() == 3)
+        //     {
+        //         auto squared = [](double x) { return x * x; };
+        //         std::transform(stddev.begin(), stddev.end(), variance_out, squared);
+        //     }
+        //     else
+        //     {
+        //         node_handle.RCLCPP_WARN(node_handle.get_logger(), "Wrong size of param: %s, must be of size 3", param.c_str());
+        //     }
+        // }
+        // else
         {
             memset(variance_out, 0, 3 * sizeof(double));
         }

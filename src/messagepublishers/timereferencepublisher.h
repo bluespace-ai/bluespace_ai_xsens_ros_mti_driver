@@ -34,8 +34,8 @@ struct TimeReferencePublisher : public PacketCallback
     TimeReferencePublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
-        node->get_parameter("publisher_queue_size", pub_queue_size);
-        pub = node->create_publisher<sensor_msgs::msg::TimeReference>("/imu/time_ref", pub_queue_size);
+        node.get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node.create_publisher<sensor_msgs::msg::TimeReference>("/imu/time_ref", pub_queue_size);
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
@@ -56,7 +56,7 @@ struct TimeReferencePublisher : public PacketCallback
                 sec = packet.sampleTimeCoarse();
             }
 
-            ros::Time sample_time(sec, nsec);
+            rclcpp::Time sample_time(sec, nsec);
 
             msg.header.stamp = timestamp;
             // msg.header.frame_id = unused

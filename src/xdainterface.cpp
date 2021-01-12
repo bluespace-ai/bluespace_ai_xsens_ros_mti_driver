@@ -43,11 +43,12 @@
 #include "messagepublishers/twistpublisher.h"
 #include "messagepublishers/velocityincrementpublisher.h"
 
-#define XS_DEFAULT_BAUDRATE (115200)
+// #define XS_DEFAULT_BAUDRATE (115200)
 
 XdaInterface::XdaInterface()
 	: Node("xsens_driver", rclcpp::NodeOptions())
 	, m_device(nullptr)
+	, m_xdaCallback(*this)
 {
 	declareCommonParameters();
 	RCLCPP_INFO(get_logger(), "Creating XsControl object...");
@@ -79,59 +80,59 @@ void XdaInterface::registerPublishers()
 	bool should_publish;
 	rclcpp::Node& node = *this;
 
-	if (ros::param::get("~pub_imu", should_publish) && should_publish)
+	if (get_parameter("pub_imu", should_publish) && should_publish)
 	{
 		registerCallback(new ImuPublisher(node));
 	}
-	if (ros::param::get("~pub_quaternion", should_publish) && should_publish)
+	if (get_parameter("pub_quaternion", should_publish) && should_publish)
 	{
 		registerCallback(new OrientationPublisher(node));
 	}
-	if (ros::param::get("~pub_acceleration", should_publish) && should_publish)
+	if (get_parameter("pub_acceleration", should_publish) && should_publish)
 	{
 		registerCallback(new AccelerationPublisher(node));
 	}
-	if (ros::param::get("~pub_angular_velocity", should_publish) && should_publish)
+	if (get_parameter("pub_angular_velocity", should_publish) && should_publish)
 	{
 		registerCallback(new AngularVelocityPublisher(node));
 	}
-	if (ros::param::get("~pub_mag", should_publish) && should_publish)
+	if (get_parameter("pub_mag", should_publish) && should_publish)
 	{
 		registerCallback(new MagneticFieldPublisher(node));
 	}
-	if (ros::param::get("~pub_dq", should_publish) && should_publish)
+	if (get_parameter("pub_dq", should_publish) && should_publish)
 	{
 		registerCallback(new OrientationIncrementsPublisher(node));
 	}
-	if (ros::param::get("~pub_dv", should_publish) && should_publish)
+	if (get_parameter("pub_dv", should_publish) && should_publish)
 	{
 		registerCallback(new VelocityIncrementPublisher(node));
 	}
-	if (ros::param::get("~pub_sampletime", should_publish) && should_publish)
+	if (get_parameter("pub_sampletime", should_publish) && should_publish)
 	{
 		registerCallback(new TimeReferencePublisher(node));
 	}
-	if (ros::param::get("~pub_temperature", should_publish) && should_publish)
+	if (get_parameter("pub_temperature", should_publish) && should_publish)
 	{
 		registerCallback(new TemperaturePublisher(node));
 	}
-	if (ros::param::get("~pub_pressure", should_publish) && should_publish)
+	if (get_parameter("pub_pressure", should_publish) && should_publish)
 	{
 		registerCallback(new PressurePublisher(node));
 	}
-	if (ros::param::get("~pub_gnss", should_publish) && should_publish)
+	if (get_parameter("pub_gnss", should_publish) && should_publish)
 	{
 		registerCallback(new GnssPublisher(node));
 	}
-	if (ros::param::get("~pub_twist", should_publish) && should_publish)
+	if (get_parameter("pub_twist", should_publish) && should_publish)
 	{
 		registerCallback(new TwistPublisher(node));
 	}
-	if (ros::param::get("~pub_free_acceleration", should_publish) && should_publish)
+	if (get_parameter("pub_free_acceleration", should_publish) && should_publish)
 	{
 		registerCallback(new FreeAccelerationPublisher(node));
 	}
-	if (ros::param::getCached("~pub_transform", should_publish) && should_publish)
+	if (get_parameter("pub_transform", should_publish) && should_publish)
 	{
 		registerCallback(new TransformPublisher(node));
 	}
@@ -141,19 +142,20 @@ bool XdaInterface::connectDevice()
 {
 	XsPortInfo mtPort;
 
-	if (ros::param::has("~port"))
-	{
-		std::string port_name;
-		int baudrate = XS_DEFAULT_BAUDRATE;
+	// TODO: Port this for allow_undeclared_parameters
+	// if (ros::param::has("~port"))
+	// {
+	// 	std::string port_name;
+	// 	int baudrate = XS_DEFAULT_BAUDRATE;
 
-		ros::param::get("~port", port_name);
-		ros::param::get("~baudrate", baudrate);
+	// 	get_parameter("port", port_name);
+	// 	get_parameter("baudrate", baudrate);
 
-		mtPort = XsPortInfo(port_name, XsBaud_numericToRate(baudrate));
-	}
-	else
+	// 	mtPort = XsPortInfo(port_name, XsBaud_numericToRate(baudrate));
+	// }
+	// else
 	{
-		ROS_INFO("Scanning for devices...");
+		RCLCPP_INFO(get_logger(), "Scanning for devices...");
 		XsPortInfoArray portInfoArray = XsScanner::scanPorts();
 
 		for (auto const &portInfo : portInfoArray)
@@ -169,23 +171,24 @@ bool XdaInterface::connectDevice()
 	if (mtPort.empty())
 		return handleError("No MTi device found");
 
-	std::string deviceId;
-	if (ros::param::get("~device_id", deviceId))
-	{
-		if (mtPort.deviceId().toString().c_str() != deviceId)
-			return handleError(std::string("Device with ID: %s not found") + deviceId);
-	}
+	// TODO: Port for allow_undeclared_parameters 
+	// std::string deviceId;
+	// if (ros::param::get("~device_id", deviceId))
+	// {
+	// 	if (mtPort.deviceId().toString().c_str() != deviceId)
+	// 		return handleError(std::string("Device with ID: %s not found") + deviceId);
+	// }
 
-	ROS_INFO("Found a device with ID: %s @ port: %s, baudrate: %d", mtPort.deviceId().toString().toStdString().c_str(), mtPort.portName().toStdString().c_str(), mtPort.baudrate());
+	RCLCPP_INFO(get_logger(), "Found a device with ID: %s @ port: %s, baudrate: %d", mtPort.deviceId().toString().toStdString().c_str(), mtPort.portName().toStdString().c_str(), mtPort.baudrate());
 
-	ROS_INFO("Opening port...");
+	RCLCPP_INFO(get_logger(), "Opening port...");
 	if (!m_control->openPort(mtPort.portName().toStdString(), mtPort.baudrate()))
 		return handleError("Could not open port");
 
 	m_device = m_control->device(mtPort.deviceId());
 	assert(m_device != 0);
 
-	ROS_INFO("Device: %s, with ID: %s opened.", m_device->productCode().toStdString().c_str(), m_device->deviceId().toString().c_str());
+	RCLCPP_INFO(get_logger(), "Device: %s, with ID: %s opened.", m_device->productCode().toStdString().c_str(), m_device->deviceId().toString().c_str());
 
 	m_device->addCallbackHandler(&m_xdaCallback);
 
@@ -206,17 +209,18 @@ bool XdaInterface::prepare()
 	if (!m_device->gotoMeasurement())
 		return handleError("Could not put device into measurement mode");
 
-	std::string log_file;
-	if (ros::param::get("~log_file", log_file))
-	{
-		if (m_device->createLogFile(log_file) != XRV_OK)
-			return handleError(std::string("Failed to create a log file! (%s)") + log_file);
-		else
-			ROS_INFO("Created a log file: %s", log_file.c_str());
+	// TODO: Port this for allow_undeclared_parameters
+	// std::string log_file;
+	// if (ros::param::get("~log_file", log_file))
+	// {
+	// 	if (m_device->createLogFile(log_file) != XRV_OK)
+	// 		return handleError(std::string("Failed to create a log file! (%s)") + log_file);
+	// 	else
+	// 		RCLCPP_INFO(get_logger(), "Created a log file: %s", log_file.c_str());
 
-		if (!m_device->startRecording())
-			return handleError("Could not start recording");
-	}
+	// 	if (!m_device->startRecording())
+	// 		return handleError("Could not start recording");
+	// }
 
 	return true;
 }
@@ -239,7 +243,7 @@ void XdaInterface::registerCallback(PacketCallback *cb)
 
 bool XdaInterface::handleError(std::string error)
 {
-	ROS_ERROR("%s", error.c_str());
+	RCLCPP_ERROR(get_logger(), "%s", error.c_str());
 	return false;
 }
 
@@ -247,8 +251,24 @@ void XdaInterface::declareCommonParameters()
 {
 	// Declare ROS parameters common to all the publishers
 	std::string frame_id = DEFAULT_FRAME_ID;
-	node->declare_parameter("frame_id", frame_id);
+	declare_parameter("frame_id", frame_id);
 
 	int pub_queue_size = 5;
-	node->declare_parameter("publisher_queue_size", pub_queue_size);
+	declare_parameter("publisher_queue_size", pub_queue_size);
+
+	bool should_publish = true;
+	declare_parameter("pub_imu", should_publish);
+	declare_parameter("pub_quaternion", should_publish);
+	declare_parameter("pub_acceleration", should_publish);
+	declare_parameter("pub_angular_velocity", should_publish);
+	declare_parameter("pub_mag", should_publish);
+	declare_parameter("pub_dq", should_publish);
+	declare_parameter("pub_dv", should_publish);
+	declare_parameter("pub_sampletime", should_publish);
+	declare_parameter("pub_temperature", should_publish);
+	declare_parameter("pub_pressure", should_publish);
+	declare_parameter("pub_gnss", should_publish);
+	declare_parameter("pub_twist", should_publish);
+	declare_parameter("pub_free_acceleration", should_publish);
+	declare_parameter("pub_transform", should_publish);
 }

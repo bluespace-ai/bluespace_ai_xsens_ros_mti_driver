@@ -24,7 +24,7 @@
 #ifndef XDACALLBACK_H
 #define XDACALLBACK_H
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <xscontroller/xscallback.h>
 #include <mutex>
 #include <condition_variable>
@@ -33,12 +33,12 @@
 struct XsDataPacket;
 struct XsDevice;
 
-typedef std::pair<ros::Time, XsDataPacket> RosXsDataPacket;
+typedef std::pair<rclcpp::Time, XsDataPacket> RosXsDataPacket;
 
 class XdaCallback : public XsCallback
 {
 public:
-	XdaCallback(size_t maxBufferSize = 5);
+	XdaCallback(rclcpp::Node& node, size_t maxBufferSize = 5);
 	virtual ~XdaCallback() throw();
 
 	RosXsDataPacket next(const std::chrono::milliseconds &timeout);
@@ -51,6 +51,7 @@ private:
 	std::condition_variable m_condition;
 	std::list<RosXsDataPacket> m_buffer;
 	size_t m_maxBufferSize;
+	rclcpp::Node& parent_node;
 };
 
 #endif

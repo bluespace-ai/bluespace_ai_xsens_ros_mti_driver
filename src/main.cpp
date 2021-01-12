@@ -22,7 +22,7 @@
 //  
 
 #include <rclcpp/rclcpp.hpp>
-// #include "xdainterface.h"
+#include "xdainterface.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -35,31 +35,27 @@ Journaller *gJournal = 0;
 
 int main(int argc, char *argv[])
 {
-	// ros::init(argc, argv, "xsens_driver");
 	rclcpp::init(argc, argv);
 	rclcpp::executors::SingleThreadedExecutor exec;
 
-	// auto xdaInterface = std::make_shared<XdaInterface>();
-	// exec.add_node(xdaInterface);
+	auto xdaInterface = std::make_shared<XdaInterface>();
+	exec.add_node(xdaInterface);
 
-	// xdaInterface->registerPublishers(node);
+	xdaInterface->registerPublishers();
 
-	// if (!xdaInterface->connectDevice())
-	// 	return -1;
+	if (!xdaInterface->connectDevice())
+		return -1;
 
-	// if (!xdaInterface->prepare())
-	// 	return -1;
-	auto nh = std::make_shared<rclcpp::Node>("xsens_test");
-	exec.add_node(nh);
+	if (!xdaInterface->prepare())
+		return -1;
+
 	while (rclcpp::ok())
 	{
-		// xdaInterface->spinFor(milliseconds(100));
-		std::cout << "test\n";
-		// ros::spinOnce();
-		exec.spin_once();
+		xdaInterface->spinFor(milliseconds(100));
+		exec.spin_some();
 	}
 
-	// xdaInterface->close();
+	xdaInterface->close();
 	rclcpp::shutdown();
 
 	return 0;
