@@ -4,32 +4,32 @@ Documentation:
     You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section.
 
 Prerequisites:
-    - ROS Kinetic or Melodic
+    - ROS 2.0 Eloquent or Foxy
     - C/C++ Compiler: GCC 5.4.0 or MSVC 14.0
-    - C++11
+    - C++14
 
 Building:
-    - Copy xsens_ros_mti_driver folder from your MT SDK directory into your catkin workspace 'src' folder.
+    - Copy xsens_ros_mti_driver folder from your MT SDK directory into your ROS 2.0 workspace 'src' folder.
         Make sure the permissions are set to o+rw on your files and directories.
 
     - Build xspublic from your catkin workspace:
         $ pushd src/xsens_ros_mti_driver/lib/xspublic && make && popd
 
     - Build Xsens MTi driver package:
-        $ catkin_make
+        $ colcon build
 
     - Source workspace:
-        $ source devel/setup.bash
+        $ source install/setup.bash
 
 Running:
     - Configure your MTi device to output desired data (e.g. for display example - orientation output)
 
     - Launch the Xsens MTi driver from your catkin workspace:
-            $ roslaunch xsens_mti_driver xsens_mti_node.launch
+            $ ros2 launch xsens_mti_driver xsens_mti_node.launch.py
 
         After the device has been detected, you can communicate with it from another process / terminal window.
         For example:
-            $ rostopic echo /filter/quaternion
+            $ ros2 topic echo /filter/quaternion
         This will result in a continuous stream of data output:
             ---
             header: 
@@ -46,7 +46,7 @@ Running:
             ---
 
     - There is also an example that shows a 3D visualization of the device (orientation data should be enabled in the device):
-            $ roslaunch xsens_mti_driver display.launch
+            $ ros2 launch xsens_mti_driver display.launch.py
 
 
 Notes:
@@ -112,8 +112,3 @@ Notes:
         When having problems with the device being busy the first 20 seconds after
         plugin, purge the modemmanager application.
 
-    - RViz doesn't show an MTi model.
-
-        It is a known issue with urdfdom in ROS Melodic. A workaround is to unset/modify the LC_NUMERIC environment variable:
-
-        $ LC_NUMERIC="en_US.UTF-8"
