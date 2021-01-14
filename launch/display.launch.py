@@ -25,6 +25,17 @@ def generate_launch_description():
         )
     ld.add_action(driver_launch)
 
+    # Rviz2 node
+    rviz_config_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'rviz', 'display.rviz')
+    rviz2_node = Node(
+        package='rviz2',
+        node_executable='rviz2',
+        node_name='xsens_rviz2',
+        output='screen',
+        arguments=[["-d"],[rviz_config_path]],
+    )
+    ld.add_action(rviz2_node)
+
     # Robot State Publisher node
     urdf_file_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'urdf', 'MTi_6xx.urdf')
     state_publisher_node = Node(
@@ -35,16 +46,5 @@ def generate_launch_description():
         arguments=[urdf_file_path],
     )
     ld.add_action(state_publisher_node)
-
-    # Rviz2 node
-    # rviz_config_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'rviz', 'display.rviz')
-    # rviz2_node = Node(
-    #     package='rviz2',
-    #     node_executable='rviz2',
-    #     node_name='xsens_rviz2',
-    #     output='screen',
-    #     arguments=[["-d"],[rviz_config_path]],
-    # )
-    # ld.add_action(rviz2_node)
 
     return ld
