@@ -40,7 +40,7 @@ class PacketCallback;
 class XdaInterface : public rclcpp::Node
 {
 public:
-	XdaInterface();
+	explicit XdaInterface(const std::string &node_name, const rclcpp::NodeOptions &options=rclcpp::NodeOptions());
 	~XdaInterface();
 
 	void spinFor(std::chrono::milliseconds timeout);

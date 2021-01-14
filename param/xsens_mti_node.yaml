@@ -7,7 +7,7 @@
         ##  - nothing: the driver scans for devices and selects the first found.
         # device_id: '077007EF' # uppercase hex string
         # port: '/dev/ttyUSB0'
-        # baudrate: 921600 # non necessary for some devices
+        # baudrate: 115200 # non necessary for some devices
 
         ## Log file (optional), placed in ~/.ros/ otherwise use absolute path
         # log_file: log.mtb

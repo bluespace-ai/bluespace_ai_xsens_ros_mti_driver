@@ -37,8 +37,11 @@ int main(int argc, char *argv[])
 {
 	rclcpp::init(argc, argv);
 	rclcpp::executors::SingleThreadedExecutor exec;
+	rclcpp::NodeOptions nodeOptions;
+	nodeOptions.allow_undeclared_parameters(true);
+	nodeOptions.automatically_declare_parameters_from_overrides(true);
 
-	auto xdaInterface = std::make_shared<XdaInterface>();
+	auto xdaInterface = std::make_shared<XdaInterface>("xsens_driver", nodeOptions);
 	exec.add_node(xdaInterface);
 	xdaInterface->registerPublishers();
 

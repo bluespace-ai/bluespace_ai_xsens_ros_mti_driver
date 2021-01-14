@@ -45,12 +45,12 @@
 
 // #define XS_DEFAULT_BAUDRATE (115200)
 
-XdaInterface::XdaInterface()
-	: Node("xsens_driver", rclcpp::NodeOptions())
+XdaInterface::XdaInterface(const std::string &node_name, const rclcpp::NodeOptions &options)
+	: Node(node_name, options)
 	, m_device(nullptr)
 	, m_xdaCallback(*this)
 {
-	declareCommonParameters();
+	// declareCommonParameters();
 	RCLCPP_INFO(get_logger(), "Creating XsControl object...");
 	m_control = XsControl::construct();
 	assert(m_control != 0);
@@ -143,20 +143,21 @@ bool XdaInterface::connectDevice()
 	XsPortInfo mtPort;
 
 	// TODO: Port this for allow_undeclared_parameters
-	// if (ros::param::has("~port"))
-	// {
-	// 	std::string port_name;
-	// 	int baudrate = XS_DEFAULT_BAUDRATE;
+	if (has_parameter("port"))
+	{
+		std::string port_name;
+		int baudrate = XS_DEFAULT_BAUDRATE;
 
-	// 	get_parameter("port", port_name);
-	// 	get_parameter("baudrate", baudrate);
+		get_parameter("port", port_name);
+		get_parameter("baudrate", baudrate);
 
-	// 	mtPort = XsPortInfo(port_name, XsBaud_numericToRate(baudrate));
-	// }
-	// else
+		mtPort = XsPortInfo(port_name, XsBaud_numericToRate(baudrate));
+	}
+	else
 	{
 		RCLCPP_INFO(get_logger(), "Scanning for devices...");
 		XsPortInfoArray portInfoArray = XsScanner::scanPorts();
+		RCLCPP_INFO(get_logger(), "%d profile found ... ", portInfoArray.size());
 
 		for (auto const &portInfo : portInfoArray)
 		{
@@ -172,12 +173,12 @@ bool XdaInterface::connectDevice()
 		return handleError("No MTi device found");
 
 	// TODO: Port for allow_undeclared_parameters 
-	// std::string deviceId;
-	// if (ros::param::get("~device_id", deviceId))
-	// {
-	// 	if (mtPort.deviceId().toString().c_str() != deviceId)
-	// 		return handleError(std::string("Device with ID: %s not found") + deviceId);
-	// }
+	std::string deviceId;
+	if (get_parameter("device_id", deviceId))
+	{
+		if (mtPort.deviceId().toString().c_str() != deviceId)
+			return handleError(std::string("Device with ID: %s not found") + deviceId);
+	}
 
 	RCLCPP_INFO(get_logger(), "Found a device with ID: %s @ port: %s, baudrate: %d", mtPort.deviceId().toString().toStdString().c_str(), mtPort.portName().toStdString().c_str(), mtPort.baudrate());
 
@@ -210,17 +211,17 @@ bool XdaInterface::prepare()
 		return handleError("Could not put device into measurement mode");
 
 	// TODO: Port this for allow_undeclared_parameters
-	// std::string log_file;
-	// if (ros::param::get("~log_file", log_file))
-	// {
-	// 	if (m_device->createLogFile(log_file) != XRV_OK)
-	// 		return handleError(std::string("Failed to create a log file! (%s)") + log_file);
-	// 	else
-	// 		RCLCPP_INFO(get_logger(), "Created a log file: %s", log_file.c_str());
+	std::string log_file;
+	if (get_parameter("log_file", log_file))
+	{
+		if (m_device->createLogFile(log_file) != XRV_OK)
+			return handleError(std::string("Failed to create a log file! (%s)") + log_file);
+		else
+			RCLCPP_INFO(get_logger(), "Created a log file: %s", log_file.c_str());
 
-	// 	if (!m_device->startRecording())
-	// 		return handleError("Could not start recording");
-	// }
+		if (!m_device->startRecording())
+			return handleError("Could not start recording");
+	}
 
 	return true;
 }
