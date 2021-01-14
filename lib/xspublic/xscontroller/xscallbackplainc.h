@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -38,6 +70,7 @@
 #include <xstypes/xsinforequest.h>
 #include "xsdevicestate.h"
 #include "xsconnectivitystate.h"
+#include "xsprotocoltype.h"
 
 #ifndef __cplusplus
 #define XSCALLBACK_INITIALIZER		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
@@ -106,10 +139,11 @@ typedef struct XsCallbackPlainC
 	*/
 	void (*m_onProgressUpdated)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, int current, int total, const struct XsString* identifier);
 
-	/*! \brief Called when XDA has a message that could be written to a log file. \returns 0 to prevent the message from being written, non-0 to allow the write. This includes data packets. \param message The message that is ready to be written to file \sa m_onWriteDataToLogFile
+	/*! \brief Called when XDA has a message that could be written to a log file.
 		\param dev The device that initiated the callback.
 		\param message The message that will be written.
 		\returns true if the write to file should be allowed. Note that if ANY callback decides that the write is not allowed, it will be disallowed.
+		\sa m_onWriteDataToLogFile
 	*/
 	int  (*m_onWriteMessageToLogFile)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, const struct XsMessage* message);
 
@@ -137,7 +171,6 @@ typedef struct XsCallbackPlainC
 	*/
 	void (*m_onInfoResponse)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, XsInfoRequest request);
 
-
 	/*! \brief Called when an error has occurred while handling incoming data
 		\param dev The device that generated the error message
 		\param error The error code that specifies exactly what problem occurred
@@ -149,6 +182,14 @@ typedef struct XsCallbackPlainC
 		\param message The message that has been received
 	*/
 	void (*m_onNonDataMessage)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, struct XsMessage const * message);
+
+	/*! \brief Called just after a message is detected in raw data from the device.
+		\param dev The device that sent the message
+		\param type The protocol type that detected a message
+		\param rawMessage The raw message that has been detected
+		\note This message can be invalid, since it wasn't checked for sanity
+	*/
+	void(*m_onMessageDetected)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, XsProtocolType type, struct XsByteArray const * rawMessage);
 
 	/*! \brief Called just after a valid message (after parsing) is received from the device.
 		\param dev The device that sent the message
@@ -237,7 +278,31 @@ typedef struct XsCallbackPlainC
 	// Make sure that this struct is not used in C++ (except as base class for XsCallback)
 	friend class XsCallback;
 protected:
-	XsCallbackPlainC() {}
+	XsCallbackPlainC()
+		: m_onDeviceStateChanged(nullptr)
+		, m_onLiveDataAvailable(nullptr)
+		, m_onMissedPackets(nullptr)
+		, m_onWakeupReceived(nullptr)
+		, m_onProgressUpdated(nullptr)
+		, m_onWriteMessageToLogFile(nullptr)
+		, m_onBufferedDataAvailable(nullptr)
+		, m_onConnectivityChanged(nullptr)
+		, m_onInfoResponse(nullptr)
+		, m_onError(nullptr)
+		, m_onNonDataMessage(nullptr)
+		, m_onMessageDetected(nullptr)
+		, m_onMessageReceivedFromDevice(nullptr)
+		, m_onMessageSentToDevice(nullptr)
+		, m_onAllLiveDataAvailable(nullptr)
+		, m_onAllBufferedDataAvailable(nullptr)
+		, m_onDataUnavailable(nullptr)
+		, m_onDataAvailable(nullptr)
+		, m_onAllDataAvailable(nullptr)
+		, m_onRecordedDataAvailable(nullptr)
+		, m_onAllRecordedDataAvailable(nullptr)
+		, m_onTransmissionRequest(nullptr)
+		, m_onRestoreCommunication(nullptr)
+	{}
 	~XsCallbackPlainC() throw() {}
 private:
 	XsCallbackPlainC(XsCallbackPlainC const &);

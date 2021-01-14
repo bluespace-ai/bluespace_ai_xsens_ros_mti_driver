@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -87,8 +119,8 @@ XsArrayDescriptor const g_xsStringDescriptor = {
 	XSEXPCASTRAWCOPY  XsArray_rawCopy	// void (*rawCopy)(void* to, void const* from, XsSize count, XsSize iSize)
 };
 
-/*! \copydoc XsArray_construct
-	\note Specialization for XsString
+/*! \brief Initializes the XsString object as an empty string
+	\details This function initializes the object as an empty string.
 */
 void XsString_construct(XsString* thisPtr)
 {
@@ -154,12 +186,12 @@ void XsString_assignWCharArray(XsString* thisPtr, const wchar_t* src)
 		int required = WideCharToMultiByte(CP_UTF8, 0, src, unicodeLength, NULL, 0, NULL, NULL);
 		if (required != -1 && required > 0)
 		{
-			if (((XsSize)(unsigned int)required)+1 > thisPtr->m_reserved) {
-				XsArray_reserve(thisPtr, required+1);
-			}
+			XsSize reqv = (XsSize)(ptrdiff_t)required+1;
+			if (reqv > thisPtr->m_reserved)
+				XsArray_reserve(thisPtr, reqv);
 			WideCharToMultiByte(CP_UTF8, 0, src, unicodeLength, thisPtr->m_data, required+1, NULL, NULL);
 			thisPtr->m_data[required] = '\0';
-			*((XsSize*) &thisPtr->m_size) = required+1;
+			*((XsSize*) &thisPtr->m_size) = reqv;
 			return;
 		}
 #else
@@ -182,7 +214,7 @@ void XsString_assignWCharArray(XsString* thisPtr, const wchar_t* src)
 XsSize XsString_copyToWCharArray(const XsString* thisPtr, wchar_t* dest, XsSize size)
 {
 #ifdef WIN32
-	return MultiByteToWideChar(CP_UTF8, 0, thisPtr->m_data, (int) thisPtr->m_size, dest, (int) size);
+	return (XsSize)(ptrdiff_t) MultiByteToWideChar(CP_UTF8, 0, thisPtr->m_data, (int)(ptrdiff_t) thisPtr->m_size, dest, (int)(ptrdiff_t) size);
 #else
 	return mbstowcs(dest, thisPtr->m_data, size) + (dest?0:1);
 #endif
@@ -265,7 +297,7 @@ void XsString_push_back(XsString* thisPtr, char c)
 	thisPtr->m_data[sz-1] = c;
 }
 
-char const * advanceUtf8(char const *p)
+uint8_t const * advanceUtf8(const uint8_t* p)
 {
 	if ((*p & 0xC0) != 0xC0)
 		++p;
@@ -293,7 +325,7 @@ char const * advanceUtf8(char const *p)
 XsSize XsString_utf8Len(XsString const * thisPtr)
 {
 	XsSize count = 0;
-	char const * p = thisPtr->m_data;
+	uint8_t const * p = (uint8_t const*) thisPtr->m_data;
 
 	if (!thisPtr || !thisPtr->m_data)
 		return 0;
@@ -307,7 +339,7 @@ XsSize XsString_utf8Len(XsString const * thisPtr)
 }
 
 #ifndef XSENS_NO_WCHAR
-int32_t shiftUtf8(int32_t t, char const* p, int bytes)
+int32_t shiftUtf8(int32_t t, uint8_t const* p, int bytes)
 {
 	int i;
 	for (i = 0; i < bytes; ++i)
@@ -323,7 +355,7 @@ int32_t shiftUtf8(int32_t t, char const* p, int bytes)
 wchar_t XsString_utf8At(XsString const* thisPtr, XsSize index)
 {
 	int32_t t = 0;
-	char const * p = thisPtr->m_data;
+	uint8_t const * p = (uint8_t const*) thisPtr->m_data;
 
 	if (!thisPtr || !thisPtr->m_data)
 		return 0;
@@ -497,4 +529,101 @@ void XsString_reverse(XsString* thisPtr)
 			right[-i] = tmp;
 		}
 	}
+}
+
+/*! \brief Find the first occurrence of \a needle in the string
+	\param needle The string to find
+	\return The offset of \a needle or -1 if it was not found
+*/
+int XsString_findSubStr(XsString const* thisPtr, XsString const* needle)
+{
+	XsSize offset, i, end, endN;
+	if (!thisPtr)	// no string to search in
+		return -1;
+	if (!needle || needle->m_size <= 1)	// empty string matches start of string, even if searchee is empty
+		return 0;
+	if (thisPtr->m_size <= 1 || thisPtr->m_size < needle->m_size)
+		return -1;
+
+	end = thisPtr->m_size - needle->m_size;
+	endN = needle->m_size-1;
+
+	for (offset = 0; offset <= end; ++offset)
+	{
+		for (i = 0; i < endN; ++i)
+			if (thisPtr->m_data[offset + i] != needle->m_data[i])
+				break;
+		if (i == endN)
+			return (int) offset;	// found!
+	}
+	// not found
+	return -1;
+}
+
+/*! \brief Copy a substring of the \a source string
+	\details The function copies up to \a count characters from \a source to the string, starting at offset \a start
+	\param source The source to copy from
+	\param start The offset of the first character to copy
+	\param count The maximum number of characters to copy
+*/
+void XsString_mid(XsString* thisPtr, XsString const* source, XsSize start, XsSize count)
+{
+	if (!thisPtr || !source)
+		return;
+	if (start >= source->m_size)
+	{
+		XsString_assign(thisPtr, 0, 0);
+		return;
+	}
+	if (start + count >= source->m_size)
+		count = (source->m_size - 1) - start;
+	XsString_assign(thisPtr, count, count ? source->m_data + start : 0);
+}
+
+/*! \brief Replace all occurrences of \a src with \a dst, modifying thisPtr
+	\param src Substring to search for
+	\param dst Substring to use as replacement
+*/
+void XsString_replaceAll(XsString* thisPtr, XsString const* src, XsString const* dst)
+{
+	XsSize offset, i, end, endN, start;
+	XsString rv = XSSTRING_INITIALIZER;
+	XsString sub = XSSTRING_INITIALIZER;
+	if (XsString_empty(thisPtr) || XsString_empty(src))
+		return;
+	XsString_construct(&rv);
+	XsString_construct(&sub);
+
+	end = thisPtr->m_size - src->m_size;
+	endN = src->m_size-1;
+	start = 0;
+
+	for (offset = 0; offset <= end;)
+	{
+		for (i = 0; i < endN; ++i)
+			if (thisPtr->m_data[offset + i] != src->m_data[i])
+				break;
+		if (i == endN)
+		{
+			if (start < offset)
+			{
+				XsString_assign(&sub, offset - start, &thisPtr->m_data[start]);
+				XsString_append(&rv, &sub);
+			}
+			if (dst)
+				XsString_append(&rv, dst);
+			offset += endN;
+			start = offset;
+		}
+		else
+			++offset;
+	}
+	if (start < thisPtr->m_size)
+	{
+		XsString_assign(&sub, thisPtr->m_size - start, &thisPtr->m_data[start]);
+		XsString_append(&rv, &sub);
+	}
+	XsString_swap(thisPtr, &rv);
+	XsString_destruct(&sub);
+	XsString_destruct(&rv);
 }

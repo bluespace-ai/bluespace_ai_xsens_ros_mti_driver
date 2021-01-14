@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,26 +101,19 @@ enum XsXbusMessageId {
 	XMID_GotoMeasurementAck         = 0x11,
 	XMID_ReqFirmwareRevision        = 0x12,
 	XMID_FirmwareRevision           = 0x13,
-
-	XMID_ReqBluetoothDisable        = 0x14,
-	XMID_ReqBluetoothDisableAck     = 0x15,
-	XMID_DisableBluetooth           = 0x14,
-	XMID_DisableBluetoothAck        = 0x15,
-	XMID_ReqXmOutputMode            = 0x16,
-	XMID_ReqXmOutputModeAck         = 0x17,
-	XMID_SetXmOutputMode            = 0x16,
-	XMID_SetXmOutputModeAck         = 0x17,
+	XMID_ReqUniqueId                = 0x14,
+	XMID_UniqueId                   = 0x15,
+	XMID_ReqBodypackMode            = 0x16,
+	XMID_ReqBodypackAck             = 0x17,
+	XMID_SetBodypackMode            = 0x16,
+	XMID_SetBodypackModeAck         = 0x17,
 
 	XMID_ReqBaudrate                = 0x18,
 	XMID_ReqBaudrateAck             = 0x19,
 	XMID_SetBaudrate                = 0x18,
 	XMID_SetBaudrateAck             = 0x19,
-
-//	XMID_ReqSyncMode                = 0x1A,
-//	XMID_ReqSyncModeAck             = 0x1B,
-//	XMID_SetSyncMode                = 0x1A,
-//	XMID_SetSyncModeAck             = 0x1B,
-
+	XMID_ReqProductVariant          = 0x1A,
+	XMID_ProductVariant             = 0x1B,
 	XMID_ReqProductCode             = 0x1C,
 	XMID_ProductCode                = 0x1D,
 
@@ -196,18 +221,25 @@ enum XsXbusMessageId {
 	XMID_FactoryTestConnect         = 0x58,
 	XMID_FactoryTestConnectAck      = 0x59,
 
-	XMID_SetDataOutputDelay			= 0x5A,
-	XMID_SetDataOutputDelayAck		= 0x5B,
+	XMID_SetDataOutputDelay         = 0x5A,
+	XMID_SetDataOutputDelayAck      = 0x5B,
 
-	XMID_SetUtcTime                     = 0x60,
-	XMID_ReqUtcTime                     = 0x60,
-	XMID_SetUtcTimeAck                  = 0x61,
-	XMID_UtcTime                        = 0x61,
+	XMID_SetBodypackConfigFile      = 0x5C,
+	XMID_SetBodypackConfigFileAck   = 0x5D,
+
+	XMID_ReqObrStatus               = 0x5E,
+	XMID_ObrStatus                  = 0x5F,
+
+	XMID_SetUtcTime                 = 0x60,
+	XMID_ReqUtcTime                 = 0x60,
+	XMID_SetUtcTimeAck              = 0x61,
+	XMID_UtcTime                    = 0x61,
+
 	XMID_FactoryTestSensorTiming        = 0x60,
 	XMID_FactoryTestSensorTimingResults = 0x61,
 
-	XMID_ReqAvailableFilterProfiles     = 0x62,		//!< Request the available filter profiles
-	XMID_AvailableFilterProfiles        = 0x63,		//!< Message contains the available filter profiles
+	XMID_ReqAvailableFilterProfiles = 0x62,		//!< Request the available filter profiles
+	XMID_AvailableFilterProfiles    = 0x63,		//!< Message contains the available filter profiles
 
 	XMID_ReqFilterProfile           = 0x64,		//!< Request the current filter profile
 	XMID_ReqFilterProfileAck        = 0x65,		//!< Message contains the current filter profile
@@ -306,10 +338,20 @@ enum XsXbusMessageId {
 	XMID_StoreFilterState           = 0x8A,
 	XMID_StoreFilterStateAck        = 0x8B,
 
+	XMID_ReqPortConfig				= 0x8C,
+	XMID_SetPortConfig				= 0x8C,
+	XMID_PortConfig					= 0x8D,
+	XMID_SetPortConfigAck			= 0x8D,
+
 	XMID_ReqStringOutputType        = 0x8E,
 	XMID_ReqStringOutputTypeAck     = 0x8F,
 	XMID_SetStringOutputType        = 0x8E,
 	XMID_SetStringOutputTypeAck     = 0x8F,
+
+	XMID_ReqStringOutputConfig		= 0x8E,
+	XMID_ReqStringOutputConfigAck	= 0x8F,
+	XMID_SetStringOutputConfig		= 0x8E,
+	XMID_SetStringOutputConfigAck	= 0x8F,
 
 	XMID_ReqEmts                    = 0x90,
 	XMID_EmtsData                   = 0x91,
@@ -320,6 +362,14 @@ enum XsXbusMessageId {
 	XMID_RestoreEmtsAck             = 0x95,
 	XMID_StoreEmts                  = 0x96,
 	XMID_StoreEmtsAck               = 0x97,
+
+	XMID_ClockSyncCommand			= 0x9A,
+	XMID_ClockSyncCommandAck		= 0x9B,
+
+	XMID_ReqActiveClockCorrection      = 0x9C,
+	XMID_ActiveClockCorrection         = 0x9D,
+	XMID_StoreActiveClockCorrection    = 0x9E,
+	XMID_StoreActiveClockCorrectionAck = 0x9F,
 
 	XMID_ReqFilterSettings          = 0xA0,
 	XMID_ReqFilterSettingsAck       = 0xA1,
@@ -338,13 +388,15 @@ enum XsXbusMessageId {
 	XMID_AdjustUtcTime              = 0xA8,
 	XMID_AdjustUtcTimeAck           = 0xA9,
 
-	XMID_ReqActiveClockCorrection      = 0x9C,
-	XMID_ActiveClockCorrection         = 0x9D,
-	XMID_StoreActiveClockCorrection    = 0x9E,
-	XMID_StoreActiveClockCorrectionAck = 0x9F,
+	XMID_ReqManufacturerId          = 0xAA,
+	XMID_SetManufacturerId          = 0xAA,
+	XMID_ManufacturerId             = 0xAB,
+	XMID_SetManufacturerIdAck       = 0xAB,
 
-	XMID_ReqComponentsInformation   = 0xAA,
-	XMID_ComponentsInformation      = 0xAB,
+	XMID_ReqGnssReceiverSettings	= 0xAC,
+	XMID_ReqGnssReceiverSettingsAck	= 0xAD,
+	XMID_SetGnssReceiverSettings	= 0xAC,
+	XMID_SetGnssReceiverSettingsAck	= 0xAD,
 
 	XMID_ReqAccessControlList       = 0xAE,
 	XMID_AccessControlList          = 0xAF,
@@ -417,15 +469,8 @@ enum XsXbusMessageId {
 	XMID_SetOutputSkipFactor        = 0xD4,
 	XMID_SetOutputSkipFactorAck     = 0xD5,
 
-//	XMID_ReqSyncInSettings          = 0xD6,
-//	XMID_ReqSyncInSettingsAck       = 0xD7,
-//	XMID_SetSyncInSettings          = 0xD6,
-//	XMID_SetSyncInSettingsAck       = 0xD7,
-
-//	XMID_ReqSyncOutSettings         = 0xD8,
-//	XMID_ReqSyncOutSettingsAck      = 0xD9,
-//	XMID_SetSyncOutSettings         = 0xD8,
-//	XMID_SetSyncOutSettingsAck      = 0xD9,
+	XMID_SetInitialHeading			= 0xD6,
+	XMID_SetInitialHeadingAck		= 0xD7,
 
 	XMID_ReqErrorMode               = 0xDA,
 	XMID_ReqErrorModeAck            = 0xDB,
@@ -444,6 +489,18 @@ enum XsXbusMessageId {
 	XMID_ReqObjectAlignmentAck      = 0xE1,
 	XMID_SetObjectAlignment         = 0xE0,
 	XMID_SetObjectAlignmentAck      = 0xE1,
+
+	XMID_ForwardGnssData			= 0xE2,
+	XMID_ForwardGnssDataAck			= 0xE3,
+
+	XMID_ReqCanConfig				= 0xE6,
+	XMID_SetCanConfig				= 0xE6,
+	XMID_CanConfig					= 0xE7,
+	XMID_SetCanConfigAck			= 0xE7,
+	XMID_ReqCanOutputConfig			= 0xE8,
+	XMID_SetCanOutputConfig			= 0xE8,
+	XMID_CanOutputConfig			= 0xE9,
+	XMID_SetCanOutputConfigAck		= 0xE9,
 
 	XMID_ReqAlignmentRotation       = 0xEC,
 	XMID_ReqAlignmentRotationAck    = 0xED,

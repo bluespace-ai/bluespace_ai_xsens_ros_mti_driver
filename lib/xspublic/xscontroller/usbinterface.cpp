@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -72,8 +104,6 @@ public:
 	*/
 	uint32_t m_timeout;
 
-	int m_interfaceCount;
-	int m_interface;
 	int m_dataInEndPoint;
 	int m_dataOutEndPoint;
 	char m_portname[256];
@@ -91,7 +121,6 @@ public:
 	OVERLAPPED m_overlapped[m_oCount];
 	XsByteArray m_varBuffer;
 	static const int m_fixedBufferSize = 8192;
-	static const int m_fastPolicyThreshold = 3;
 	uint8_t m_fixedBuffer[m_oCount][m_fixedBufferSize];
 	//int m_offset;
 	CRITICAL_SECTION m_mutex;
@@ -104,6 +133,9 @@ public:
 	void threadFunc();
 
 #elif defined(HAVE_LIBUSB)
+	int m_interfaceCount;
+	int m_interface;
+
 	libusb_device_handle *m_deviceHandle;
 	/*! \brief A context manager for libusb
 
@@ -242,21 +274,23 @@ public:
 };
 
 #ifdef USE_WINUSB
-DWORD usbReadThreadFunc(void* obj)
+static DWORD usbReadThreadFunc(void* obj)
 {
 	UsbInterfacePrivate* d = (UsbInterfacePrivate*) obj;
 	d->m_running = true;
-	xsSetThreadPriority(xsGetCurrentThreadHandle(), XS_THREAD_PRIORITY_HIGHEST);
+	xsSetThreadPriority(::GetCurrentThread(), XS_THREAD_PRIORITY_HIGHEST);	// not using xsGetCurrentThreadHandle here because we can directly use GetCurrentThread(), which is simpler
 	xsNameThisThread("USB reader");
-	try {
-		d->threadFunc();
-		d->m_running = false;
-	} catch(...)
+	try
 	{
-		xsNameThisThread("Crashed USB reader");
-		d->m_running = false;
-		XsTime::msleep(10000);
+		d->threadFunc();
 	}
+	catch(...)
+	{
+#ifdef XSENS_DEBUG
+		assert(0);
+#endif
+	}
+	d->m_running = false;
 	return 0;
 }
 
@@ -271,20 +305,11 @@ void UsbInterfacePrivate::threadFunc()
 	for (m_readIdx = 0 ; m_readIdx < (m_oCount-1); ++m_readIdx)
 	{
 		handles[m_readIdx+1] = m_waitEvents[m_readIdx];
-		//m_readIdx = 0;
 		m_overlapped[m_readIdx] = OVERLAPPED();
 		::ResetEvent(m_waitEvents[m_readIdx]);
 		m_overlapped[m_readIdx].hEvent = m_waitEvents[m_readIdx];
-		m_winUsb.ReadPipe(m_usbHandle[1],
-			m_bulkInPipe,
-			m_fixedBuffer[m_readIdx],
-			(ULONG)m_fixedBufferSize,
-			0,
-			&m_overlapped[m_readIdx]);
+		m_winUsb.ReadPipe(m_usbHandle[1], m_bulkInPipe, m_fixedBuffer[m_readIdx], (ULONG)m_fixedBufferSize, 0, &m_overlapped[m_readIdx]);
 	}
-	int fastCount = 0;
-	//m_readIdx = 1;
-	bool policyFast = false;
 	bool run = true;
 	while (run)
 	{
@@ -292,53 +317,9 @@ void UsbInterfacePrivate::threadFunc()
 		m_overlapped[m_readIdx] = OVERLAPPED();
 		::ResetEvent(m_waitEvents[m_readIdx]);
 		m_overlapped[m_readIdx].hEvent = m_waitEvents[m_readIdx];
-		m_winUsb.ReadPipe(m_usbHandle[1],
-			m_bulkInPipe,
-			m_fixedBuffer[m_readIdx],
-			(ULONG)m_fixedBufferSize,
-			0,
-			&m_overlapped[m_readIdx]);
+		m_winUsb.ReadPipe(m_usbHandle[1], m_bulkInPipe, m_fixedBuffer[m_readIdx], (ULONG)m_fixedBufferSize, 0, &m_overlapped[m_readIdx]);
 		m_readIdx = (m_readIdx + 1) % m_oCount;
-		int64_t tBegin = XsTime_timeStampNow(0);
 		DWORD waitResult = ::WaitForMultipleObjects(1+m_oCount, handles, FALSE, INFINITE);
-#if 0	// not sure if this causes problems, but it should help in catching up
-		int64_t tEnd = XsTime_timeStampNow(0);
-		switch (tEnd - tBegin)
-		{
-		case 0:
-			if (++fastCount > m_fastPolicyThreshold && !policyFast)
-			{
-				policyFast = true;
-				// set fast policy
-				UCHAR enable = TRUE;
-				m_winUsb.SetPipePolicy(m_usbHandle[1], m_bulkInPipe, IGNORE_SHORT_PACKETS, sizeof(UCHAR), &enable);
-			}
-			break;
-
-		case 1:
-			if (fastCount)
-				--fastCount;
-			if (policyFast && fastCount <= m_fastPolicyThreshold)
-			{
-				// reset policy
-				policyFast = false;
-				UCHAR enable = FALSE;
-				m_winUsb.SetPipePolicy(m_usbHandle[1], m_bulkInPipe, IGNORE_SHORT_PACKETS, sizeof(UCHAR), &enable);
-			}
-			break;
-
-		default:
-			fastCount = 0;
-			if (policyFast)
-			{
-				// reset policy
-				policyFast = false;
-				UCHAR enable = FALSE;
-				m_winUsb.SetPipePolicy(m_usbHandle[1], m_bulkInPipe, IGNORE_SHORT_PACKETS, sizeof(UCHAR), &enable);
-			}
-			break;
-		}
-#endif
 
 		// handle data
 		switch (waitResult)
@@ -412,8 +393,8 @@ libusb_context *UsbInterfacePrivate::UsbContext::m_usbContext = NULL;
 
 /*! \brief Default constructor, initializes all members to their default values.
 */
-UsbInterface::UsbInterface() :
-	d(new UsbInterfacePrivate)
+UsbInterface::UsbInterface()
+	: d(new UsbInterfacePrivate)
 {
 	d->m_lastResult = XRV_OK;
 	d->m_timeout = 20;
@@ -423,38 +404,40 @@ UsbInterface::UsbInterface() :
 	d->m_deviceHandle = 0;
 	d->m_portname[0] = 0;
 
-	#ifdef USE_WINUSB
-		d->m_threadHandle = INVALID_HANDLE_VALUE;
-		::InitializeCriticalSection(&d->m_mutex);
-		d->m_usbHandle[0] = 0;
-		d->m_usbHandle[1] = 0;
-		for (int i = 0; i < d->m_oCount; ++i)
-		{
-			d->m_waitEvents[i] = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-			::ResetEvent(d->m_waitEvents[i]);
-		}
-		d->m_quitEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-		::ResetEvent(d->m_quitEvent);
-		d->m_readIdx = 0;
-//		d->m_offset = 0;
-		d->m_threadedResult = XRV_OK;
-	#endif
+#ifdef USE_WINUSB
+	d->m_threadHandle = INVALID_HANDLE_VALUE;
+	::InitializeCriticalSection(&d->m_mutex);
+	d->m_usbHandle[0] = 0;
+	d->m_usbHandle[1] = 0;
+	for (int i = 0; i < UsbInterfacePrivate::m_oCount; ++i)
+	{
+		d->m_waitEvents[i] = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+		::ResetEvent(d->m_waitEvents[i]);
+	}
+	d->m_quitEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+	::ResetEvent(d->m_quitEvent);
+	d->m_readIdx = 0;
+	d->m_threadedResult = XRV_OK;
+#endif
 }
 
 //! Destructor, de-initializes, frees memory allocated for buffers, etc.
 UsbInterface::~UsbInterface()
 {
-	try {
+	try
+	{
 		closeUsb();
 #ifdef USE_WINUSB
 		::CloseHandle(d->m_quitEvent);
-		for (int i = 0; i < d->m_oCount; ++i)
+		for (int i = 0; i < UsbInterfacePrivate::m_oCount; ++i)
 			::CloseHandle(d->m_waitEvents[i]);
 		::DeleteCriticalSection(&d->m_mutex);
 #endif
 		delete d;
-	} catch(...)
-	{}
+	}
+	catch(...)
+	{
+	}
 }
 
 /*! \brief Close the USB communication port.
@@ -493,28 +476,32 @@ XsResultValue UsbInterface::closeUsb(void)
 	}
 
 	flushData();
-	if(d->m_usbHandle[0]) {
+	if (d->m_usbHandle[0])
+	{
 		d->m_winUsb.Free(d->m_usbHandle[0]);
 		d->m_usbHandle[0] = NULL;
 	}
-	if(d->m_usbHandle[1]) {
+	if (d->m_usbHandle[1])
+	{
 		d->m_winUsb.Free(d->m_usbHandle[1]);
 		d->m_usbHandle[1] = NULL;
 	}
-	if (d->m_deviceHandle) {
+	if (d->m_deviceHandle)
+	{
 		CloseHandle(d->m_deviceHandle);
 		d->m_deviceHandle = NULL;
 	}
 #elif defined(HAVE_LIBUSB)
 	flushData();
 	libusb_device *dev = d->m_contextManager.m_libUsb.get_device(d->m_deviceHandle);
-	for (int i = 0; i < d->m_interfaceCount; i++) {
+	for (int i = 0; i < d->m_interfaceCount; i++)
+	{
 		int result = LIBUSB_ERROR_OTHER;
-		while (result != LIBUSB_SUCCESS) {
+		while (result != LIBUSB_SUCCESS)
+		{
 			result = d->m_contextManager.m_libUsb.release_interface(d->m_deviceHandle, i);
-			if (result == LIBUSB_SUCCESS) {
+			if (result == LIBUSB_SUCCESS)
 				d->m_contextManager.m_libUsb.attach_kernel_driver(d->m_deviceHandle, i);
-			}
 		}
 	}
 
@@ -539,13 +526,15 @@ XsResultValue UsbInterface::flushData(void)
 {
 	d->m_lastResult = XRV_OK;
 #ifdef USE_WINUSB
-	if(d->m_usbHandle[0]) {
+	if (d->m_usbHandle[0])
+	{
 		d->m_winUsb.AbortPipe(d->m_usbHandle[0], d->m_bulkInPipe);
 		d->m_winUsb.FlushPipe(d->m_usbHandle[0], d->m_bulkInPipe);
 		d->m_winUsb.AbortPipe(d->m_usbHandle[0], d->m_bulkOutPipe);
 		d->m_winUsb.FlushPipe(d->m_usbHandle[0], d->m_bulkOutPipe);
 	}
-	if(d->m_usbHandle[1]) {
+	if (d->m_usbHandle[1])
+	{
 		d->m_winUsb.AbortPipe(d->m_usbHandle[1], d->m_bulkInPipe);
 		d->m_winUsb.FlushPipe(d->m_usbHandle[1], d->m_bulkInPipe);
 		d->m_winUsb.AbortPipe(d->m_usbHandle[1], d->m_bulkOutPipe);
@@ -592,25 +581,19 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 	d->m_endTime = 0;
 
 #ifdef USE_WINUSB
-	JLDEBUGG("Open usb port " << portInfo.portName().toStdString());
+	JLDEBUGG("Open usb port " << portInfo.portName());
 #else
 	JLDEBUGG("Open usb port " << portInfo.usbBus() << ":" << portInfo.usbAddress());
 #endif
 
 	if (isOpen())
 	{
-		JLALERTG("Port " << portInfo.portName().toStdString() << " already open");
+		JLALERTG("Port " << portInfo.portName() << " already open");
 		return (d->m_lastResult = XRV_ALREADYOPEN);
 	}
 
 #ifdef USE_WINUSB
-	d->m_deviceHandle = CreateFileA(portInfo.portName().c_str(),
-		GENERIC_WRITE | GENERIC_READ,
-		FILE_SHARE_WRITE | FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
-		NULL);
+	d->m_deviceHandle = CreateFileA(portInfo.portName_c_str(), GENERIC_WRITE | GENERIC_READ, FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
 
 	if (d->m_deviceHandle == INVALID_HANDLE_VALUE)
 	{
@@ -618,7 +601,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 		return (d->m_lastResult = XRV_PORTNOTFOUND);
 	}
 
-	BOOL result = FALSE;
+	BOOL result;
 	UCHAR speed = 0;
 	ULONG length = 0;
 	USB_INTERFACE_DESCRIPTOR interfaceDescriptor = {0,0,0,0,0,0,0,0,0};
@@ -626,9 +609,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 
 	result = d->m_winUsb.Initialize(d->m_deviceHandle, &d->m_usbHandle[0]);
 	if (result)
-	{
 		result = d->m_winUsb.GetAssociatedInterface(d->m_usbHandle[0],0,&d->m_usbHandle[1]);
-	}
 	else
 	{
 #ifdef XSENS_DEBUG
@@ -640,45 +621,35 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 
 	for (int k = 0; k<2;k++)
 	{
-		if(result)
+		if (result)
 		{
 			assert(d->m_usbHandle[k] != 0);
 			length = sizeof(UCHAR);
-			result = d->m_winUsb.QueryDeviceInformation(d->m_usbHandle[k],
-				DEVICE_SPEED,
-				&length,
-				&speed);
+			result = d->m_winUsb.QueryDeviceInformation(d->m_usbHandle[k], DEVICE_SPEED, &length, &speed);
 		}
 
-		if(result)
+		if (result)
 		{
 			d->m_deviceSpeed = speed;
-			result = d->m_winUsb.QueryInterfaceSettings(d->m_usbHandle[k],
-				0,
-				&interfaceDescriptor);
+			result = d->m_winUsb.QueryInterfaceSettings(d->m_usbHandle[k], 0, &interfaceDescriptor);
 		}
-		if(result)
+		if (result)
 		{
 			for(int i=0;i<interfaceDescriptor.bNumEndpoints;i++)
 			{
-				result = d->m_winUsb.QueryPipe(d->m_usbHandle[k],
-					0,
-					(UCHAR) i,
-					&pipeInfo);
+				result = d->m_winUsb.QueryPipe(d->m_usbHandle[k], 0, (UCHAR) i, &pipeInfo);
 
-				if(pipeInfo.PipeType == UsbdPipeTypeBulk &&
-					USB_ENDPOINT_DIRECTION_IN(pipeInfo.PipeId))
+				if (pipeInfo.PipeType == UsbdPipeTypeBulk && USB_ENDPOINT_DIRECTION_IN(pipeInfo.PipeId))
 				{
 					d->m_bulkInPipe = pipeInfo.PipeId;
 					d->m_bulkInPipePacketSize =
 						pipeInfo.MaximumPacketSize;
 				}
-				else if(pipeInfo.PipeType == UsbdPipeTypeBulk &&
-					USB_ENDPOINT_DIRECTION_OUT(pipeInfo.PipeId))
+				else if (pipeInfo.PipeType == UsbdPipeTypeBulk && USB_ENDPOINT_DIRECTION_OUT(pipeInfo.PipeId))
 				{
 					d->m_bulkOutPipe = pipeInfo.PipeId;
 				}
-				else if(pipeInfo.PipeType == UsbdPipeTypeInterrupt)
+				else if (pipeInfo.PipeType == UsbdPipeTypeInterrupt)
 				{
 					d->m_interruptPipe = pipeInfo.PipeId;
 				}
@@ -694,7 +665,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 	setTimeout(0);
 	flushData();
 
-	sprintf(d->m_portname, "%s", portInfo.portName().c_str());
+	sprintf(d->m_portname, "%s", portInfo.portName_c_str());
 
 //	d->m_offset = 0;
 	::ResetEvent(&d->m_quitEvent);
@@ -720,7 +691,8 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 	XsResultValue xrv = XRV_OK;
 	int result;
 	libusb_device *device = NULL;
-	for (int i = 0; i < listLength && device == NULL; ++i) {
+	for (int i = 0; i < listLength && device == NULL; ++i)
+	{
 		libusb_device *dev = deviceList[i];
 		if (d->m_contextManager.m_libUsb.get_bus_number(dev) != bus || d->m_contextManager.m_libUsb.get_device_address(dev) != address)
 			continue;
@@ -738,15 +710,19 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 		d->m_interface = -1;
 		d->m_interfaceCount = configDesc->bNumInterfaces;
 		// find the bulk transfer endpoints
-		for (uint8_t ifCount = 0; ifCount < configDesc->bNumInterfaces && d->m_interface == -1; ++ifCount) {
-			for (uint8_t altsettingCount = 0; altsettingCount < configDesc->interface[ifCount].num_altsetting; altsettingCount++) {
+		for (uint8_t ifCount = 0; ifCount < configDesc->bNumInterfaces && d->m_interface == -1; ++ifCount)
+		{
+			for (uint8_t altsettingCount = 0; altsettingCount < configDesc->interface[ifCount].num_altsetting; altsettingCount++)
+			{
 				const libusb_endpoint_descriptor *endpoints = configDesc->interface[ifCount].altsetting[altsettingCount].endpoint;
 				int inEndpoint = -1, outEndpoint = -1;
-				for (uint8_t i = 0; i < configDesc->interface[ifCount].altsetting[altsettingCount].bNumEndpoints; i++) {
+				for (uint8_t i = 0; i < configDesc->interface[ifCount].altsetting[altsettingCount].bNumEndpoints; i++)
+				{
 					if ((endpoints[i].bmAttributes&LIBUSB_TRANSFER_TYPE_MASK) != LIBUSB_TRANSFER_TYPE_BULK)
 						continue;
 
-					switch (endpoints[i].bEndpointAddress&LIBUSB_ENDPOINT_DIR_MASK) {
+					switch (endpoints[i].bEndpointAddress&LIBUSB_ENDPOINT_DIR_MASK)
+					{
 					case LIBUSB_ENDPOINT_IN:
 						inEndpoint = endpoints[i].bEndpointAddress&LIBUSB_ENDPOINT_ADDRESS_MASK;
 						break;
@@ -766,7 +742,8 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 				d->m_dataInEndPoint = inEndpoint;
 			}
 		}
-		if (d->m_interface == -1) {
+		if (d->m_interface == -1)
+		{
 			xrv = XRV_INPUTCANNOTBEOPENED;
 			break;
 		}
@@ -778,33 +755,40 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 	}
 
 	d->m_contextManager.m_libUsb.free_device_list(deviceList, 1);
-	if (result != LIBUSB_SUCCESS) {
+	if (result != LIBUSB_SUCCESS)
+	{
 		d->m_contextManager.m_libUsb.unref_device(device);
 		return d->m_lastResult = d->libusbErrorToXrv(result);
 	}
 
-	if (xrv != XRV_OK) {
+	if (xrv != XRV_OK)
+	{
 		d->m_contextManager.m_libUsb.unref_device(device);
 		return d->m_lastResult = xrv;
 	}
 
 	libusb_device_handle *handle;
 	result = d->m_contextManager.m_libUsb.open(device, &handle);
-	if (result != LIBUSB_SUCCESS) {
+	if (result != LIBUSB_SUCCESS)
+	{
 		d->m_contextManager.m_libUsb.unref_device(device);
 		return d->m_lastResult = d->libusbErrorToXrv(result);
 	}
 
 	// be rude and claim all interfaces
-	for (int i = 0; i < d->m_interfaceCount; i++) {
+	for (int i = 0; i < d->m_interfaceCount; i++)
+	{
 		result = d->m_contextManager.m_libUsb.kernel_driver_active(handle, i);
 		if (result > 0)
 			result = d->m_contextManager.m_libUsb.detach_kernel_driver(handle, i);
 		if (result == LIBUSB_SUCCESS)
 			result = d->m_contextManager.m_libUsb.claim_interface(handle, i);
-		if (result != LIBUSB_SUCCESS) {
-			for (int j = 0; j < i; j++) {
-				while (result != LIBUSB_SUCCESS) {
+		if (result != LIBUSB_SUCCESS)
+		{
+			for (int j = 0; j < i; j++)
+			{
+				while (result != LIBUSB_SUCCESS)
+				{
 					result = d->m_contextManager.m_libUsb.release_interface(handle, j);
 					d->m_contextManager.m_libUsb.attach_kernel_driver(handle, j);
 				}
@@ -817,7 +801,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 	}
 
 	d->m_deviceHandle = handle;
-	sprintf(d->m_portname, "%s", portInfo.portName().c_str());
+	sprintf(d->m_portname, "%s", portInfo.portName_c_str());
 
 	flushData();
 #else // HAVE_LIBUSB
@@ -864,16 +848,15 @@ XsResultValue UsbInterface::readData(XsFilePos maxLength, void *data, XsFilePos*
 		return (d->m_lastResult = XRV_NOPORTOPEN);
 
 #ifdef USE_WINUSB
-	XsFilePos remaining = 0;
 	::EnterCriticalSection(&d->m_mutex);
-	remaining = *length = d->m_varBuffer.size();
+	XsFilePos remaining = *length = (XsFilePos) d->m_varBuffer.size();
 	if (*length > maxLength)
 		*length = maxLength;
 	if (*length)
 	{
-		memcpy(data, d->m_varBuffer.data(), (XsSize) *length);
+		memcpy(data, (void*) d->m_varBuffer.data(), (XsSize) *length);
 		d->m_varBuffer.erase(0, (XsSize) *length);
-		remaining = d->m_varBuffer.size();
+		remaining = (XsFilePos) d->m_varBuffer.size();
 	}
 
 	if (d->m_threadedResult != XRV_OK)
@@ -881,6 +864,7 @@ XsResultValue UsbInterface::readData(XsFilePos maxLength, void *data, XsFilePos*
 
 	::LeaveCriticalSection(&d->m_mutex);
 	JLTRACEG("returned success, read " << *length << " of " << maxLength << " bytes, first: " << JLHEXLOG(((char*)data)[0]) << ", " << remaining << " remaining in buffer");
+	(void) remaining;
 
 #elif defined(HAVE_LIBUSB)
 	int actual = 0;
@@ -1027,7 +1011,7 @@ XsResultValue UsbInterface::waitForData(XsFilePos maxLength, void* data, XsFileP
 */
 XsResultValue UsbInterface::writeData(const XsByteArray& data, XsFilePos* written)
 {
-	return writeData(data.size(), data.data(), written);
+	return writeData((XsFilePos) data.size(), data.data(), written);
 }
 
 /*! \brief Write the data to the USB port.
@@ -1052,12 +1036,7 @@ XsResultValue UsbInterface::writeData(XsFilePos length, const void *data, XsFile
 
 #ifdef USE_WINUSB
 	ULONG dataWritten;
-	d->m_winUsb.WritePipe(d->m_usbHandle[1],
-		d->m_bulkOutPipe,
-		(uint8_t*)data,
-		(ULONG)length,
-		&dataWritten,
-		NULL);
+	d->m_winUsb.WritePipe(d->m_usbHandle[1], d->m_bulkOutPipe, static_cast<PUCHAR>(const_cast<void*>(data)), (ULONG)length, &dataWritten, NULL);
 
 	*written = dataWritten;
 #elif defined(HAVE_LIBUSB)

@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,21 +63,19 @@
 //  
 
 #include "mtibasedevice.h"
-#include <xstypes/xssensorranges.h>
-#include <xstypes/xsens_generic_matrix.h>
-#include <xscommon/aliascast.h>
-#include <xstypes/xsdatapacket.h>
-#include "replyobject.h"
-#include "communicator.h"
-#include "scenariomatchpred.h"
-#include <xstypes/xssyncsetting.h>
+#include "xsdef.h"
 #include "synclinemk4.h"
 #include "synclinegmt.h"
-#include <xstypes/xsoutputconfigurationlist.h>
-#include <set>
+#include <xstypes/xsoutputconfigurationarray.h>
 #include <xstypes/xssyncsettingarray.h>
 #include <xstypes/xsportinfo.h>
 #include "xsicccommand.h"
+#include <xstypes/xsmatrix.h>
+#include "xsiccrepmotionresult.h"
+#include <xstypes/xsquaternion.h>
+#include <xstypes/xsvector.h>
+#include <set>
+#include <xstypes/xsstatusflag.h>
 
 using namespace xsens;
 
@@ -54,21 +84,17 @@ using namespace xsens;
 */
 MtiBaseDevice::MtiBaseDevice(Communicator* comm)
 	: MtDeviceEx(comm)
-	, m_representativeMotion(false)
 {
 }
 
 /*! \brief Constructs a child device for a master device
 	\param master The master device to construct for
 */
-MtiBaseDevice::MtiBaseDevice(MtContainer *master)
+MtiBaseDevice::MtiBaseDevice(XsDevice* master)
 	: MtDeviceEx(master, XsDeviceId())
-	, m_representativeMotion(false)
 {
 }
 
-/*! \brief Default destructor
-*/
 MtiBaseDevice::~MtiBaseDevice()
 {
 }
@@ -107,12 +133,10 @@ XsOutputConfigurationArray MtiBaseDevice::outputConfiguration() const
 */
 bool MtiBaseDevice::setOutputConfiguration(XsOutputConfigurationArray& config)
 {
-	setStringOutputMode(0, 0, 0);
+	if (!deviceId().isMti6X0())
+		setStringOutputMode(0, 0, 0);
 
-	if (!MtDeviceEx::setOutputConfiguration(config))
-		return false;
-
-	return true;
+	return MtDeviceEx::setOutputConfiguration(config);
 }
 
 /*! \copybrief XsDevice::setAlignmentRotationMatrix
@@ -124,25 +148,21 @@ bool MtiBaseDevice::setAlignmentRotationQuaternion(XsAlignmentFrame frame, const
 	snd.setDataByte((uint8_t)frame);
 	for (XsSize i = 0; i < 4; ++i)
 		snd.setDataFloat((float)quat[i], (uint16_t) (1 + i * sizeof(float)));
-
-	if (!doTransaction(snd))
-		return false;
-
-	return true;
+	return doTransaction(snd);
 }
 
 /*! \copybrief XsDevice::alignmentRotationQuaternion
 */
 XsQuaternion MtiBaseDevice::alignmentRotationQuaternion(XsAlignmentFrame frame) const
 {
+	XsQuaternion quat;
 	XsMessage snd(XMID_ReqAlignmentRotation), rcv;
 	snd.setDataByte(frame);
-	if (!doTransaction(snd, rcv))
-		return XsQuaternion();
-
-	XsQuaternion quat;
-	for (int i = 0; i < 4; i++)
-		quat[i] = rcv.getDataFloat(1 + i * 4);
+	if (doTransaction(snd, rcv))
+	{
+		for (XsSize i = 0; i < 4; ++i)
+			quat[i] = rcv.getDataFloat(1 + i * 4);
+	}
 	return quat;
 }
 
@@ -174,15 +194,13 @@ bool MtiBaseDevice::setSyncSettings(const XsSyncSettingArray &s)
 		* XSL_Bi1Out => 4		SMCU
 	*/
 
-	int timeResolution = XsDevice::syncSettingsTimeResolutionInMicroSeconds(deviceId());
+	unsigned int timeResolution = XsDevice::syncSettingsTimeResolutionInMicroSeconds(deviceId());
 
 	if (s.size() > 10)
 		return false;
 
 	//if no item, create the length of 1 item with zero values
 	XsMessage snd(XMID_SetSyncConfiguration, (s.size() == 0) ? 12 : s.size()*12);
-	XsMessage rcv;
-
 	snd.setBusId(busId());
 
 	/* create message but abort if we encounter anything out of the ordinary
@@ -201,7 +219,7 @@ bool MtiBaseDevice::setSyncSettings(const XsSyncSettingArray &s)
 		const XsSyncSetting& setting = s[i];
 		XsSize offset = i*12;
 
-		snd.setDataByte(setting.m_function, offset+0);
+		snd.setDataByte(setting.m_function, offset);
 		const uint8_t line = syncLine(setting);
 		snd.setDataByte(line, offset+1);
 		assert(setting.m_polarity != XSP_None);
@@ -217,15 +235,12 @@ bool MtiBaseDevice::setSyncSettings(const XsSyncSettingArray &s)
 		}
 		else
 		{
-			value = (uint16_t) (setting.m_offset / timeResolution);
+			value = (uint16_t) (int16_t) (setting.m_offset / (int) timeResolution);
 			snd.setDataShort(value, offset+10);
 		}
 	}
 
-	if (!doTransaction(snd))
-		return false;
-
-	return true;
+	return doTransaction(snd);
 }
 
 /*! \copybrief XsDevice::syncSettings
@@ -243,32 +258,37 @@ XsSyncSettingArray MtiBaseDevice::syncSettings() const
 /*! \brief Create an XsSyncSttingsArray from the given buffer of sync configuration data */
 XsSyncSettingArray MtiBaseDevice::syncSettingsFromBuffer(const uint8_t* buffer) const
 {
-	int timeResolution = XsDevice::syncSettingsTimeResolutionInMicroSeconds(deviceId());
+	unsigned int timeResolution = XsDevice::syncSettingsTimeResolutionInMicroSeconds(deviceId());
 
 	XsSyncSettingArray rv;
-	for (int i = 0; i < 10; ++i)
+	for (XsSize i = 0; i < 10; ++i)
 	{
+		uint16_t tmp_pulseWidth;
 		XsSize offset = i*12;
 		XsSyncSetting ss;
-		ss.m_function = (XsSyncFunction) buffer[offset+0];
+		ss.m_function = (XsSyncFunction) buffer[offset];
 		ss.m_polarity = (XsSyncPolarity) buffer[offset+2];
 		if (ss.m_polarity == XSP_None)
 			break;
 
 		ss.m_line = syncSettingsLine(buffer, offset);
 		ss.m_triggerOnce = buffer[offset+3];
-		ss.m_skipFirst = *(uint16_t*)&buffer[offset+4];
-		ss.m_skipFactor = *(uint16_t*)&buffer[offset+6];
-		ss.m_pulseWidth = ((int32_t) *(uint16_t*)&buffer[offset+8]) * timeResolution;
+		memcpy((void*) &ss.m_skipFirst, (void const*) &buffer[offset+4], sizeof(uint16_t));
+		memcpy((void*) &ss.m_skipFactor, (void const*) &buffer[offset+6], sizeof(uint16_t));
+		memcpy((void*) &tmp_pulseWidth, (void const*) &buffer[offset+8], sizeof(uint16_t));
+		ss.m_pulseWidth = (uint32_t) tmp_pulseWidth * (uint32_t) timeResolution;
 		if (ss.m_function == XSF_ClockBiasEstimation || ss.m_function == XSF_SampleAndSend)
-			ss.m_clockPeriod = *(uint16_t*)&buffer[offset+10];
+			memcpy((void*) &ss.m_clockPeriod, (void const*) &buffer[offset+10], sizeof(uint16_t));
 		else
-			ss.m_offset = ((int32_t) *(uint16_t*)&buffer[offset+10]) * timeResolution;
+		{
+			int16_t tmp_offset;
+			memcpy((void*) &tmp_offset, (void const*) &buffer[offset+10], sizeof(int16_t));
+			ss.m_offset = (int32_t) tmp_offset * (int32_t) timeResolution;
+		}
 
 		rv.push_back(ss);
 	}
 	return rv;
-
 }
 
 /*! \returns the update rate for the specified XsDataIdentifier in the configuration list or 0 if no such data available
@@ -347,8 +367,9 @@ std::vector<int> MtiBaseDevice::supportedUpdateRates(XsDataIdentifier dataType) 
 
 	for (int skip = 0; skip <= baseFreq.m_frequency; ++skip)
 	{
-		int freq = calcFrequency(baseFreq.m_frequency, skip);
-		if (freq * (skip+1) == baseFreq.m_frequency) {
+		int freq = calcFrequency(baseFreq.m_frequency, (uint16_t) skip);
+		if (freq * (skip+1) == baseFreq.m_frequency)
+		{
 			if (unsupportedUpdateRates.count(freq) == 0)
 				updateRates.push_back(freq);
 		}
@@ -368,7 +389,7 @@ bool MtiBaseDevice::setNoRotation(uint16_t duration)
 */
 bool MtiBaseDevice::setInitialPositionLLA(const XsVector& lla)
 {
-	uint8_t bid = busId();
+	uint8_t bid = (uint8_t) busId();
 	if (bid == XS_BID_INVALID || bid == XS_BID_BROADCAST || lla.size() != 3)
 		return false;
 
@@ -385,7 +406,7 @@ bool MtiBaseDevice::setInitialPositionLLA(const XsVector& lla)
 */
 XsTimeInfo MtiBaseDevice::utcTime() const
 {
-	uint8_t bid = busId();
+	uint8_t bid = (uint8_t) busId();
 	if (bid == XS_BID_INVALID || bid == XS_BID_BROADCAST)
 		return XsTimeInfo();
 
@@ -413,7 +434,7 @@ XsTimeInfo MtiBaseDevice::utcTime() const
 */
 bool MtiBaseDevice::setUtcTime(const XsTimeInfo& time)
 {
-	uint8_t bid = busId();
+	uint8_t bid = (uint8_t) busId();
 	if (bid == XS_BID_INVALID || bid == XS_BID_BROADCAST)
 		return false;
 
@@ -489,20 +510,36 @@ bool MtiBaseDevice::resetRemovesPort() const
 */
 XsSyncLine MtiBaseDevice::syncSettingsLine(const uint8_t* buff, XsSize offset) const
 {
-	return	xsl4ToXsl((SyncLineMk4) buff[offset + 1]);
+	if (deviceId().isMtMark4() || deviceId().isMtMark5())
+		return	xsl4ToXsl((SyncLineMk4) buff[offset + 1]);
+	else
+		return	xslgmtToXsl((SyncLineGmt) buff[offset + 1]);
 }
 
 /*! \brief Returns the sync line for a generic mti device
 */
 uint8_t MtiBaseDevice::syncLine(const XsSyncSetting& setting) const
 {
-	SyncLineMk4 mk4Line = xslToXsl4(setting.m_line);
-	assert(mk4Line != XSL4_Invalid);
-	if (mk4Line == XSL4_ClockIn || mk4Line == XSL4_GnssClockIn)
+	if (deviceId().isMtMark4() || deviceId().isMtMark5())
 	{
-		assert(setting.m_function == XSF_ClockBiasEstimation);
+		SyncLineMk4 mk4Line = xslToXsl4(setting.m_line);
+		assert(mk4Line != XSL4_Invalid);
+		if (mk4Line == XSL4_ClockIn || mk4Line == XSL4_GnssClockIn)
+		{
+			assert(setting.m_function == XSF_ClockBiasEstimation);
+		}
+		return static_cast<uint8_t>(mk4Line);
 	}
-	return static_cast<uint8_t>(mk4Line);
+	else
+	{
+		SyncLineGmt gmtLine = xslToXslgmt(setting.m_line);
+		assert(gmtLine != XSLGMT_Invalid);
+		if (gmtLine == XSLGMT_ClockIn)
+		{
+			assert(setting.m_function == XSF_SampleAndSend);
+		}
+		return static_cast<uint8_t>(gmtLine);
+	}
 }
 
 bool MtiBaseDevice::messageLooksSane(const XsMessage &msg) const
@@ -608,3 +645,10 @@ bool MtiBaseDevice::hasIccSupport() const
 	return (firmwareVersion() >= XsVersion(1, 5, 0));
 }
 
+void MtiBaseDevice::fetchAvailableHardwareScenarios()
+{
+	if (deviceId().isImu())								// If we are a 100 type device,
+		m_hardwareFilterProfiles.clear();				// there are no filter profiles in the firmware.
+	else												// For other device types,
+		MtDeviceEx::fetchAvailableHardwareScenarios();	// fetch the scenarios.
+}

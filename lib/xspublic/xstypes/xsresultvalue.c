@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -38,6 +70,10 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 /*! \brief Retrieve a character string corresponding to the given result code.
+	\param result The result code to convert
+	\return A static string describing the result code
+	\note In the Python interface this function is called XsResultValueToString
+	\note In C/C++ do NOT delete the returned char* as it points to static memory.
 */
 const char* XsResultValue_toString(XsResultValue result)
 {
@@ -79,8 +115,10 @@ const char* XsResultValue_toString(XsResultValue result)
 	case XRV_INVALIDFILTERPROFILE:	return "Specified filter profile ID is not available on the device or the user is trying to duplicate an existing filter profile type";
 	case XRV_INVALIDSTOREDSETTINGS:	return "The settings stored in the device's non volatile memory are invalid";
 	case XRV_ACCESSDENIED:			return "Request for control of the device was denied";
+	case XRV_FILEERROR:				return "Failure reading, writing, opening or closing a file";
+	case XRV_OUTPUTCONFIGERROR:		return "Erroneous output configuration, device can not go to measurement";
 
-		// CMT / XDA / XME / etc
+		// XDA / XME / etc
 	case XRV_ERROR:					return "Generic error";
 	case XRV_NOTIMPLEMENTED:		return "Operation not implemented";
 	case XRV_TIMEOUT:				return "Timeout occurred, some data received";
@@ -139,6 +177,7 @@ const char* XsResultValue_toString(XsResultValue result)
 
 	case XRV_MEASUREMENTFAILED:		return "Failed to start measurement";
 	case XRV_STARTRECORDINGFAILED:	return "A device could not start recording";
+	case XRV_STOPRECORDINGFAILED:	return "A device could not stop recording";
 
 	case XRV_RADIO_CHANNEL_IN_USE:	return "Detected another system using the selected radio channel";
 	case XRV_UNEXPECTED_DISCONNECT:	return "Motion tracker disconnected unexpectedly";
@@ -151,10 +190,16 @@ const char* XsResultValue_toString(XsResultValue result)
 	case XRV_RESTORE_COMMUNICATION_FAILED:	return "Restore communication failed";
 	case XRV_RESTORE_COMMUNICATION_STOPPED:	return "Restore communication was stopped";
 
+	case XRV_EXPECTED_CONNECT:		return "The device connected";
+	case XRV_IN_USE:				return "Requested connection already in use";
+	case XRV_PERFORMANCE_WARNING:	return "The system running the application can't fully keep up with the incoming data";
+	case XRV_PERFORMANCE_OK:		return "The system running the application can keep up with the incoming data again";
+
 	case XRV_SHUTTINGDOWN:			return "The device is shutting down";
 	case XRV_GNSSCONFIGURATIONERROR:return "A configuration item was refused by the GNSS module";
 	case XRV_GNSSCOMMTIMEOUT:		return "The communication with the GNSS module timed out";
 	case XRV_GNSSERROR:				return "Communication between the device and the GNSS module failed";
+	case XRV_DEVICE_NOT_CALIBRATED:	return "The EMTS of the device does not contain calibration data";
 
 	default:						return "!!Undefined Result Value!!";
 	}

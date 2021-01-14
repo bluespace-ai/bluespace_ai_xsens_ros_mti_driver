@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -59,26 +91,8 @@
 #	endif
 #endif
 
-#ifdef _WIN32
-#	define FSEEK(x)		_fseeki64(m_handle, x, SEEK_SET)
-#	define FSEEK_R(x)	_fseeki64(m_handle, x, SEEK_END)
-#	define FTELL()		_ftelli64(m_handle)
-#else
-#	define FSEEK(x)		fseeko(m_handle, x, SEEK_SET)
-#	define FSEEK_R(x)	fseeko(m_handle, x, SEEK_END)
-#	define FTELL()		ftello(m_handle)
-#endif
-
-// maybe log to nothing at this level
-#ifdef LOG_CMT1
-#	include "xslog.h"
-#	define XDA1LOG_OBSOLETE		XSENSLOG
-#else
-#	define XDA1LOG_OBSOLETE(...)	(void)0
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////// SerialInterface  /////////////////////////////////////////
+//////////////////////////////////// SerialInterface  ////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
 //! \brief Default constructor, initializes all members to their default values.
@@ -101,10 +115,13 @@ SerialInterface::SerialInterface()
 //! Destructor, de-initializes, frees memory allocated for buffers, etc.
 SerialInterface::~SerialInterface()
 {
-	try {
+	try
+	{
 		closeLive();
-	} catch(...)
-	{}
+	}
+	catch(...)
+	{
+	}
 }
 
 //! \brief Close the serial communication port.
@@ -258,16 +275,37 @@ XsBaudRate SerialInterface::getBaudrate(void) const
 		return m_baudrate;
 	return XBR_Invalid;
 }
+
 //! Return the handle of the port
-XsIoHandle SerialInterface::getHandle(void) const { return m_handle; }
+XsIoHandle SerialInterface::getHandle(void) const
+{
+	return m_handle;
+}
+
 //! Retrieve the port number that was last successfully opened.
-uint16_t SerialInterface::getPortNumber (void) const { return m_port; }
+uint16_t SerialInterface::getPortNumber (void) const
+{
+	return m_port;
+}
+
 //! Retrieve the port name that was last successfully opened.
-void SerialInterface::getPortName(XsString& portname) const { portname = m_portname; }
+void SerialInterface::getPortName(XsString& portname) const
+{
+	portname = m_portname;
+}
+
 //! Return the error code of the last operation.
-XsResultValue SerialInterface::getLastResult(void) const { return m_lastResult; }
+XsResultValue SerialInterface::getLastResult(void) const
+{
+	return m_lastResult;
+}
+
 //! Return the current timeout value
-uint32_t SerialInterface::getTimeout (void) const { return m_timeout; }
+uint32_t SerialInterface::getTimeout (void) const
+{
+	return m_timeout;
+}
+
 //! Return whether the communication port is open or not.
 bool SerialInterface::isOpen (void) const
 {
@@ -328,9 +366,8 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 	char winPortName[256];
 
 	// Open port
-	sprintf(winPortName, "\\\\.\\%s", portInfo.portName().c_str());
-	m_handle = CreateFileA(winPortName, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-									OPEN_EXISTING, 0, NULL);
+	sprintf(winPortName, "\\\\.\\%s", portInfo.portName_c_str());
+	m_handle = CreateFileA(winPortName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (m_handle == INVALID_HANDLE_VALUE)
 	{
 		JLDEBUGG("Port " << portInfo.portName() << " cannot be opened");
@@ -345,7 +382,7 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 	if (!GetCommState(m_handle, &commState))	// Get current state
 		fail = XRV_ERROR;
 
-	commState.BaudRate = (int) portInfo.baudrate();		// Setup the baud rate
+	commState.BaudRate = (DWORD) portInfo.baudrate();		// Setup the baud rate
 	commState.Parity = NOPARITY;				// Setup the Parity
 	commState.ByteSize = 8;					// Setup the data bits
 	commState.StopBits = (options&PO_TwoStopBits)?TWOSTOPBITS:ONESTOPBIT;
@@ -368,9 +405,9 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 		if (!SetCommState(m_handle, (LPDCB)&commState))
 			fail = XRV_INPUTCANNOTBEOPENED;
 	}
-	std::string tmp = portInfo.portName().toStdString();
-	m_port = atoi(&tmp.c_str()[3]);
-	sprintf(m_portname, "%s", tmp.c_str());
+	char const* tmp = portInfo.portName_c_str();
+	m_port = (uint16_t) atoi(&tmp[3]);
+	sprintf(m_portname, "%s", tmp);
 
 	if (setTimeout(20))
 		fail = m_lastResult;
@@ -729,7 +766,7 @@ XsResultValue SerialInterface::waitForData(XsFilePos maxLength, XsByteArray& dat
 	{
 		XsByteArray raw;
 
-		if (readData(maxLength - data.size(), raw) != XRV_OK)
+		if (readData(maxLength - (XsFilePos) data.size(), raw) != XRV_OK)
 			return m_lastResult;
 		data.append(raw);
 	}
@@ -837,19 +874,19 @@ void SerialInterface::cancelIo() const
 /*! \brief Logical \a or operator for flow controls */
 SerialInterface::PortOptions operator|(SerialInterface::PortOptions lhs, SerialInterface::PortOptions rhs)
 {
-	return static_cast<SerialInterface::PortOptions>(static_cast<int>(lhs) | static_cast<int>(rhs));
+	return static_cast<SerialInterface::PortOptions>(static_cast<unsigned int>(lhs) | static_cast<unsigned int>(rhs));
 }
 
 /*! \brief Logical \a and operator for flow controls */
 SerialInterface::PortOptions operator&(SerialInterface::PortOptions lhs, SerialInterface::PortOptions rhs)
 {
-	return static_cast<SerialInterface::PortOptions>(static_cast<int>(lhs) & static_cast<int>(rhs));
+	return static_cast<SerialInterface::PortOptions>(static_cast<unsigned int>(lhs) & static_cast<unsigned int>(rhs));
 }
 
 /*! \brief Logical inversion operator for flow controls */
 SerialInterface::PortOptions operator~(SerialInterface::PortOptions lhs)
 {
-	return static_cast<SerialInterface::PortOptions>(~static_cast<int>(lhs));
+	return static_cast<SerialInterface::PortOptions>(~static_cast<unsigned int>(lhs));
 }
 
 /*! \brief Apply the specified options for the hardware control lines.
@@ -905,11 +942,12 @@ void SerialInterface::applyHwControlLinesOptions(PortOptions options, int portLi
 		// Flow Control is disabled
 		if ((pLinesOpts != XPLO_Invalid) && !(pLinesOpts & XPLO_RTS_Ignore))
 		{
-			if ((((pLinesOpts & XPLO_RTS_Set) && (pLinesOpts & XPLO_RTS_Clear)) == 0)
-				&& (((pLinesOpts & XPLO_RTS_Set) || (pLinesOpts & XPLO_RTS_Clear)) != 0))
+			bool set = !!(pLinesOpts & XPLO_RTS_Set);
+			bool clr = !!(pLinesOpts & XPLO_RTS_Clear);
+			if (set != clr)
 			{
 				// Only one between Set and Clear is high
-				if (pLinesOpts & XPLO_RTS_Set)
+				if (set)
 				{
 					if (!EscapeCommFunction(m_handle, SETRTS))	// Set RTS
 						p = XRV_ERROR;
@@ -966,5 +1004,4 @@ void SerialInterface::applyHwControlLinesOptions(PortOptions options, int portLi
 	}
 
 #endif
-
 }

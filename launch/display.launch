@@ -1,5 +1,5 @@
 <launch>
-  <arg name="model" default="$(find xsens_mti_driver)/urdf/MTI_10.urdf"/>
+  <arg name="model" default="$(find xsens_mti_driver)/urdf/MTi_6xx.urdf"/>
   <arg name="rvizconfig" default="$(find xsens_mti_driver)/rviz/display.rviz" />
 
   <include file="$(find xsens_mti_driver)/launch/xsens_mti_node.launch" />

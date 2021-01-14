@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -55,6 +87,7 @@
 #define XS_DID_TYPEH_MT_X00				0x00700000
 #define XS_DID_TYPEH_MTX2_MTW2			0x00B00000
 #define XS_DID_TYPEH_BODYPACK			0x00A00000
+#define XS_DID_TYPEH_MT_3X0				0x00D00000
 #define XS_DID_TYPEH_MT_X_MPU			0x00800000
 
 #define XS_DID_TYPEL_STATION			0x00000000
@@ -115,6 +148,9 @@
 #define XS_DID_MK4TYPE_MT_2_MPU			(XS_DID_TYPEH_MT_X_MPU | XS_DID_GPL_2)
 #define XS_DID_MK4TYPE_MT_3_MPU			(XS_DID_TYPEH_MT_X_MPU | XS_DID_GPL_3)
 #define XS_DID_MK4TYPE_MT_7_MPU			(XS_DID_TYPEH_MT_X_MPU | XS_DID_GPL_7)
+#define XS_DID_MK4TYPE_MT_310			(XS_DID_TYPEH_MT_3X0 | XS_DID_GPL_1)
+#define XS_DID_MK4TYPE_MT_320			(XS_DID_TYPEH_MT_3X0 | XS_DID_GPL_2)
+#define XS_DID_MK4TYPE_MT_330			(XS_DID_TYPEH_MT_3X0 | XS_DID_GPL_3)
 #define XS_DID_MK4TYPE_MT_10			(XS_DID_TYPEH_MT_X0 | XS_DID_GPL_10)
 #define XS_DID_MK4TYPE_MT_20			(XS_DID_TYPEH_MT_X0 | XS_DID_GPL_20)
 #define XS_DID_MK4TYPE_MT_30			(XS_DID_TYPEH_MT_X0 | XS_DID_GPL_30)
@@ -143,6 +179,15 @@
 
 #define XS_DID_MASTER					0x00000000
 #define XS_DID_ABMCLOCKMASTER			0x00000100
+#define XS_DID_GLOVEMASTER				(XS_DID_TYPEH_INTERNAL | 0x00000200)
+
+#define XS_DID_GLOVETYPE_UNKNOWN		0x00000000
+#define XS_DID_GLOVETYPE_LEFT			0x00000001
+#define XS_DID_GLOVETYPE_RIGHT			0x00000002
+
+#define XS_DID_GLOVEMASTER_UNKNOWN 		( XS_DID_GLOVEMASTER | XS_DID_GLOVETYPE_UNKNOWN )
+#define XS_DID_GLOVEMASTER_LEFT			( XS_DID_GLOVEMASTER | XS_DID_GLOVETYPE_LEFT )
+#define XS_DID_GLOVEMASTER_RIGHT		( XS_DID_GLOVEMASTER | XS_DID_GLOVETYPE_RIGHT )
 
 #define XS_DID_INTERNAL(did)			((did & XS_DID_TYPEH_MASK) == XS_DID_TYPEH_INTERNAL)
 #define XS_DID_WM(did)					((did & XS_DID_TYPEH_MASK) == XS_DID_TYPEH_AWINDAMASTER)
@@ -164,7 +209,6 @@
 #define XS_DID_MK4TYPE_MT_710_RANGE_START		(XS_DID_TYPEH_MT_X00 | XS_DID_GPL_700 | 0x1000)
 #define XS_DID_MK5TYPE_RANGE_START		0x00002000
 
-#define XS_DID_LEGACYID_BIT				0x0000000080000000
+#define XS_DID64_BIT					0x0000000080000000ULL
 
-
-#endif	// file guard
+#endif

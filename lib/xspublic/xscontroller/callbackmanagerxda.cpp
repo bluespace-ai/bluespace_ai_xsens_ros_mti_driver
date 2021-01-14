@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -77,12 +109,15 @@ CallbackManagerXda::CallbackManagerXda()
 */
 CallbackManagerXda::~CallbackManagerXda()
 {
-	try {
+	try
+	{
 		clearChainedManagers();
 		clearCallbackHandlers(false);
 		delete m_callbackMutex;
-	} catch(...)
-	{}
+	}
+	catch(...)
+	{
+	}
 }
 
 /*! \brief Clear the callback list
@@ -144,7 +179,7 @@ void CallbackManagerXda::addCallbackHandler(XsCallbackPlainC* cb, bool chain)
 		return;
 	}
 
-	CallbackHandlerXdaItem* last = NULL;
+	CallbackHandlerXdaItem* last;
 	CallbackHandlerXdaItem* current = m_handlerList;
 	while (current)
 	{
@@ -238,7 +273,7 @@ void CallbackManagerXda::addChainedManager(CallbackManagerXda* cm)
 		return;
 	}
 
-	CallbackManagerItem* last = NULL;
+	CallbackManagerItem* last;
 	CallbackManagerItem* current = m_managerList;
 	while (current)
 	{
@@ -494,6 +529,19 @@ void CallbackManagerXda::onNonDataMessage(XsDevice* dev, XsMessage const * messa
 }
 
 //! \brief The Xscallback::onMessageReceivedFromDevice() callback forwarding function
+void CallbackManagerXda::onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const * rawMessage)
+{
+	LockReadWrite locky(m_callbackMutex, LS_Read);
+	CallbackHandlerXdaItem* current = m_handlerList;
+	while (current)
+	{
+		if (current->m_handler->m_onMessageDetected)
+			current->m_handler->m_onMessageDetected(current->m_handler, dev, type, rawMessage);
+		current = current->m_next;
+	}
+}
+
+//! \brief The Xscallback::onMessageReceivedFromDevice() callback forwarding function
 void CallbackManagerXda::onMessageReceivedFromDevice(XsDevice* dev, XsMessage const * message)
 {
 	LockReadWrite locky(m_callbackMutex, LS_Read);
@@ -594,25 +642,4 @@ void CallbackManagerXda::onRestoreCommunication(const XsString* portName, XsResu
 			current->m_handler->m_onRestoreCommunication(current->m_handler, portName, result);
 		current = current->m_next;
 	}
-}
-
-/*! \returns True if at least one callback handler defines the given \a function
-	\param functionOffset The offset of one of XsCallbackPlainC's function pointers, ie offsetof(XsCallbackPlainC, m_onDeviceStateChanged)
-	\note This is an experimental function, it may still be removed at any time if it doesn't work properly
-*/
-bool CallbackManagerXda::haveCallback(size_t functionOffset) const
-{
-	if (functionOffset > (sizeof(XsCallbackPlainC) - sizeof(void*)))
-		return false;	// we don't have this callback if it's beyond the end
-
-	LockReadWrite locky(m_callbackMutex, LS_Read);
-	CallbackHandlerXdaItem* current = m_handlerList;
-	while (current)
-	{
-		char* plain = (char*) current->m_handler;
-		if (((void*) (plain + functionOffset)) != nullptr)
-			return true;
-		current = current->m_next;
-	}
-	return false;
 }

@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -63,7 +95,7 @@ void XsMatrix_ref(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride, Xs
 /*! \relates XsMatrix \brief Init the %XsMatrix and copy the data from \a src into the matrix if \a src is not null */
 void XsMatrix_construct(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride, const XsReal* src, XsSize srcStride)
 {
-	XsSize r,c;
+	XsSize r;
 	XsSize size = rows*stride;
 
 	if (stride == 0)
@@ -93,8 +125,15 @@ void XsMatrix_construct(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stri
 		else
 		{
 			for (r = 0; r < rows; ++r)
+			{
+#if XSREAL_ALLOWS_MEMCPY
+				memcpy(thisPtr->m_data + r*stride, src + r*srcStride, cols*sizeof(XsReal));
+#else
+				XsSize c;
 				for (c = 0; c < cols; ++c)
 					thisPtr->m_data[r*stride+c] = src[r*srcStride + c];
+#endif
+			}
 		}
 	}
 }
@@ -102,7 +141,7 @@ void XsMatrix_construct(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stri
 /*! \relates XsMatrix \brief Init the %XsMatrix and copy the data from \a src into the matrix if \a src is not null */
 void XsMatrix_assign(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride, const XsReal* src, XsSize srcStride)
 {
-	XsSize r,c;
+	XsSize r;
 	XsSize size = rows*stride;
 
 	if (thisPtr->m_flags & XSDF_FixedSize)
@@ -158,8 +197,15 @@ void XsMatrix_assign(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride,
 		else
 		{
 			for (r = 0; r < rows; ++r)
+			{
+#if XSREAL_ALLOWS_MEMCPY
+				memcpy(thisPtr->m_data + r*stride, src + r*srcStride, cols*sizeof(XsReal));
+#else
+				XsSize c;
 				for (c = 0; c < cols; ++c)
 					thisPtr->m_data[r*stride+c] = src[r*srcStride + c];
+#endif
+			}
 		}
 	}
 }
@@ -190,19 +236,28 @@ void XsMatrix_destruct(XsMatrix* thisPtr)
 void XsMatrix_copy(XsMatrix* copy, XsMatrix const* src)
 {
 	if (copy == src)
-	{
 		return;
-	}
 	XsMatrix_assign(copy, src->m_rows, src->m_cols, 0, src->m_data, src->m_stride);
 }
 
 /*! \relates XsMatrix \brief Set all the values in the matrix to zero */
 void XsMatrix_setZero(XsMatrix* thisPtr)
 {
+#if XSREAL_ALLOWS_MEMCPY
+	if (thisPtr->m_stride == thisPtr->m_cols)
+		memset(thisPtr->m_data, 0, sizeof(XsReal)*thisPtr->m_rows*thisPtr->m_cols);
+	else
+	{
+		XsSize r;
+		for (r = 0; r < thisPtr->m_rows; ++r)
+			memset(thisPtr->m_data + r*thisPtr->m_stride, 0, sizeof(XsReal) * thisPtr->m_cols);
+	}
+#else
 	XsSize r,c,stride = thisPtr->m_stride;
 	for (r = 0; r < thisPtr->m_rows; ++r)
 		for (c = 0; c < thisPtr->m_cols; ++c)
 			thisPtr->m_data[r*stride+c] = XsMath_zero;
+#endif
 }
 
 /*! \relates XsMatrix \brief Returns not zero if the matrix contains no values */
@@ -281,17 +336,17 @@ void XsMatrix_fromQuaternion(XsMatrix* thisPtr, const XsQuaternion* quat)
 
 	XsMatrix_assign(thisPtr, 3, 3, 3, 0, 0);
 
-	XsMatrix_setValue(thisPtr, 0, 0, q00 + q11 - q22 - q33);
+	XsMatrix_setValue(thisPtr, 0, 0, (q00 + q11 - q22) - q33);
 	XsMatrix_setValue(thisPtr, 0, 1, (q12 - q03) * XsMath_two);
 	XsMatrix_setValue(thisPtr, 0, 2, (q13 + q02) * XsMath_two);
 
 	XsMatrix_setValue(thisPtr, 1, 0, (q12 + q03) * XsMath_two);
-	XsMatrix_setValue(thisPtr, 1, 1, q00 - q11 + q22 - q33);
+	XsMatrix_setValue(thisPtr, 1, 1, (q00 - q11) + (q22 - q33));
 	XsMatrix_setValue(thisPtr, 1, 2, (q23 - q01) * XsMath_two);
 
 	XsMatrix_setValue(thisPtr, 2, 0, (q13 - q02) * XsMath_two);
 	XsMatrix_setValue(thisPtr, 2, 1, (q23 + q01) * XsMath_two);
-	XsMatrix_setValue(thisPtr, 2, 2, q00 - q11 - q22 + q33);
+	XsMatrix_setValue(thisPtr, 2, 2, ((q00 - q11) - q22) + q33);
 }
 
 /*! \relates XsMatrix \brief Swap the contents of \a a and \a b

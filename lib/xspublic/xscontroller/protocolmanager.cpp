@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -53,8 +85,6 @@ ProtocolManager::ProtocolManager(Communicator const & communicator)
 {
 }
 
-/*! \brief Default destructor
-*/
 ProtocolManager::~ProtocolManager() throw()
 {
 }
@@ -73,33 +103,32 @@ ProtocolManager::const_iterator ProtocolManager::end() const
 	return m_protocolHandlers.end();
 }
 
-/*! \brief Searches for a message in a raw data
-	\param[out] message The reference to a found message
-	\param[in] raw The byte array to search in
+/*! \brief Searches for a raw message in a raw data
+	\param[out] type The protocol type that was used.
+	\param[in] raw The byte array to search in.
 	\returns The found message location
 */
-MessageLocation ProtocolManager::findMessage(XsMessage& message, const XsByteArray& raw)
+MessageLocation ProtocolManager::findMessage(XsProtocolType& type, const XsByteArray& raw)
 {
-	XsMessage bestMessage;
 	MessageLocation bestMessageLocation;
+	XsProtocolType bestProtocolType = XPT_Xbus;
 	container_type::iterator bestHandlerIter = m_protocolHandlers.end();
 
 	for (container_type::iterator i = m_protocolHandlers.begin(); i != m_protocolHandlers.end(); ++i)
 	{
 		assert((*i).operator->() != 0);
 		IProtocolHandler const & handler = **i;
+		XsProtocolType currentProtocolType = static_cast<XsProtocolType>(handler.type());
+		MessageLocation currentMessageLocation = handler.findMessage(type, raw);
 
-		XsMessage currentMessage;
-		MessageLocation currentMessageLocation = handler.findMessage(currentMessage, raw);
-
-		if (currentMessageLocation.isValid() && validateMessage(currentMessage))
+		if (currentMessageLocation.isValid())
 		{
 			// Message is valid
 			if (!bestMessageLocation.isValid() || (currentMessageLocation.m_startPos < bestMessageLocation.m_startPos))
 			{
 				// Message is a better match
 				bestMessageLocation = currentMessageLocation;
-				bestMessage = currentMessage;
+				bestProtocolType = currentProtocolType;
 				bestHandlerIter = i;
 			}
 
@@ -117,7 +146,11 @@ MessageLocation ProtocolManager::findMessage(XsMessage& message, const XsByteArr
 				(!bestMessageLocation.isValid() || bestMessageLocation.m_startPos > currentMessageLocation.m_startPos)) ||
 				(currentMessageLocation.m_incompletePos >= 0 && currentMessageLocation.m_incompleteSize > 0 &&
 				(!bestMessageLocation.isValid() || bestMessageLocation.m_startPos > currentMessageLocation.m_incompletePos)))
+			{
 				bestMessageLocation = currentMessageLocation;
+				bestProtocolType = currentProtocolType;
+			}
+
 		}
 	}
 
@@ -129,10 +162,24 @@ MessageLocation ProtocolManager::findMessage(XsMessage& message, const XsByteArr
 		cont.erase(bestHandlerIter);
 		cont.push_front(bestHandler);
 	}
-	message = bestMessage;
+	type = bestProtocolType;
 	return bestMessageLocation;
 }
 
+/*! \brief Converts \a raw data using \a location into a %XsMessage object.
+	\param[in] type The protocol type to use.
+	\param[out] location The location of a message to convert from \a raw data.
+	\param[in] raw The raw byte stream.
+	\returns A %XsMessage object that was converted from raw byte stream.
+*/
+XsMessage ProtocolManager::convertToMessage(XsProtocolType& type, MessageLocation& location, const XsByteArray& raw)
+{
+	for (auto const& handler : m_protocolHandlers)
+		if (handler->type() == type)
+			return handler->convertToMessage(location, raw);
+
+	return XsMessage();
+}
 
 /*! \brief Removes a protocol handler of a specified type
 	\param[in] type The type of the protocol handler to remove
@@ -182,7 +229,7 @@ ProtocolManager::value_type ProtocolManager::add(IProtocolHandler* handler)
 		if (handler->type() == (*i)->type())
 			return (*i);
 
-	m_protocolHandlers.push_back(value_type(handler));
+	m_protocolHandlers.emplace_back(value_type(handler));
 	value_type inserted = m_protocolHandlers.back();
 	return inserted;
 }

@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -35,19 +67,21 @@
 #include <xscommon/xsens_threadpool.h>
 #include <xstypes/xsdeviceid.h>
 #include <xstypes/xsstring.h>
-#include <xstypes/xsoutputconfigurationlist.h>
+#include <xstypes/xsoutputconfigurationarray.h>
+#include <xstypes/xscanoutputconfigurationarray.h>
 #include <xstypes/xsdeviceidarray.h>
+#include <xstypes/xsintarray.h>
 #include <xstypes/xsportinfo.h>
 #include <xstypes/xssyncsettingarray.h>
 #include "protocolhandler.h"
 #include "communicator.h"
 #include "mtbdatalogger.h"
 #include <xstypes/xsbaud.h>
-#include "xsfilterprofile.h"
+#include <xstypes/xsfilterprofile.h>
 #include "xsselftestresult.h"
 #include <xstypes/xsscrdata.h>
 #include <xstypes/xscalibrateddata.h>
-#include "xsresetmethod.h"
+#include <xstypes/xsresetmethod.h>
 #include <xstypes/xssyncsetting.h>
 #include "nmea_protocolhandler.h"
 #include <xstypes/xsrssi.h>
@@ -56,6 +90,10 @@
 #include "xsdeviceptrarray.h"
 #include <functional>
 #include <xstypes/xsdatapacketptrarray.h>
+#include <xstypes/xsfilterprofilearray.h>
+#include <xstypes/xsstringoutputtypearray.h>
+#include "xsdef.h"
+#include "xsiccrepmotionresult.h"
 
 //! \cond DOXYGEN_SHOULD_SKIP_THIS
 using namespace xsens;
@@ -100,7 +138,7 @@ using namespace XsTime;
 /*!	\brief Construct an empty device with device id \a id
 	\param id The device ID to construct with
 */
-XsDevice::XsDevice(XsDeviceId id)
+XsDevice::XsDevice(XsDeviceId const& id)
 	: m_latestLivePacket(new XsDataPacket)
 	, m_latestBufferedPacket(new XsDataPacket)
 	, m_unavailableDataBoundary(-1)
@@ -108,7 +146,7 @@ XsDevice::XsDevice(XsDeviceId id)
 	, m_state(XDS_Initial)
 	, m_connectivity(XCS_Disconnected)
 	, m_communicator(nullptr)
-	, m_logFileInterface(0)
+	, m_logFileInterface(nullptr)
 	, m_master(this)
 	, m_refCounter(0)
 	, m_writeToFile(false)
@@ -140,7 +178,7 @@ XsDevice::XsDevice(Communicator* comm)
 	, m_state(XDS_Initial)
 	, m_connectivity(XCS_Disconnected)
 	, m_communicator(comm)
-	, m_logFileInterface(0)
+	, m_logFileInterface(nullptr)
 	, m_master(this)
 	, m_refCounter(0)
 	, m_writeToFile(false)
@@ -180,13 +218,16 @@ XsDevice::XsDevice(Communicator* comm)
 	\param childDeviceId The child device ID to construct with
 	\details Communication uses \a masterDevice's channel
 */
-XsDevice::XsDevice(MtContainer *masterDevice, const XsDeviceId &childDeviceId)
+XsDevice::XsDevice(XsDevice *masterDevice, const XsDeviceId &childDeviceId)
 	: m_latestLivePacket(new XsDataPacket)
 	, m_latestBufferedPacket(new XsDataPacket)
 	, m_unavailableDataBoundary(-1)
 	, m_deviceId(childDeviceId)
 	, m_state(XDS_Initial)
-	, m_logFileInterface(0)
+	, m_connectivity(XCS_Unknown)
+	, m_communicator(nullptr)
+	, m_logFileInterface(nullptr)
+	, m_master(masterDevice)
 	, m_refCounter(0)
 	, m_writeToFile(false)
 	, m_isInitialized(false)
@@ -213,10 +254,8 @@ XsDevice::~XsDevice()
 	assert(m_refCounter.load() == 0);
 	assert(m_terminationPrepared);
 
-	try {
-		clearProcessors();
-		clearExternalPacketCaches();
-
+	try
+	{
 		if (m_latestLivePacket)
 		{
 			delete m_latestLivePacket;
@@ -238,6 +277,13 @@ XsDevice::~XsDevice()
 		{
 			removeChainedManager(m_communicator);
 			m_communicator->destroy();
+			m_communicator = nullptr;
+		}
+
+		if (m_logFileInterface)
+		{
+			m_logFileInterface->close();
+			delete m_logFileInterface;
 		}
 
 		JLDEBUGG("object: " << this << " done");
@@ -255,9 +301,8 @@ XsDevice::~XsDevice()
 }
 
 /*! \brief Return the master device of this device
-	\details This function returns the master device of the current device. This may be the device
-	itself
-	\returns The master device of the device
+	\details This function returns the master device of the current device. This may be the device itself
+	\returns The master device of this device
 */
 XsDevice *XsDevice::master() const
 {
@@ -265,6 +310,7 @@ XsDevice *XsDevice::master() const
 }
 
 /*! \cond XS_INTERNAL */
+//! \brief Remove all defined data processing components for this device
 void XsDevice::clearProcessors()
 {
 }
@@ -280,12 +326,11 @@ void XsDevice::prepareForTermination()
 
 		updateDeviceState(XDS_Destructing);
 
-		if (isMasterDevice())
+		if (isMasterDevice() && m_communicator != nullptr && m_communicator->isPortOpen())
 		{
 			if (m_gotoConfigOnClose)
 				gotoConfig();
-			if (m_communicator != nullptr)
-				m_communicator->closePort();
+			m_communicator->closePort();
 		}
 		// finishLastProcessingTask();	// make sure no processing is going on in the background either...
 		m_terminationPrepared = true;
@@ -402,10 +447,24 @@ void XsDevice::updateDeviceState(XsDeviceState newState)
 		}
 
 		m_state = newState;
+		lockG.unlock();
 		locky.unlock();
 		onDeviceStateChanged(this, newState, oldState);
 	}
 }
+
+/*! \brief Returns true when software filtering is enabled for this device */
+bool XsDevice::isSoftwareFilteringEnabled() const
+{
+	return false;
+}
+
+/*! \brief Returns true when software calibration is enabled for this device */
+bool XsDevice::isSoftwareCalibrationEnabled() const
+{
+	return false;
+}
+
 /*! \endcond */
 
 /*! \brief Find the child device with \a deviceid
@@ -413,7 +472,7 @@ void XsDevice::updateDeviceState(XsDeviceState newState)
 	\param deviceid The device ID to search for
 	\returns A pointer to the found %XsDevice or 0 if the device could not be found
 */
-XsDevice *XsDevice::findDevice(XsDeviceId deviceid)
+XsDevice *XsDevice::findDevice(XsDeviceId const& deviceid)
 {
 	if (deviceid == m_deviceId)
 		return this;
@@ -425,7 +484,7 @@ XsDevice *XsDevice::findDevice(XsDeviceId deviceid)
 	\param deviceid The device ID to search for
 	\returns A pointer to the found %XsDevice or 0 if the device could not be found
 */
-XsDevice const *XsDevice::findDeviceConst(XsDeviceId deviceid) const
+XsDevice const *XsDevice::findDeviceConst(XsDeviceId const& deviceid) const
 {
 	return const_cast<XsDevice const*>(const_cast<XsDevice*>(this)->findDevice(deviceid));
 }
@@ -615,9 +674,9 @@ void XsDevice::extractFirmwareVersion(XsMessage const& message)
 	XsVersion old = m_firmwareVersion;
 	m_firmwareVersion = XsVersion(message.getDataByte(0), message.getDataByte(1), message.getDataByte(2));
 	if (message.getDataSize() > 3)
-		m_firmwareVersion.setBuild(message.getDataLong(3));
+		m_firmwareVersion.setBuild((int)(int32_t) message.getDataLong(3));
 	if (message.getDataSize() > 7)
-		m_firmwareVersion.setReposVersion(message.getDataLong(7));
+		m_firmwareVersion.setReposVersion((int)(int32_t) message.getDataLong(7));
 	if (old != m_firmwareVersion)
 #ifdef XSENS_DEBUG
 		JLDEBUGG("Device " << deviceId() << " has firmware version " << m_firmwareVersion.toString());
@@ -627,14 +686,18 @@ void XsDevice::extractFirmwareVersion(XsMessage const& message)
 }
 
 /*! \brief Return the related Communicator */
-Communicator *XsDevice::communicator() const
+Communicator* XsDevice::communicator() const
 {
 	return m_communicator;
 }
 
 /*! \brief Return the related Communicator for logging */
-DataLogger *XsDevice::logFileInterface() const
+DataLogger* XsDevice::logFileInterface(std::unique_ptr<xsens::Lock>& myLock) const
 {
+	if (!myLock)
+		myLock.reset(new xsens::Lock(&m_logFileMutex, true));
+	else if (!myLock->isLocked())
+		myLock->lock();
 	return m_logFileInterface;
 }
 
@@ -651,7 +714,7 @@ void XsDevice::setDeviceId(const XsDeviceId &deviceid)
 	product family it belongs to.
 	\returns The device ID
 */
-XsDeviceId XsDevice::deviceId() const
+XsDeviceId const&  XsDevice::deviceId() const
 {
 	return m_deviceId;
 }
@@ -693,10 +756,9 @@ const XsDevice *XsDevice::deviceAtBusIdConst(int busid) const
 	return const_cast<XsDevice const*>(const_cast<XsDevice*>(this)->deviceAtBusId(busid));
 }
 
-/*! \brief Restart the filter used by this device */
+/*! \brief Restart the software filter used by this device */
 void XsDevice::restartFilter()
 {
-	return;
 }
 
 /*!	\brief Get the result value of the last operation.
@@ -801,7 +863,7 @@ bool XsDevice::setSerialBaudRate(XsBaudRate baudrate)
 	snd.setBusId(XS_BID_MASTER);
 	snd.setDataByte(XsBaud::rateToCode(baudrate));
 
-	if (!doTransaction(snd, 500))
+	if (!doTransaction(snd, 1000))//increased from 500 to 1000, since the One Series timed out very rarely with the old value
 		return false;
 
 	if (comm->portInfo().baudrate() == XBR_Invalid ||
@@ -813,6 +875,37 @@ bool XsDevice::setSerialBaudRate(XsBaudRate baudrate)
 		return reset();
 	else
 		return true;
+}
+
+/*! \brief Get the current port configuration of a device
+	\remarks Only Mti6x0 devices supported
+	\returns The current port configurations of the device
+	\sa setPortConfiguration, XsBaudCode
+*/
+XsIntArray XsDevice::portConfiguration() const
+{
+	return XsIntArray();
+}
+
+/*! \brief Change the port configuration of a device
+	\details Configures the 2 ports of the 6x0 device
+	The integers consist of:
+	- bits 0:7 XsBaudcode
+	- bit 8 Enable flow control
+	- bit 9 Use 2nd stop bit
+	- bit 10 Use Parity bit
+	- bit 11 Even/odd parity
+	- bit 12:15 reserved
+	- bits 16:19 bits XsProtocol
+	\param config An array of elements containing a configuration for each port (UART and RS232)
+	\remarks Only Mti6x0 devices supported
+	\returns true if the port configuration was successfully updated
+	\sa portConfiguration, XsBaudCode
+*/
+bool XsDevice::setPortConfiguration(XsIntArray &config)
+{
+	(void)config;
+	return false;
 }
 
 /*! \cond XS_INTERNAL */
@@ -1034,6 +1127,35 @@ bool XsDevice::setOutputConfiguration(XsOutputConfigurationArray& config)
 	return true;
 }
 
+/*! \brief Set the CAN output configuration for this device
+	\details When the function exits with a true value \a config will contain the actual configuration in the
+	device after configuration. When it exits with false the contents of \a config are undefined.
+
+	\note The \a config is updated to reflect frequency mismatches in desired configuration and actually possible
+	configuration. As input, a frequency of 65535 (0xFFFF) may be supplied to indicate 'maximum output
+	rate', but after configuration XDA will have put the actual maximum value in \a config.
+	Similarly, some data types may not have a real update rate (ie. packet counter) and will return
+	an update rate of 65535 (0xFFFF) when configured at any rate other than 0.
+
+	\param config The desired output configuration
+	\returns true if the output configuration was successfully updated
+*/
+bool XsDevice::setCanOutputConfiguration(XsCanOutputConfigurationArray& config)
+{
+	(void)config;
+	return false;
+}
+
+/*! \brief Set the CAN configuration for this device
+   \param config Should consist of 8 bytes baudcode and 1 bit to enable CAN
+   \returns true if the CAN output configuration was successfully updated
+*/
+bool XsDevice::setCanConfiguration(uint32_t config)
+{
+	(void)config;
+	return false;
+}
+
 /*! \brief Return the full output configuration including post processing outputs
 	\details This function return the list returned by outputConfiguration() and adds outputs
 	that become available during post-processing.
@@ -1084,6 +1206,14 @@ bool XsDevice::setStringOutputMode(uint16_t type, uint16_t period, uint16_t skip
 	m_config.masterInfo().m_samplingPeriod = period;
 
 	return true;
+}
+
+/*! \brief Ask the device for its supported string output types.
+	\returns A list with the supported string output types.
+*/
+XsStringOutputTypeArray XsDevice::supportedStringOutputTypes() const
+{
+	return XsStringOutputTypeArray();
 }
 
 /*! \cond XS_INTERNAL */
@@ -1170,8 +1300,8 @@ bool XsDevice::sendCustomMessage(const XsMessage& messageSend, bool waitForResul
 	if (waitForResult)
 	{
 		if (!timeout)
-			timeout = comm->defaultTimeout();
-		messageReceive = reply->message(timeout);
+			timeout = (int)(int32_t) comm->defaultTimeout();
+		messageReceive = reply->message((uint32_t)(unsigned int)timeout);
 		if (messageReceive.getMessageId() != messageId)
 			return false;
 	}
@@ -1194,8 +1324,8 @@ bool XsDevice::waitForCustomMessage(XsXbusMessageId messageId, XsMessage &messag
 	std::shared_ptr<ReplyObject> reply = comm->addReplyObject(messageId);
 
 	if (!timeout)
-		timeout = comm->defaultTimeout();
-	messageReceive = reply->message(timeout);
+		timeout = (int)(int32_t) comm->defaultTimeout();
+	messageReceive = reply->message((uint32_t)(unsigned int)timeout);
 
 	if (messageReceive.getMessageId() != messageId)
 		return false;
@@ -1212,8 +1342,8 @@ bool XsDevice::waitForCustomMessage(XsXbusMessageId messageId, XsMessage &messag
 bool XsDevice::waitForCustomMessage(std::shared_ptr<ReplyObject> reply, XsMessage &messageReceive, int timeout)
 {
 	if (!timeout && communicator())
-		timeout = communicator()->defaultTimeout();
-	messageReceive = reply->message(timeout);
+		timeout = (int)(int32_t) communicator()->defaultTimeout();
+	messageReceive = reply->message((uint32_t)(unsigned int)timeout);
 
 	if (messageReceive.getMessageId() != reply->msgId())
 		return false;
@@ -1275,8 +1405,12 @@ void XsDevice::handleMessage(const XsMessage &msg)
 		handleMasterIndication(msg);
 		break;
 
+	case XMID_Wakeup:
+		handleWakeupMessage(msg);
+		break;
+
 	default:
-		JLDEBUGG("Handling non-data msg " << msg.getMessageId());
+		JLDEBUGG("Handling non-data msg " << msg.getMessageId() << " bid " << JLHEXLOG((int)msg.getBusId()));
 		handleNonDataMessage(msg);
 		break;
 	}
@@ -1304,6 +1438,14 @@ void XsDevice::handleErrorMessage(const XsMessage &msg)
 void XsDevice::handleWarningMessage(const XsMessage& msg)
 {
 	onNonDataMessage(this, &msg);
+}
+
+/*! \brief Process a wakeup message
+*/
+void XsDevice::handleWakeupMessage(const XsMessage& msg)
+{
+	(void)msg;
+	onWakeupReceived(this);
 }
 
 /*! \brief Inserts the packet ID and data packet into the data cache
@@ -1438,6 +1580,7 @@ void XsDevice::handleDataPacket(const XsDataPacket &packet)
 	JLDEBUGG("stamped: " << current << " new latestlive: " << latestLivePacketConst().packetId());
 #endif
 
+	bool interpolate = false;
 	if (fastest >= 0)
 	{
 		int64_t dpc = current - fastest;
@@ -1456,16 +1599,34 @@ void XsDevice::handleDataPacket(const XsDataPacket &packet)
 				{
 					//JLDEBUGG("not expecting retransmission for packet " << i);
 					handleUnavailableData(i);
+					if (m_options & XSO_InterpolateMissingData)
+						interpolate = true;
 				}
 			}
 		}
 	}
+	else if (isReadingFromFile() && getStartRecordingPacketId() == -1)
+		setStartRecordingPacketId(current);
 
 	if (current >= fastest)
 	{
 		JLTRACEG("Processing (live) packet " << current);
 		std::unique_ptr<XsDataPacket> copy(new XsDataPacket(*pack));
 		processLivePacket(*copy);
+
+		if (interpolate)
+		{
+			// when this returns true, the packet has been processed properly already so we should return
+			if (interpolateMissingData(*copy, latestLivePacketConst(),
+				[this](XsDataPacket* ppp)
+				{
+					handleDataPacket(*ppp);
+					delete ppp;
+				}))
+			{
+				return;
+			}
+		}
 
 		// store result
 		latestLivePacket().swap(*copy);
@@ -1489,7 +1650,7 @@ void XsDevice::handleDataPacket(const XsDataPacket &packet)
 				const XsDataPacket* ppack = &latestLivePacketConst();
 				devs.push_back(this);
 				XsDataPacketPtrArray packs;
-				packs.push_back((XsDataPacket*)ppack);
+				packs.push_back(const_cast<XsDataPacket*>(ppack));
 				onAllLiveDataAvailable(&devs, &packs);
 				if (!isReadingFromFile())
 					onAllDataAvailable(&devs, &packs);
@@ -1524,13 +1685,17 @@ void XsDevice::handleDataPacket(const XsDataPacket &packet)
 */
 bool XsDevice::isMeasuring() const
 {
-	switch (deviceState()) {
+	switch (deviceState())
+	{
 	case XDS_Measurement:
 	case XDS_WaitingForRecordingStart:
 	case XDS_Recording:
 	case XDS_FlushingData:
 		return true;
 
+	case XDS_Initial:
+	case XDS_Config:
+	case XDS_Destructing:
 	default:
 		return false;
 	}
@@ -1547,6 +1712,10 @@ bool XsDevice::isRecording() const
 	case XDS_FlushingData:
 		return true;
 
+	case XDS_Measurement:
+	case XDS_Initial:
+	case XDS_Config:
+	case XDS_Destructing:
 	default:
 		return false;
 	}
@@ -1620,10 +1789,13 @@ bool XsDevice::readDeviceConfiguration()
 				return false;
 			m_config.readFromMessage(rcv);
 
-			rcv = comm->readMessage(XMID_FirmwareRevision);
+			rcv = comm->readMessageFromStartOfFile(XMID_FirmwareRevision, Communicator::configurationMessageSearchLimit() * (busId() == XS_BID_MASTER ? 2 : (1+busId())));
 			if (comm->lastResult() != XRV_OK)
+			{
 				// We cannot determine the firmware version of the master, use the first sensor (fallback)
-				m_firmwareVersion = XsVersion(m_config.deviceInfo(busId()).m_fwRevMajor, m_config.deviceInfo(busId()).m_fwRevMinor, m_config.deviceInfo(busId()).m_fwRevRevision);
+				auto const& tmp = m_config.deviceInfo((XsSize)(ptrdiff_t)busId());
+				m_firmwareVersion = XsVersion(tmp.m_fwRevMajor, tmp.m_fwRevMinor, tmp.m_fwRevRevision);
+			}
 			else
 				extractFirmwareVersion(rcv);
 		}
@@ -1668,7 +1840,7 @@ bool XsDevice::readDeviceConfiguration()
 	{
 		try
 		{
-			const XsMtDeviceConfiguration& devinf = deviceConfiguration().deviceInfo(deviceId());
+			const XsMtDeviceConfiguration& devinf = deviceConfigurationConst().deviceInfo(deviceId());
 			XsVersion old = m_firmwareVersion;
 			m_firmwareVersion = XsVersion(devinf.m_fwRevMajor, devinf.m_fwRevMinor, devinf.m_fwRevRevision);
 #ifndef XSENS_DEBUG
@@ -1685,6 +1857,26 @@ bool XsDevice::readDeviceConfiguration()
 	}
 	return false;
 }
+
+/*! \brief Returns a const reference to the device configuration
+	\details The device configuration contains a summary of the devices connected to the same port.
+	The function will always return the configuration for the port's main device.
+	\returns A copy of the device configuration of the port
+*/
+XsDeviceConfiguration const& XsDevice::deviceConfigurationConst() const
+{
+	return m_config;
+}
+
+/*! \brief Returns a reference to the device configuration
+	\details The device configuration contains a summary of the devices connected to the same port.
+	The function will always return the configuration for the port's main device.
+	\returns A reference to the device configuration of the port
+*/
+XsDeviceConfiguration& XsDevice::deviceConfigurationRef()
+{
+	return const_cast<XsDeviceConfiguration&>(deviceConfigurationConst());
+}
 /*! \endcond */
 
 /*! \brief Returns the device configuration
@@ -1694,17 +1886,7 @@ bool XsDevice::readDeviceConfiguration()
 */
 XsDeviceConfiguration XsDevice::deviceConfiguration() const
 {
-	return m_config;
-}
-
-/*! \brief Returns the device configuration
-	\details The device configuration contains a summary of the devices connected to the same port.
-	The function will always return the configuration for the port's main device.
-	\returns A reference to the device configuration of the port
-*/
-XsDeviceConfiguration& XsDevice::deviceConfiguration()
-{
-	return m_config;
+	return deviceConfigurationConst();
 }
 
 /*! \brief Restore the device to its factory default settings
@@ -1803,7 +1985,9 @@ XsResultValue XsDevice::createLogFile(const XsString &filename)
 		JLALERTG("No port open");
 		return XRV_NOPORTOPEN;
 	}
-	if (logFileInterface())
+
+	std::unique_ptr<xsens::Lock> myLock(new xsens::Lock(&m_logFileMutex, true));
+	if (logFileInterface(myLock))
 	{
 		JLERRORG("A file is already open");
 		return XRV_ALREADYOPEN;
@@ -1892,14 +2076,6 @@ XsMatrix XsDevice::alignmentRotationMatrix(XsAlignmentFrame frame) const
 	return XsMatrix();
 }
 
-/*! \brief Retrieve components information from the device
-	\returns bytes array with [id1][length_1][payload_1]...[id_n][length_n][payload_n]
-*/
-XsByteArray XsDevice::componentsInformation() const
-{
-	return XsByteArray();
-}
-
 /*! \brief Loads a config file(.xsa) and configures the device accordingly
 	\param[in] filename The desired path and filename of the config file
 	\returns Result value indicating success (XRV_OK) or failure
@@ -1914,6 +2090,7 @@ XsResultValue XsDevice::applyConfigFile(const XsString& )
 */
 bool XsDevice::closeLogFile()
 {
+	xsens::Lock myLock(&m_logFileMutex, true);
 	if (m_logFileInterface)
 	{
 		JLDEBUGG(m_logFileInterface);
@@ -2035,8 +2212,10 @@ void XsDevice::checkDataCache()
 		}
 		int64_t packetId = it->first;
 
-		auto missingDataIsUnavailable = [&](int64_t rFirst, int64_t rLast)
+		auto missingDataIsUnavailable = [this](int64_t rFirst, int64_t rLast)
 		{
+			if (m_options & XSO_ExpectNoRetransmissionsInFile)
+				return true;
 			if ((m_stopRecordingPacketId >= 0 && rFirst > m_stopRecordingPacketId) ||
 				(rLast-1 <= m_unavailableDataBoundary))
 			{
@@ -2141,19 +2320,11 @@ void XsDevice::writeMessageToLogFile(const XsMessage &message)
 	if (communicator()->isReadingFromFile())
 		return;
 
-	switch (message.getMessageId())
-	{
-	case XMID_MtData2:
-
-	default:
-		// always write all other messages to log file
-		break;
-	}
-
 	if (!onWriteMessageToLogFile(this, &message))
 		return;
 
-	DataLogger* logInt = logFileInterface();
+	std::unique_ptr<xsens::Lock> myLock;
+	DataLogger* logInt = logFileInterface(myLock);
 	if (!logInt)
 		return;
 
@@ -2392,6 +2563,23 @@ bool XsDevice::setXdaFilterProfile(int profileType)
 	return false;
 }
 
+/*! \brief Sets the filter profile to use for computing orientations on the host PC
+	\details When computing orientation data, there is a choice of filter profiles. This function can
+	be used	to select the appropriate one. By default XDA will attempt to match the software filter profile
+	to the configured hardware filter profile when detecting a new device.
+	\param profileType The filter profile type to use. This can be chosen from the list returned by
+		availableXdaFilterProfiles()
+	\returns true if the filter profile was successfully changed
+	\note When reading from a file, make sure to call resetLogFileReadPosition() and possibly
+	loadLogFile() after changing the filter profile to make sure all cached data is recomputed.
+	\sa availableXdaFilterProfiles \sa xdaFilterProfile \sa setOnboardFilterProfile
+*/
+bool XsDevice::setXdaFilterProfile(XsString const& profileType)
+{
+	(void)profileType;
+	return false;
+}
+
 /*! \brief Gets the filter profile in use by the device for computing orientations
 	\returns The filter profile in use when computing orientations is done on the device
 	\sa setOnboardFilterProfile \sa xdaFilterProfile
@@ -2415,12 +2603,27 @@ bool XsDevice::setOnboardFilterProfile(int profileType)
 	return false;
 }
 
+/*! \brief Sets the filter profile to use for computing orientations on the device
+	\details When computing orientation data, there is a choice of filter profiles. This function can
+	be used to select the appropriate one.
+	\param profileType The filter profile type to use. This can be chosen from the list returned by
+		availableOnboardFilterProfiles()
+	\returns true if the filter profile was successfully changed
+	\sa availableOnboardFilterProfiles \sa onboardFilterProfile \sa setXdaFilterProfile
+*/
+bool XsDevice::setOnboardFilterProfile(XsString const& profileType)
+{
+	(void)profileType;
+	return false;
+}
+
 /*!	\brief Replaces profileCurrent by profileNew in the device
 	\param profileCurrent The profile that should be replaced
 	\param profileNew The new profile
 	\return true if successful, false otherwise
+	\note The default implementation does nothing as this feature requires the full XDA
 */
-bool XsDevice::replaceFilterProfile(const XsFilterProfile& profileCurrent, const XsFilterProfile& profileNew)
+bool XsDevice::replaceFilterProfile(XsFilterProfile const& profileCurrent, XsFilterProfile const& profileNew)
 {
 	(void)profileCurrent;
 	(void)profileNew;
@@ -2431,18 +2634,18 @@ bool XsDevice::replaceFilterProfile(const XsFilterProfile& profileCurrent, const
 	\returns The list of filter profiles available for computing orientations on the device
 	\sa availableXdaFilterProfiles \sa onboardFilterProfile \sa setOnboardFilterProfile
 */
-std::vector<XsFilterProfile> XsDevice::availableOnboardFilterProfiles() const
+XsFilterProfileArray XsDevice::availableOnboardFilterProfiles() const
 {
-	return std::vector<XsFilterProfile>();
+	return XsFilterProfileArray();
 }
 
 /*! \brief Return the list of filter profiles available on the host PC
 	\returns The list of filter profiles available for computing orientations on the host PC
 	\sa availableOnboardFilterProfiles \sa xdaFilterProfile \sa setXdaFilterProfile
 */
-std::vector<XsFilterProfile> XsDevice::availableXdaFilterProfiles() const
+XsFilterProfileArray XsDevice::availableXdaFilterProfiles() const
 {
-	return std::vector<XsFilterProfile>();
+	return XsFilterProfileArray();
 }
 
 /*! \brief Returns the maximum official value of the accelerometers in the device
@@ -2675,23 +2878,25 @@ bool XsDevice::setFixedGravityEnabled(bool enable)
 	return false;
 }
 
-/*! \cond XS_INTERNAL */
-/*! \brief Sets a lever arm vector
+/*! \brief Sets the GNSS Lever Arm vector
+	\details GNSS Lever arm is the length/pos of the antenna w.r.t. the center of the sensor
+			It is a 3-vector: x,y,z
 	\param arm The lever arm vector
 	\returns True if successful
 */
-bool XsDevice::setLeverArm(const XsVector &arm)
+bool XsDevice::setGnssLeverArm(const XsVector& arm)
 {
 	(void)arm;
 	return false;
 }
 
-/*! \returns The lever arm vector. */
-XsVector XsDevice::leverArm() const
+/*! \returns The GNSS Lever Arm vector. */
+XsVector XsDevice::gnssLeverArm() const
 {
 	return XsVector();
 }
 
+/*! \cond XS_INTERNAL */
 /*! \brief Requests UTC time. */
 bool XsDevice::requestUtcTime()
 {
@@ -2766,6 +2971,7 @@ bool XsDevice::usesLegacyDeviceMode() const
 */
 void XsDevice::useLogInterface(DataLogger* logger)
 {
+	xsens::Lock myLock(&m_logFileMutex, true);
 	m_logFileInterface = logger;
 }
 /*! \endcond */
@@ -2814,9 +3020,10 @@ XsString XsDevice::logFileName() const
 {
 	if (!isReadingFromFile())
 	{
-		if (logFileInterface())
+		std::unique_ptr<xsens::Lock> myLock;
+		if (logFileInterface(myLock))
 		{
-			MtbDataLogger const* mtb = dynamic_cast<MtbDataLogger const*>(logFileInterface());
+			MtbDataLogger const* mtb = dynamic_cast<MtbDataLogger const*>(logFileInterface(myLock));
 			if (mtb != nullptr)
 				return mtb->filename();
 		}
@@ -2994,7 +3201,6 @@ bool XsDevice::updateCachedDeviceInformation()
 
 	return initialize();
 }
-///@} end Sensor Data
 
 /*! \cond XS_INTERNAL */
 /*!	\brief Initializes the device using the supplied filter profiles
@@ -3117,6 +3323,22 @@ XsOutputConfigurationArray XsDevice::outputConfiguration() const
 	return XsOutputConfigurationArray();
 }
 
+/*! \brief Returns the currently configured CAN output of the device
+	\returns The can output configuration of the device
+*/
+XsCanOutputConfigurationArray XsDevice::canOutputConfiguration() const
+{
+	return XsCanOutputConfigurationArray();
+}
+
+/*! \brief Returns the currently configured CAN configuration of the device
+   \return The can configuration of the device
+*/
+uint32_t XsDevice::canConfiguration() const
+{
+	return 0;
+}
+
 /*! \brief Enable and disable processing options
 	\details These options are used to specify whether XDA should compute certain kinds of data from
 	available other data and what data-retention policy to use. On a system with limited
@@ -3137,7 +3359,6 @@ void XsDevice::setOptions(XsOption enable, XsOption disable)
 
 	XsOption upd = XsOption_purify((XsOption) ((m_options & ~disable) | enable));
 	static const XsOption mask = XSO_KeepLastLiveData | XSO_RetainLiveData | XSO_RetainBufferedData;
-
 
 	// this has to be done in this order to prevent timing issues
 	bool clr = ((m_options & mask) != (upd & mask));
@@ -3171,6 +3392,14 @@ XsOption XsDevice::getOptions() const
 XsString XsDevice::productCode() const
 {
 	return XsString();
+}
+
+/*! \brief Return the shortened product code of the device suitable for display
+	\returns The short product code of the device
+*/
+XsString XsDevice::shortProductCode() const
+{
+	return productCode();
 }
 
 /*!	\brief Return the hardware version of the device
@@ -3530,11 +3759,11 @@ void XsDevice::addRef()
 */
 XsSize XsDevice::refCounter() const
 {
-	return m_refCounter.load();
+	return (XsSize)(ptrdiff_t) m_refCounter.load();
 }
 
 /*! \brief Decrease this XsDevices reference counter with 1
-	Also decreases the reference count of each child with 1
+	\details Also decreases the reference count of each child with 1
 	- If it is a child device, it will delete itself when the reference count reaches zero.
 	  It will also remove itself from its master's child list and ask the master if it can be deleted
 	- If it is a master device, it will delete itself when the reference count reaches zero and the reference count
@@ -3561,7 +3790,7 @@ void XsDevice::removeRef()
 	\param data The data buffer
 	\param pageNr The page number
 	\param bankNr The bank number
-	\returns True if succesful
+	\returns True if successful
 */
 bool XsDevice::writeEmtsPage(uint8_t const* data, int pageNr, int bankNr)
 {
@@ -3607,6 +3836,11 @@ void XsDevice::onMessageReceived(const XsMessage &msg)
 	onMessageReceivedFromDevice(this, &msg);
 }
 
+void XsDevice::onMessageDetected2(XsProtocolType type, const XsByteArray &rawMessage)
+{
+	CallbackManagerXda::onMessageDetected(this, type, &rawMessage);
+}
+
 void XsDevice::onSessionRestarted()
 {
 }
@@ -3628,12 +3862,14 @@ void XsDevice::onWirelessConnectionLost()
 	updateConnectivityState(XCS_Disconnected);
 }
 
+/*! \return The packet ID of the cached latest Live packet */
 int64_t XsDevice::latestLivePacketId() const
 {
 	LockGuarded locky(&m_deviceMutex);
 	return latestLivePacketConst().packetId();
 }
 
+/*! \return The packet ID of the cached latest Buffered packet */
 int64_t XsDevice::latestBufferedPacketId() const
 {
 	LockGuarded locky(&m_deviceMutex);
@@ -3733,7 +3969,7 @@ bool XsDevice::stealthMode() const
 	\param[in] deviceId The device id to request the supported synchronization settings for
 	\returns the supported synchronization settings for the specified deviceId
 */
-XsSyncSettingArray XsDevice::supportedSyncSettings(XsDeviceId deviceId)
+XsSyncSettingArray XsDevice::supportedSyncSettings(XsDeviceId const& deviceId)
 {
 	XsSyncSettingArray settings = Synchronization::supportedSyncSettings(deviceId);
 	XsSyncSettingArray result;
@@ -3747,7 +3983,7 @@ XsSyncSettingArray XsDevice::supportedSyncSettings(XsDeviceId deviceId)
 	\param[in] deviceId The device id to check
 	\returns true when the device specified by \a deviceId supports sync settings
 */
-bool XsDevice::supportsSyncSettings(XsDeviceId deviceId)
+bool XsDevice::supportsSyncSettings(XsDeviceId const& deviceId)
 {
 	return Synchronization::supportsSyncSettings(deviceId);
 }
@@ -3758,7 +3994,7 @@ bool XsDevice::supportsSyncSettings(XsDeviceId deviceId)
 	\param[in] setting2 Setting 2
 	\returns true when \a setting1 is compatible with \a setting2 for deviceId \a deviceId
 */
-bool XsDevice::isCompatibleSyncSetting(XsDeviceId deviceId, XsSyncSetting const & setting1, XsSyncSetting const & setting2)
+bool XsDevice::isCompatibleSyncSetting(XsDeviceId const& deviceId, XsSyncSetting const & setting1, XsSyncSetting const & setting2)
 {
 	return Synchronization::isCompatibleSyncSetting(deviceId, setting1, setting2);
 }
@@ -3767,7 +4003,7 @@ bool XsDevice::isCompatibleSyncSetting(XsDeviceId deviceId, XsSyncSetting const 
 	For example if the precision is 1 millisecond, 1000 is returned
 	\param[in] deviceId The deviceId
 */
-unsigned int XsDevice::syncSettingsTimeResolutionInMicroSeconds(XsDeviceId deviceId)
+unsigned int XsDevice::syncSettingsTimeResolutionInMicroSeconds(XsDeviceId const& deviceId)
 {
 	return Synchronization::timeResolutionInMicroseconds(deviceId);
 }
@@ -3863,10 +4099,7 @@ void XsDevice::retainPacket(XsDataPacket const& pack)
 	if (!m_linearPacketCache.empty() && m_linearPacketCache.back()->packetId() == pack.packetId())
 		m_linearPacketCache.back()->merge(pack, true);
 	else
-	{
-		XsDataPacket* tmp = new XsDataPacket(pack);
-		m_linearPacketCache.push_back(tmp);
-	}
+		m_linearPacketCache.push_back(new XsDataPacket(pack));
 }
 
 /*! \brief Return whether a device reset will remove the COM port connection
@@ -4034,7 +4267,8 @@ bool XsDevice::setDeviceBufferSize(uint32_t frames)
 */
 void XsDevice::waitForAllDevicesInitialized()
 {
-	while (!isInitialized());
+	while (!isInitialized())
+		XsTime::msleep(0);
 }
 
 /*! \brief Returns true if the file operation started by loadLogFile is still in progress
@@ -4191,6 +4425,7 @@ bool XsDevice::setGnssPlatform(XsGnssPlatform gnssPlatform)
 }
 
 /*! \cond XS_INTERNAL */
+//! \brief Reinitialize all defined data processing components for this device
 void XsDevice::reinitializeProcessors()
 {
 	// intentionally empty, private implementation
@@ -4228,6 +4463,21 @@ XsDevice const* XsDevice::firstChild() const
 {
 	return this;
 }
+
+/*! \brief Tell XDA to interpolate missing items from \a prev to \a pack
+	\param pack The latest received packet
+	\param prev The previously received packet
+	\param packetHandler The function to call with all newly created intermediate and the final packet. packetHandler is expected to take control of its argument.
+	\return true if interpolation was successful, false if it was not
+	\note The default implementation does nothing
+*/
+bool XsDevice::interpolateMissingData(XsDataPacket const & pack, XsDataPacket const & prev, std::function<void (XsDataPacket*)> packetHandler)
+{
+	(void) pack;
+	(void) prev;
+	(void) packetHandler;
+	return false;
+}
 /*! \endcond */
 
 /*! \brief Tell XDA and the device that any data from before \a firstNewPacketId may be lossy
@@ -4240,4 +4490,27 @@ XsDevice const* XsDevice::firstChild() const
 void XsDevice::discardRetransmissions(int64_t firstNewPacketId)
 {
 	(void) firstNewPacketId;
+}
+
+/*! \brief Returns a bitmask with all the status flags supported by this device
+	\details Not all devices support all status flags. When receiving an XsDataPacket with a status in it,
+	this can affect how to interpret the flags. Especially with a flag like the self-test it's important
+	not to conclude that a device is defective because it is not set when the device doesn't actually support
+	this feature.
+	\return The bitmask with all the status flags that this device supports
+*/
+uint32_t XsDevice::supportedStatusFlags() const
+{
+	// The basic device supports nothing
+	return (uint32_t) 0;
+}
+
+/*! \brief Update the connection information, this is only useful for devices communicating over a dynamic link such as a TCP/IP connection
+	\param newInfo The new port information to use in the next (re)connect attempts
+	\return Whether the operation succeeded or not
+*/
+XsResultValue XsDevice::updatePortInfo(XsPortInfo const& newInfo)
+{
+	(void) newInfo;
+	return XRV_NOTIMPLEMENTED;
 }
