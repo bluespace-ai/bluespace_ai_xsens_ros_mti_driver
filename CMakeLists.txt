@@ -21,14 +21,6 @@ find_package(sensor_msgs REQUIRED)
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-#include_directories(
-## include
-#  lib/xspublic
-#  ${catkin_INCLUDE_DIRS}
-#)
-
 link_directories(lib/xspublic/xscontroller lib/xspublic/xscommon lib/xspublic/xstypes)
 add_executable(
 	xsens_mti_node
@@ -57,7 +49,6 @@ target_link_libraries(
 	xstypes
 	pthread
 	dl
-#	${catkin_LIBRARIES}
 )
 
 install(TARGETS xsens_mti_node
