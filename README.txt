@@ -113,6 +113,7 @@ Notes:
         plugin, purge the modemmanager application.
 
     - RViz doesn't show an MTi model.
+
         It is a known issue with urdfdom in ROS Melodic. A workaround is to unset/modify the LC_NUMERIC environment variable:
 
         $ LC_NUMERIC="en_US.UTF-8"

@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,6 +101,7 @@ public:
 		m_onInfoResponse = sonInfoResponse;
 		m_onError = sonError;
 		m_onNonDataMessage = sonNonDataMessage;
+		m_onMessageDetected = sonMessageDetected;
 		m_onMessageReceivedFromDevice = sonMessageReceivedFromDevice;
 		m_onMessageSentToDevice = sonMessageSentToDevice;
 		m_onAllLiveDataAvailable = sonAllLiveDataAvailable;
@@ -126,6 +159,9 @@ protected:
 	//! \copydoc m_onNonDataMessage
 	virtual void onNonDataMessage(XsDevice* dev, XsMessage const * message)
 	{ (void) dev; (void) message; m_onNonDataMessage = 0; }
+	//! \copydoc m_onMessageDetected
+	virtual void onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const * rawMessage)
+	{ (void)dev; (void)type;  (void)rawMessage; m_onMessageDetected = 0; }
 	//! \copydoc m_onMessageReceivedFromDevice
 	virtual void onMessageReceivedFromDevice(XsDevice* dev, XsMessage const * message)
 	{ (void) dev; (void) message; m_onMessageReceivedFromDevice = 0; }
@@ -175,6 +211,7 @@ private:
 	static void sonInfoResponse(XsCallbackPlainC* cb, XsDevice* dev, XsInfoRequest request) { ((XsCallback*)cb)->onInfoResponse(dev, request); }
 	static void sonError(XsCallbackPlainC* cb, XsDevice* dev, XsResultValue error) { ((XsCallback*)cb)->onError(dev, error); }
 	static void sonNonDataMessage(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const * message) { ((XsCallback*)cb)->onNonDataMessage(dev, message); }
+	static void sonMessageDetected(XsCallbackPlainC* cb, XsDevice* dev, XsProtocolType type, XsByteArray const * rawMessage) { ((XsCallback*)cb)->onMessageDetected(dev, type, rawMessage); }
 	static void sonMessageReceivedFromDevice(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const * message) { ((XsCallback*)cb)->onMessageReceivedFromDevice(dev, message); }
 	static void sonMessageSentToDevice(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const * message) { ((XsCallback*)cb)->onMessageSentToDevice(dev, message); }
 	static void sonAllLiveDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets) { ((XsCallback*)cb)->onAllLiveDataAvailable(devs, packets); }

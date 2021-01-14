@@ -26,7 +26,7 @@ def generate_launch_description():
     ld.add_action(driver_launch)
 
     # Robot State Publisher node
-    urdf_file_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'urdf', 'MTI_10.urdf')
+    urdf_file_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'urdf', 'MTi_6xx.urdf')
     state_publisher_node = Node(
         package='robot_state_publisher',
         node_executable='robot_state_publisher',

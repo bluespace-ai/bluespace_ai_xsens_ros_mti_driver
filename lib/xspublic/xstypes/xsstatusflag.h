@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -75,9 +107,10 @@ enum XsStatusFlag
 	,XSF_SyncIn						= 0x00200000	//!< When set indicates a sync-in event has been triggered
 	,XSF_SyncOut					= 0x00400000	//!< When set Indicates a sync-out event has been generated
 
-
 	,XSF_FilterMode					= 0x03800000	//!< Mask for the 3 bit filter mode field
 	,XSF_HaveGnssTimePulse			= 0x04000000	//!< Indicates that the 1PPS GNSS time pulse is present
+
+	,XSF_RtkStatus					= 0x18000000	//!< Mask for 2 bit RTK status field 00: No RTK; 01: RTK floating; 10: RTK fixed
 };
 
 /*! \brief Status flag bit offsets
@@ -92,6 +125,9 @@ enum XsStatusFlagOffset {
 	,XSFO_OffsetGpsValid			= 2
 	,XSFO_OffsetNoRotation			= 3
 
+	,XSFO_OffsetRepresentativeMotion	= 5
+	,XSFO_OffsetExternalClockSynced	= 6
+
 	,XSFO_OffsetClipAccX			= 8
 	,XSFO_OffsetClipAccY			= 9
 	,XSFO_OffsetClipAccZ			= 10
@@ -102,13 +138,18 @@ enum XsStatusFlagOffset {
 	,XSFO_OffsetClipMagY			= 15
 	,XSFO_OffsetClipMagZ			= 16
 
-	,XSFO_Retransmitted				= 19
+	,XSFO_Retransmitted				= 18
+	,XSFO_ClippingDetected			= 19
 	,XSFO_Interpolated				= 20
 	,XSFO_SyncIn					= 21
 	,XSFO_SyncOut					= 22
 
 	,XSFO_FilterMode				= 23	// bits 23 -> 23 + XSFO_FilterModeNrOfBits - 1
 	,XSFO_FilterModeNrOfBits		= 3		// note: bit 26 is reserved for future use
+
+	,XSFO_HaveGnssTimePulse			= 26
+	,XSFO_RtkStatus					= 27
+	,XSFO_RtkStatusNrOfBits			= 2
 };
 
 /*! @} */

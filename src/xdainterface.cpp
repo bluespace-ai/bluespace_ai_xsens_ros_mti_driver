@@ -1,24 +1,33 @@
 
-//  ==> COPYRIGHT (C) 2019 XSENS TECHNOLOGIES OR SUBSIDIARIES WORLDWIDE <==
-//  WARNING: COPYRIGHT (C) 2019 XSENS TECHNOLOGIES OR SUBSIDIARIES WORLDWIDE. ALL RIGHTS RESERVED.
-//  THIS FILE AND THE SOURCE CODE IT CONTAINS (AND/OR THE BINARY CODE FILES FOUND IN THE SAME
-//  FOLDER THAT CONTAINS THIS FILE) AND ALL RELATED SOFTWARE (COLLECTIVELY, "CODE") ARE SUBJECT
-//  TO AN END USER LICENSE AGREEMENT ("AGREEMENT") BETWEEN XSENS AS LICENSOR AND THE AUTHORIZED
-//  LICENSEE UNDER THE AGREEMENT. THE CODE MUST BE USED SOLELY WITH XSENS PRODUCTS INCORPORATED
-//  INTO LICENSEE PRODUCTS IN ACCORDANCE WITH THE AGREEMENT. ANY USE, MODIFICATION, COPYING OR
-//  DISTRIBUTION OF THE CODE IS STRICTLY PROHIBITED UNLESS EXPRESSLY AUTHORIZED BY THE AGREEMENT.
-//  IF YOU ARE NOT AN AUTHORIZED USER OF THE CODE IN ACCORDANCE WITH THE AGREEMENT, YOU MUST STOP
-//  USING OR VIEWING THE CODE NOW, REMOVE ANY COPIES OF THE CODE FROM YOUR COMPUTER AND NOTIFY
-//  XSENS IMMEDIATELY BY EMAIL TO INFO@XSENS.COM. ANY COPIES OR DERIVATIVES OF THE CODE (IN WHOLE
-//  OR IN PART) IN SOURCE CODE FORM THAT ARE PERMITTED BY THE AGREEMENT MUST RETAIN THE ABOVE
-//  COPYRIGHT NOTICE AND THIS PARAGRAPH IN ITS ENTIRETY, AS REQUIRED BY THE AGREEMENT.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
 //  
-//  THIS SOFTWARE CAN CONTAIN OPEN SOURCE COMPONENTS WHICH CAN BE SUBJECT TO 
-//  THE FOLLOWING GENERAL PUBLIC LICENSES:
-//  ==> Qt GNU LGPL version 3: http://doc.qt.io/qt-5/lgpl.html <==
-//  ==> LAPACK BSD License:  http://www.netlib.org/lapack/LICENSE.txt <==
-//  ==> StackWalker 3-Clause BSD License: https://github.com/JochenKalmbach/StackWalker/blob/master/LICENSE <==
-//  ==> Icon Creative Commons 3.0: https://creativecommons.org/licenses/by/3.0/legalcode <==
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
 //  
 
 #include "xdainterface.h"
@@ -42,6 +51,8 @@
 #include "messagepublishers/transformpublisher.h"
 #include "messagepublishers/twistpublisher.h"
 #include "messagepublishers/velocityincrementpublisher.h"
+#include "messagepublishers/positionllapublisher.h"
+#include "messagepublishers/velocitypublisher.h"
 
 // #define XS_DEFAULT_BAUDRATE (115200)
 
@@ -58,6 +69,7 @@ XdaInterface::XdaInterface(const std::string &node_name, const rclcpp::NodeOptio
 
 XdaInterface::~XdaInterface()
 {
+	RCLCPP_INFO(get_logger(), "Cleaning up ...");
 	close();
 	m_control->destruct();
 }
@@ -136,54 +148,86 @@ void XdaInterface::registerPublishers()
 	{
 		registerCallback(new TransformPublisher(node));
 	}
+	if (get_parameter("pub_positionLLA", should_publish) && should_publish)
+	{
+		registerCallback(new PositionLLAPublisher(node));
+	}
+	if (get_parameter("pub_velocity", should_publish) && should_publish)
+	{
+		registerCallback(new VelocityPublisher(node));
+	}
 }
 
 bool XdaInterface::connectDevice()
 {
+	// Read baudrate parameter if set
+	XsBaudRate baudrate = XBR_Invalid;
+	if (has_parameter("baudrate"))
+	{
+		int baudrateParam = 0;
+		get_parameter("baudrate", baudrateParam);
+		RCLCPP_INFO(get_logger(), "Found baudrate parameter: %d", baudrateParam);
+		baudrate = XsBaud::numericToRate(baudrateParam);
+	}
+	// Read device ID parameter
+	bool checkDeviceID = false;
+	std::string deviceId;
+	if (has_parameter("device_id"))
+	{
+		get_parameter("device_id", deviceId);
+		checkDeviceID = true;
+		RCLCPP_INFO(get_logger(), "Found device ID parameter: %s.",deviceId.c_str());
+
+	}
+	// Read port parameter if set
 	XsPortInfo mtPort;
 
 	// TODO: Port this for allow_undeclared_parameters
 	if (has_parameter("port"))
 	{
-		std::string port_name;
-		int baudrate = XS_DEFAULT_BAUDRATE;
-
-		get_parameter("port", port_name);
-		get_parameter("baudrate", baudrate);
-
-		mtPort = XsPortInfo(port_name, XsBaud_numericToRate(baudrate));
+		std::string portName;
+		get_parameter("port", portName);
+		RCLCPP_INFO(get_logger(), "Found port name parameter: %s", portName.c_str());
+		mtPort = XsPortInfo(portName, baudrate);
+		RCLCPP_INFO(get_logger(), "Scanning port %s ...", portName.c_str());
+		if (!XsScanner::scanPort(mtPort, baudrate))
+			return handleError("No MTi device found. Verify port and baudrate.");
+		if (checkDeviceID && mtPort.deviceId().toString().c_str() != deviceId)
+			return handleError("No MTi device found with matching device ID.");
 	}
 	else
 	{
 		RCLCPP_INFO(get_logger(), "Scanning for devices...");
-		XsPortInfoArray portInfoArray = XsScanner::scanPorts();
-		RCLCPP_INFO(get_logger(), "%d profile found ... ", portInfoArray.size());
+		XsPortInfoArray portInfoArray = XsScanner::scanPorts(baudrate);
 
 		for (auto const &portInfo : portInfoArray)
 		{
 			if (portInfo.deviceId().isMti() || portInfo.deviceId().isMtig())
 			{
-				mtPort = portInfo;
-				break;
+				if (checkDeviceID)
+				{
+					if (portInfo.deviceId().toString().c_str() == deviceId)
+					{
+						mtPort = portInfo;
+						break;
+					}
+				}
+				else
+				{
+					mtPort = portInfo;
+					break;
+				}
 			}
 		}
 	}
 
 	if (mtPort.empty())
-		return handleError("No MTi device found");
+		return handleError("No MTi device found.");
 
-	// TODO: Port for allow_undeclared_parameters 
-	std::string deviceId;
-	if (get_parameter("device_id", deviceId))
-	{
-		if (mtPort.deviceId().toString().c_str() != deviceId)
-			return handleError(std::string("Device with ID: %s not found") + deviceId);
-	}
+	RCLCPP_INFO(get_logger(), "Found a device with ID: %s @ port: %s, baudrate: %d", mtPort.deviceId().toString().toStdString().c_str(), mtPort.portName().toStdString().c_str(), XsBaud::rateToNumeric(mtPort.baudrate()));
 
-	RCLCPP_INFO(get_logger(), "Found a device with ID: %s @ port: %s, baudrate: %d", mtPort.deviceId().toString().toStdString().c_str(), mtPort.portName().toStdString().c_str(), mtPort.baudrate());
-
-	RCLCPP_INFO(get_logger(), "Opening port...");
-	if (!m_control->openPort(mtPort.portName().toStdString(), mtPort.baudrate()))
+	RCLCPP_INFO(get_logger(), "Opening port %s ...", mtPort.portName().toStdString().c_str());
+	if (!m_control->openPort(mtPort))
 		return handleError("Could not open port");
 
 	m_device = m_control->device(mtPort.deviceId());
@@ -207,18 +251,20 @@ bool XdaInterface::prepare()
 	if (!m_device->readEmtsAndDeviceConfiguration())
 		return handleError("Could not read device configuration");
 
+	RCLCPP_INFO(get_logger(), "Measuring ...");
 	if (!m_device->gotoMeasurement())
 		return handleError("Could not put device into measurement mode");
 
 	// TODO: Port this for allow_undeclared_parameters
-	std::string log_file;
-	if (get_parameter("log_file", log_file))
+	std::string logFile;
+	if (get_parameter("log_file", logFile))
 	{
-		if (m_device->createLogFile(log_file) != XRV_OK)
-			return handleError(std::string("Failed to create a log file! (%s)") + log_file);
+		if (m_device->createLogFile(logFile) != XRV_OK)
+			return handleError("Failed to create a log file! (" + logFile + ")");
 		else
-			RCLCPP_INFO(get_logger(), "Created a log file: %s", log_file.c_str());
+			RCLCPP_INFO(get_logger(), "Created a log file: %s", logFile.c_str());
 
+		RCLCPP_INFO(get_logger(), "Recording to %s ...", logFile.c_str());
 		if (!m_device->startRecording())
 			return handleError("Could not start recording");
 	}
@@ -272,4 +318,6 @@ void XdaInterface::declareCommonParameters()
 	declare_parameter("pub_twist", should_publish);
 	declare_parameter("pub_free_acceleration", should_publish);
 	declare_parameter("pub_transform", should_publish);
+	declare_parameter("pub_positionLLA", should_publish);
+	declare_parameter("pub_velocity", should_publish);
 }

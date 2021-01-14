@@ -2,8 +2,8 @@ TARGET=libxscommon.a
 CPP_FILES := $(wildcard *.cpp)
 C_FILES := $(wildcard *.c)
 OBJECTS := $(CPP_FILES:.cpp=.cpp.o) $(C_FILES:.c=.c.o)
-CFLAGS+= -I../ -include config.h -include xstypes/xsens_compat.h
-CXXFLAGS+= -std=c++11 -I../ -include config.h -include xstypes/xsens_compat.h
+CFLAGS+= -fPIC -I../ -include xscommon_config.h -include xstypes/xsens_compat.h
+CXXFLAGS+= -std=c++11 -I../ -include xscommon_config.h -include xstypes/xsens_compat.h
 
 all: $(TARGET)
 

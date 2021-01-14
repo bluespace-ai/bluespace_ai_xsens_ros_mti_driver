@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -56,12 +88,15 @@
 #include <xscommon/xsens_janitors.h>
 #include <xstypes/xsbusid.h>
 #include <xstypes/xsportinfo.h>
-#include <xstypes/xsintlist.h>
+#include <xstypes/xsintarray.h>
+#include <xstypes/xsstringarray.h>
 #include "enumerateusbdevices.h"
+#include <xscommon/journaller.h>
 
 namespace XsScannerNamespace {
 	volatile std::atomic_bool abortPortScan{false};
 	Scanner* gScanner = nullptr;
+	XsScanLogCallbackFunc gScanLogCallback = nullptr;
 }
 using namespace XsScannerNamespace;
 
@@ -74,15 +109,28 @@ using namespace XsScannerNamespace;
 Scanner& Scanner::Accessor::scanner() const
 {
 	if (!gScanner)
-	{
 		gScanner = new Scanner();
-	}
 	return *gScanner;
 }
 
 /*!	\class Scanner
 	\brief Provides static functionality for scanning for Xsens devices.
 */
+
+/*! \brief Destructor */
+Scanner::~Scanner()
+{
+}
+
+/*!	\brief Set a callback function for scan log progress and problem reporting
+	\details When set, any scan will use the provided callback function to report progress and failures.
+	Normal operation is not affected, so all return values for the scan functions remain valid.
+	\param cb The callback function to use. When set to NULL, no callbacks will be generated.
+*/
+void Scanner::setScanLogCallback(XsScanLogCallbackFunc cb)
+{
+	gScanLogCallback = cb;
+}
 
 /*!	\brief Fetch basic device information
 
@@ -100,28 +148,41 @@ XsResultValue Scanner::fetchBasicInfo(XsPortInfo &portInfo, uint32_t singleScanT
 	SerialPortCommunicator *port = (portInfo.isUsb() ? usb.get() : serial.get());
 
 	port->setGotoConfigTimeout(singleScanTimeout);
+	LOGXSSCAN("Opening port " << portInfo.portName() << " (" << portInfo.portNumber() << ") @ " << portInfo.baudrate() << " baud, expected device " << portInfo.deviceId());
 	if (!port->openPort(portInfo, OPS_OpenPort))
+	{
+		LOGXSSCAN("Failed to open port because: " << XsResultValue_toString(port->lastResult()));
 		return port->lastResult();
+	}
 
 	if (!port->openPort(portInfo, OPS_InitStart, detectRs485))
 	{
+		LOGXSSCAN("Failed to initialize port because: " << XsResultValue_toString(port->lastResult()));
 		if (port->lastResult() < XRV_ERROR)
 		{
+			LOGXSSCAN("Attempting to reset device");
 			// we got an xbus protocol error message, attempt to reset the device and try again (once)
 			XsMessage snd(XMID_Reset);
 			snd.setBusId(XS_BID_MASTER);
 			if (!port->writeMessage(snd))
+			{
+				LOGXSSCAN("Failed to wriite reset to device because: " << XsResultValue_toString(port->lastResult()));
 				return port->lastResult();
+			}
+			LOGXSSCAN("Reopening port after reset");
 			port->closePort();
 			XsTime::msleep(2000);
 			if (!port->openPort(portInfo, OPS_Full, detectRs485))
+			{
+				LOGXSSCAN("Failed to reopen port after reset because: " << XsResultValue_toString(port->lastResult()));
 				return port->lastResult();
+			}
 		}
 		else
 			return port->lastResult();
 	}
 
-	JLDEBUGG("Communicator::openPort returns OK");
+	LOGXSSCAN("Port " << portInfo.portName() << " opened successfully, device is " << port->masterDeviceId());
 	portInfo.setDeviceId(port->masterDeviceId());
 
 	// Enable flow control for Awinda2 stations/dongles which support this:
@@ -137,6 +198,7 @@ XsResultValue Scanner::fetchBasicInfo(XsPortInfo &portInfo, uint32_t singleScanT
 			portLinesOptions = (XsPortLinesOptions)(portLinesOptions | XPLO_RtsCtsFlowControl);
 		else
 			portLinesOptions = (XsPortLinesOptions)(portLinesOptions & ~XPLO_RtsCtsFlowControl);
+		LOGXSSCAN("Setting flow control options for Awinda device to " << JLHEXLOG(portLinesOptions));
 		portInfo.setLinesOptions(portLinesOptions);
 	}
 
@@ -160,7 +222,7 @@ XsResultValue Scanner::fetchBasicInfo(XsPortInfo &portInfo, uint32_t singleScanT
 */
 bool Scanner::xsScanPort(XsPortInfo& portInfo, XsBaudRate baud, uint32_t singleScanTimeout, bool detectRs485)
 {
-	JLDEBUGG("Scanning port " << portInfo.portName().toStdString() << " at baudrate " << baud << " with timeout " << singleScanTimeout);
+	LOGXSSCAN("Scanning port " << portInfo.portName() << " at baudrate " << baud << " with timeout " << singleScanTimeout << " detectRs485 " << detectRs485);
 	XsResultValue res;
 	XsBaudRate baudrate;
 
@@ -175,7 +237,7 @@ bool Scanner::xsScanPort(XsPortInfo& portInfo, XsBaudRate baud, uint32_t singleS
 		res = fetchBasicInfo(portInfo, singleScanTimeout, detectRs485);
 		if (res == XRV_OK)
 		{
-			JLDEBUGG("Scan successfully found device " << DIDLOG(portInfo.deviceId().toInt()));
+			LOGXSSCAN("Scan successfully found device " << portInfo.deviceId() << " on port " << portInfo.portName());
 			portInfo.setBaudrate(baudrate);
 			return true;
 		}
@@ -183,14 +245,17 @@ bool Scanner::xsScanPort(XsPortInfo& portInfo, XsBaudRate baud, uint32_t singleS
 		// failed, determine if we need to scan other baudrates or not
 		if (res != XRV_TIMEOUT && res != XRV_TIMEOUTNODATA && res != XRV_CONFIGCHECKFAIL)
 		{
-			JLDEBUGG("fetchBasicInfo returns ERROR " << res << ", aborting");
+			LOGXSSCAN("Failed to fetch basic info: " << XsResultValue_toString(res));
 			return false;
 		}
-		JLDEBUGG("fetchBasicInfo returns TIMEOUT, check next baudrate or abort");
+		LOGXSSCAN("Failed to fetch basic info within timeout");
 
 		// not detected, try next baudrate
 		if (baud != 0)
+		{
+			LOGXSSCAN("Failed to find device");
 			return false;
+		}
 		switch(baudrate)
 		{
 		default:
@@ -213,9 +278,12 @@ bool Scanner::xsScanPort(XsPortInfo& portInfo, XsBaudRate baud, uint32_t singleS
 		case XBR_19k2:
 			baudrate = XBR_9600; break;
 		case XBR_9600:
+			LOGXSSCAN("No more available baudrates, failed to find device");
 			return false;	// could not detect Xsens device, return false
 		}
+		LOGXSSCAN("Checking next baudrate: " << baudrate);
 	}
+	LOGXSSCAN("Port scan aborted by external trigger");
 	return false;
 }
 
@@ -268,7 +336,10 @@ bool Scanner::xsFilterResponsiveDevices(XsPortInfoArray& ports, XsBaudRate baudr
 		if (ports[p].isNetwork() || xsScanPort(ports[p], baudrate, singleScanTimeout, detectRs485))
 			++p;
 		else
+		{
+			LOGXSSCAN("Port : " << ports[p].portName() << " is not responsive, discarding");
 			ports.erase(ports.begin() + p);
+		}
 	}
 
 	if (abortPortScan)
@@ -325,6 +396,7 @@ bool Scanner::isXsensUsbDevice(uint16_t vid, uint16_t pid)
 */
 bool Scanner::xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsensDevices)
 {
+	LOGXSSCAN("Enumerating USB devices");
 	XsPortInfo current;
 
 #ifdef _WIN32
@@ -336,7 +408,10 @@ bool Scanner::xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsens
 	hDevInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, 0, 0, DIGCF_PRESENT | DIGCF_PROFILE | DIGCF_ALLCLASSES);
 
 	if (hDevInfo == INVALID_HANDLE_VALUE)
+	{
+		LOGXSSCAN("Failed to get any USB device information, check permissions");
 		return false;
+	}
 
 	// Enumerate through all devices in Set.
 	DeviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
@@ -347,11 +422,7 @@ bool Scanner::xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsens
 		if (hDeviceKey == INVALID_HANDLE_VALUE)
 			continue;
 
-		auto devkeycleaner = [](HKEY *key)
-		{
-			RegCloseKey(*key);
-		};
-		std::unique_ptr<HKEY, decltype(devkeycleaner)> devkey(&hDeviceKey, devkeycleaner);
+		xsens::JanitorFuncStdCall<HKEY, LSTATUS> devkeyCleaner(&RegCloseKey, hDeviceKey, true);
 
 		// Read in the name of the port
 		char pszPortName[256];
@@ -372,10 +443,14 @@ bool Scanner::xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsens
 		uint16_t vid = vidFromString(devpath);
 		uint16_t pid = pidFromString(devpath);
 
+		LOGXSSCAN("Found USB device " << devpath);
 		if (ignoreNonXsensDevices)
 		{
 			if (!isXsensUsbDevice(vid, pid))
+			{
+				LOGXSSCAN("Ignoring non-Xsens device " << devpath);
 				continue;
+			}
 		}
 
 		current.setPortName(pszPortName);
@@ -436,10 +511,15 @@ bool Scanner::xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsens
 				}
 			}
 
+			LOGXSSCAN("Found USB device " << path);
+
 			if (ignoreNonXsensDevices)
 			{
 				if (!isXsensUsbDevice(vid, pid))
+				{
+					LOGXSSCAN("Ignoring non-Xsens device " << path);
 					continue;
+				}
 			}
 
 			XsPortInfo portInfo;
@@ -477,13 +557,16 @@ bool Scanner::xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsens
 			return false;
 
 		while ((entry = readdir(dir)))
+		{
 			if (strncmp("ttyUSB", entry->d_name, 6) == 0)
 			{
 				char name[261];
 				sprintf(name, "/dev/%s", entry->d_name);
 				current.setPortName(name);
 				ports.push_back(current);
+				LOGXSSCAN("Found USB device " << name);
 			}
+		}
 		closedir(dir);
 	}
 #endif // _WIN32
@@ -494,7 +577,7 @@ bool Scanner::xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsens
 	\param ports The port info array
 	\returns false
 */
-bool Scanner::xsEnumerateNetworkDevice(XsPortInfoArray & ports)
+bool Scanner::xsEnumerateNetworkDevices(XsPortInfoArray & ports)
 {
 	(void)ports;
 	return false;
@@ -527,7 +610,7 @@ int Scanner::xsScanGetHubNumber(HDEVINFO hDevInfo, SP_DEVINFO_DATA *deviceInfoDa
 			256,
 			NULL))
 	{
-		JLDEBUGG("Registry access successful: \"" << std::string(buffer) << "\"");
+		LOGXSSCAN("Registry access successful: \"" << buffer << "\"");
 		char const * hubString = strstr((char const *)buffer, HUB_SEARCH_STRING);
 		if (hubString)
 		{
@@ -535,9 +618,7 @@ int Scanner::xsScanGetHubNumber(HDEVINFO hDevInfo, SP_DEVINFO_DATA *deviceInfoDa
 		}
 	}
 	else
-	{
-		JLDEBUGG("Failed with error " << GetLastError());
-	}
+		LOGXSSCAN("Get Hub Number failed with error " << GetLastError());
 
 	return result;
 }
@@ -552,6 +633,8 @@ XsPortInfo Scanner::xsScanPortByHubId(const char* id)
 	if (!id)
 		return XsPortInfo();
 
+	LOGXSSCAN("xsScanPortByHubId with id " << id);
+
 	// Get device interface info set handle for all devices attached to system
 	HDEVINFO hDevInfo = SetupDiGetClassDevs(
 		&GUID_DEVCLASS_PORTS, /* CONST GUID * ClassGuid - USB class GUID */
@@ -561,7 +644,10 @@ XsPortInfo Scanner::xsScanPortByHubId(const char* id)
 		);
 
 	if (hDevInfo == INVALID_HANDLE_VALUE)
+	{
+		LOGXSSCAN("Failed to get any USB device information, check permissions");
 		return XsPortInfo();
+	}
 
 	// Retrieve a context structure for a device interface of a device
 	// information set.
@@ -587,7 +673,7 @@ XsPortInfo Scanner::xsScanPortByHubId(const char* id)
 		}
 		else
 		{
-			char buffer[1024];
+			size_t buffer[1024/sizeof(size_t)];	// we use size_t instead of char to ensure proper data alignment
 
 			SP_DEVINFO_DATA diData;
 			diData.cbSize = sizeof(SP_DEVINFO_DATA);
@@ -631,6 +717,7 @@ XsPortInfo Scanner::xsScanPortByHubId(const char* id)
 							std::string devpath = getDevicePath(hDevInfo, &diData);
 							uint16_t vid = vidFromString(devpath);
 							uint16_t pid = pidFromString(devpath);
+							LOGXSSCAN("Adding " << pszPortName << " with vid " << JLHEXLOG(vid) << " and pid " << JLHEXLOG(pid));
 							portInfo.setVidPid(vid, pid);
 						}
 					}
@@ -653,6 +740,8 @@ XsPortInfo Scanner::xsScanPortByHubId(const char* id)
 */
 bool Scanner::xsScanXsensUsbHubs(XsIntArray& hubs, XsPortInfoArray& ports)
 {
+	LOGXSSCAN("xsScanXsensUsbHubs");
+
 	// clear the lists
 	hubs.clear();
 	ports.clear();
@@ -666,7 +755,10 @@ bool Scanner::xsScanXsensUsbHubs(XsIntArray& hubs, XsPortInfoArray& ports)
 		);
 
 	if (hDevInfo == INVALID_HANDLE_VALUE)
-		return 0;
+	{
+		LOGXSSCAN("Failed to get any USB device information, check permissions");
+		return false;
+	}
 
 	// Retrieve a context structure for a device interface of a device
 	// information set.
@@ -674,7 +766,7 @@ bool Scanner::xsScanXsensUsbHubs(XsIntArray& hubs, XsPortInfoArray& ports)
 	SP_DEVICE_INTERFACE_DATA devInterfaceData;
 	ZeroMemory(&devInterfaceData, sizeof(SP_DEVICE_INTERFACE_DATA));
 	devInterfaceData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
-	for (DWORD dwIndex = 0; true; ++dwIndex)
+	for (DWORD dwIndex = 0; ; ++dwIndex)
 	{
 		BOOL bRet = SetupDiEnumDeviceInterfaces(
 			hDevInfo, /* HDEVINFO DeviceInfoSet */
@@ -690,13 +782,13 @@ bool Scanner::xsScanXsensUsbHubs(XsIntArray& hubs, XsPortInfoArray& ports)
 			continue;
 		}
 
-		char* tmp = new char[2048];
-		char* buffer = tmp;
-		char* devPath = tmp+1024;
+		size_t tmp1[1024/sizeof(size_t)];
+		size_t tmp2[1024/sizeof(size_t)];
+		char* buffer = (char*) tmp1;
 		SP_DEVINFO_DATA diData;
 		diData.cbSize = sizeof(SP_DEVINFO_DATA);
 
-		SP_DEVICE_INTERFACE_DETAIL_DATA_A& ifdData = *(SP_DEVICE_INTERFACE_DETAIL_DATA_A*) devPath;
+		SP_DEVICE_INTERFACE_DETAIL_DATA_A& ifdData = *(SP_DEVICE_INTERFACE_DETAIL_DATA_A*) tmp2;
 		ifdData.cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_A);
 		DWORD reqSize;
 		XsPortInfo port;
@@ -704,13 +796,7 @@ bool Scanner::xsScanXsensUsbHubs(XsIntArray& hubs, XsPortInfoArray& ports)
 		while (SetupDiGetDeviceInterfaceDetailA(hDevInfo, &devInterfaceData, &ifdData, 1020, &reqSize, &diData))
 		{
 			DWORD dataT;
-			if (SetupDiGetDeviceRegistryPropertyA(hDevInfo,
-						&diData,
-						SPDRP_MFG,
-						&dataT,
-						(PBYTE)buffer,
-						256,
-						NULL))
+			if (SetupDiGetDeviceRegistryPropertyA(hDevInfo, &diData, SPDRP_MFG, &dataT, (PBYTE)buffer, 256, NULL))
 			{
 				if (_strnicmp(buffer,"xsens",5))	// if this is NOT an xsens device, ignore it
 					break;
@@ -736,10 +822,10 @@ bool Scanner::xsScanXsensUsbHubs(XsIntArray& hubs, XsPortInfoArray& ports)
 		}
 		if (port.portName().size())
 		{
+			LOGXSSCAN("xsScanXsensUsbHubs Adding hub " << hubNr << " and port " << port.portName());
 			hubs.push_back(hubNr);
 			ports.push_back(port);
 		}
-		delete[] tmp;
 	}
 
 	SetupDiDestroyDeviceInfoList(hDevInfo);
@@ -784,7 +870,7 @@ XsUsbHubInfo Scanner::xsScanUsbHub(const XsPortInfo& portInfo)
 
 	// check if it's in the ports list before going through all THAT trouble...
 	for (size_t i = 0; i < ports.size(); ++i)
-		if (_stricmp(ports[i].portName().c_str(), portInfo.portName().c_str()) == 0)
+		if (_stricmp(ports[i].portName_c_str(), portInfo.portName_c_str()) == 0)
 			return XsUsbHubInfo(hubs[i]);
 
 	HDEVINFO hDevInfo;
@@ -836,7 +922,7 @@ XsUsbHubInfo Scanner::xsScanUsbHub(const XsPortInfo& portInfo)
 					if (_strnicmp(pszPortName, "COM", 3))
 						continue;
 					//int32_t nPort = atoi(&pszPortName[3]);
-					if (_stricmp(pszPortName, portInfo.portName().c_str()) == 0)
+					if (_stricmp(pszPortName, portInfo.portName_c_str()) == 0)
 					{
 						//This is the port we are looking for
 						//check if the hub number is in the hubs list
@@ -845,7 +931,7 @@ XsUsbHubInfo Scanner::xsScanUsbHub(const XsPortInfo& portInfo)
 
 						if (hub != ILLEGAL_HUB)
 						{
-							for(XsIntList::const_iterator hi = hubs.begin(); hi != hubs.end(); ++hi)
+							for (XsIntArray::const_iterator hi = hubs.begin(); hi != hubs.end(); ++hi)
 							{
 								if (*hi == hub)
 								{
@@ -890,7 +976,7 @@ XsUsbHubInfo Scanner::xsScanUsbHub(const XsPortInfo& portInfo)
 			return XsUsbHubInfo();
 
 		const char *devnode = xsudev.device_get_devnode(device);
-		if (!devnode || strcmp(devnode, portInfo.portName().c_str()) != 0)
+		if (!devnode || strcmp(devnode, portInfo.portName_c_str()) != 0)
 			continue;
 
 		udev_device *parent = xsudev.device_get_parent_with_subsystem_devtype(device, "usb", "usb_device");

@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -124,6 +156,8 @@ Variant* createVariant(XsDataIdentifier id)
 		return new XsRawGnssPvtDataVariant(id);
 	case XDI_GnssSatInfo			:// 0x7020,
 		return new XsRawGnssSatInfoVariant(id);
+	case XDI_GnssPvtPulse			:// 0x7030
+		return new SimpleVariant<uint32_t>(id);
 
 	//case XDI_AngularVelocityGroup	:// 0x8000,
 	case XDI_RateOfTurn				:// 0x8020,
@@ -181,6 +215,14 @@ Variant* createVariant(XsDataIdentifier id)
 
 	case XDI_RawBlob				:// 0xA080
 		return new XsByteArrayVariant(id);
+
+	case XDI_GloveSnapshotLeft:			// 0xC830
+	case XDI_GloveSnapshotRight:		// 0xC840
+		return new XsGloveSnapshotVariant(id);
+
+	case XDI_GloveDataLeft:				// 0xC930
+	case XDI_GloveDataRight:			// 0xC940
+		return new XsGloveDataVariant(id);
 
 	default:
 		//JLERRORG("Unknown id: " << id);
@@ -388,6 +430,19 @@ void XsDataPacket_construct(XsDataPacket* thisPtr)
 	thisPtr->m_etos = 0;
 }
 
+/*! \brief Initializes a data packet as a (referenced) copy of \a src
+	\param src The data packet to reference-copy from
+*/
+void XsDataPacket_copyConstruct(XsDataPacket* thisPtr, XsDataPacket const* src)
+{
+	++src->d->m_refCount;
+	thisPtr->d = src->d;
+	thisPtr->m_deviceId = src->m_deviceId;
+	thisPtr->m_toa = src->m_toa;
+	thisPtr->m_packetId = src->m_packetId;
+	thisPtr->m_etos = src->m_etos;
+}
+
 /*! \brief Clears and frees data in an XsDataPacket
 */
 void XsDataPacket_destruct(XsDataPacket* thisPtr)
@@ -436,11 +491,12 @@ void XsDataPacket_copy(XsDataPacket* copy, XsDataPacket const* src)
 */
 void XsDataPacket_swap(XsDataPacket* thisPtr, XsDataPacket* other)
 {
-	std::swap(thisPtr->d, other->d);
-	std::swap(thisPtr->m_deviceId, other->m_deviceId);
-	std::swap(thisPtr->m_toa, other->m_toa);
-	std::swap(thisPtr->m_packetId, other->m_packetId);
-	std::swap(thisPtr->m_etos, other->m_etos);
+	using std::swap;
+	swap(thisPtr->d, other->d);
+	swap(thisPtr->m_deviceId, other->m_deviceId);
+	swap(thisPtr->m_toa, other->m_toa);
+	swap(thisPtr->m_packetId, other->m_packetId);
+	swap(thisPtr->m_etos, other->m_etos);
 }
 
 /*! \brief Returns whether the datapacket is empty
@@ -665,6 +721,16 @@ XsScrData* XsDataPacket_rawData(const XsDataPacket* thisPtr, XsScrData* returnVa
 	auto it = MAP.find(XDI_RawAccGyrMagTemp);
 	if (it != MAP.end())
 		*returnVal = it->second->toDerived<XsScrDataVariant>().m_data;
+	else
+	{
+		for (XsSize i = 0; i < 3; ++i)
+		{
+			returnVal->m_acc[i] = 0;
+			returnVal->m_gyr[i] = 0;
+			returnVal->m_mag[i] = 0;
+		}
+		returnVal->m_temp = 0;
+	}
 	return returnVal;	// not found
 }
 
@@ -1148,7 +1214,7 @@ XsPressure* XsDataPacket_pressure(const XsDataPacket* thisPtr, XsPressure* retur
 */
 void XsDataPacket_setPressure(XsDataPacket* thisPtr, const XsPressure* data)
 {
-	GenericSimple<uint32_t>::set(thisPtr, XsMath::doubleToLong(data->m_pressure), XDI_BaroPressure);
+	GenericSimple<uint32_t>::set(thisPtr, (uint32_t) XsMath::doubleToLong(data->m_pressure), XDI_BaroPressure);
 	GenericSimple<uint8_t>::set(thisPtr, data->m_pressureAge, XDI_PressureAge);
 }
 
@@ -1186,6 +1252,65 @@ void XsDataPacket_setSdiData(XsDataPacket* thisPtr, const XsSdiData* data)
 {
 	genericSet<XsQuaternion, XsQuaternionVariant>(thisPtr, &data->orientationIncrement(), XDI_DeltaQ | XDI_SubFormatDouble);
 	genericSet<XsVector3, XsVector3Variant>(thisPtr, &data->velocityIncrement(), XDI_DeltaV | XDI_SubFormatDouble);
+}
+
+/*! \brief Return the glove data component of a data item.
+	\param returnVal Storage for the requested data
+	\param hand Which hand to get data for, must be either XHI_LeftHand or XHI_RightHand
+	\returns Returns the supplied \a returnVal filled with the requested data
+*/
+XsGloveData* XsDataPacket_gloveData(const XsDataPacket* thisPtr, XsGloveData* returnVal, XsHandId hand)
+{
+	switch (hand)
+	{
+	case XHI_LeftHand:
+		return genericGet<XsGloveData, XsGloveDataVariant>(thisPtr, returnVal, XDI_GloveDataLeft);
+	case XHI_RightHand:
+		return genericGet<XsGloveData, XsGloveDataVariant>(thisPtr, returnVal, XDI_GloveDataRight);
+	case XHI_Unknown:
+	default:
+		XsGloveData_destruct(returnVal);
+		return returnVal;
+	}
+}
+
+/*! \brief Check if data item contains glove data
+	\param hand Which hand to get data for, must be either XHI_LeftHand or XHI_RightHand for a particular side or XHI_Unknown for any side
+	\returns Returns true if this packet contains sdi data
+*/
+int XsDataPacket_containsGloveData(const XsDataPacket* thisPtr, XsHandId hand)
+{
+	switch (hand)
+	{
+	case XHI_LeftHand:
+		return genericContains(thisPtr, XDI_GloveDataLeft);
+	case XHI_RightHand:
+		return genericContains(thisPtr, XDI_GloveDataRight);
+	case XHI_Unknown:
+		return genericContains(thisPtr, XDI_GloveDataLeft) || genericContains(thisPtr, XDI_GloveDataRight);
+	default:
+		return false;
+	}
+}
+
+/*! \brief Add/update strapdown integration data for the item
+	\param data The updated data
+	\param hand Which hand to get data for, must be either XHI_LeftHand or XHI_RightHand
+*/
+void XsDataPacket_setGloveData(XsDataPacket* thisPtr, const XsGloveData* data, XsHandId hand)
+{
+	switch (hand)
+	{
+	case XHI_LeftHand:
+		genericSet<XsGloveData, XsGloveDataVariant>(thisPtr, data, XDI_GloveDataLeft);
+		break;
+	case XHI_RightHand:
+		genericSet<XsGloveData, XsGloveDataVariant>(thisPtr, data, XDI_GloveDataRight);
+		break;
+	case XHI_Unknown:
+	default:
+		break;
+	}
 }
 
 /*! \brief The device id of a data item.
@@ -1775,7 +1900,7 @@ void XsDataPacket_setSampleTimeFine(XsDataPacket* thisPtr, uint32_t counter)
 	}
 }
 
-/*! \brief Return the coarse sample time of a packet
+/*! \return Return the coarse sample time of a packet
 */
 uint32_t XsDataPacket_sampleTimeCoarse(const XsDataPacket* thisPtr)
 {
@@ -1805,6 +1930,7 @@ void XsDataPacket_setSampleTimeCoarse(XsDataPacket* thisPtr, uint32_t counter)
 }
 
 /*! \brief Return the full 64-bit sample time of a packet, combined from the fine and coarse sample times or received directly from the device. The 64-bit sample time runs at 10kHz.
+	\returns the full 64-bit sample time of a packet
 */
 uint64_t XsDataPacket_sampleTime64(const XsDataPacket* thisPtr)
 {
@@ -1974,6 +2100,7 @@ XsRawGnssPvtData* XsDataPacket_rawGnssPvtData(const XsDataPacket* thisPtr, XsRaw
 }
 
 /*! \brief Returns 1 if data item contains RawGnssPvtData, 0 otherwise
+	\returns true if this XsDataPacket contains Raw GNSS data
 */
 int XsDataPacket_containsRawGnssPvtData(const XsDataPacket* thisPtr)
 {
@@ -1988,8 +2115,33 @@ void XsDataPacket_setRawGnssPvtData(XsDataPacket* thisPtr, const XsRawGnssPvtDat
 	genericSet<XsRawGnssPvtData, XsRawGnssPvtDataVariant>(thisPtr, r, XDI_GnssPvtData);
 }
 
+/*! \brief Returns the timestamp of a PVT Pulse
+
+	\returns Returns the timestamp of a PVT Pulse
+*/
+uint32_t XsDataPacket_gnssPvtPulse(const XsDataPacket* thisPtr)
+{
+	return GenericSimple<uint32_t>::get(thisPtr, XDI_GnssPvtPulse);
+}
+
+/*! \brief Check if data item XsDataPacket_contains a pvt pulse
+	\returns true if this packet XsDataPacket_contains a spvt pulse
+*/
+int XsDataPacket_containsGnssPvtPulse(const XsDataPacket* thisPtr)
+{
+	return genericContains(thisPtr, XDI_GnssPvtPulse);
+}
+
+/*! \brief Add/update pvt pulse timestamp data for the item
+	\param counter The new data to set
+*/
+void XsDataPacket_setGnssPvtPulse(XsDataPacket* thisPtr, uint32_t counter)
+{
+	GenericSimple<uint32_t>::set(thisPtr, counter, XDI_GnssPvtPulse);
+}
 
 /*! \brief Returns the age of the GNSS data (in samples)
+	\returns the age of the GNSS data
 */
 uint8_t XsDataPacket_gnssAge(const XsDataPacket* thisPtr)
 {
@@ -1997,6 +2149,7 @@ uint8_t XsDataPacket_gnssAge(const XsDataPacket* thisPtr)
 }
 
 /*! \brief Returns 1 if data item contains GnssAge, 0 otherwise
+	\returns true if this XsDataPacket containts GNSS age data
 */
 int XsDataPacket_containsGnssAge(const XsDataPacket* thisPtr)
 {
@@ -2021,6 +2174,7 @@ XsRawGnssSatInfo* XsDataPacket_rawGnssSatInfo(const XsDataPacket* thisPtr, XsRaw
 }
 
 /*! \brief Returns 1 if data item contains RawGnssPvtData, 0 otherwise
+	\returns true if this XsDataPacket containts raw GNSS Sat Info
 */
 int XsDataPacket_containsRawGnssSatInfo(const XsDataPacket* thisPtr)
 {
@@ -2058,7 +2212,8 @@ XsDataPacket* XsDataPacket_merge(XsDataPacket* thisPtr, const XsDataPacket* othe
 		if (genericContains(thisPtr, id1) &&
 			genericContains(thisPtr, id2))
 		{
-			if (genericContains(other, id1) ^ over)
+			bool gc = genericContains(other, id1);
+			if ((gc && !over) || (!gc && over))	// logical xor does not exist in C++, write it explicitly
 				MAP.erase(id1);
 			else
 				MAP.erase(id2);
@@ -2091,22 +2246,21 @@ void XsDataPacket_setMessage(XsDataPacket* thisPtr, const XsMessage* msg)
 {
 	XsDataPacket_clear(thisPtr, XDI_None);
 
-	int offset = 0;
-	int sz = (int) msg->getDataSize();
+	XsSize offset = 0;
+	XsSize sz = msg->getDataSize();
 
-	while (offset+4 <= sz)	// minimum size of an item is 2(ID) + 1(size) + 1(minimum size)
+	while (offset+3 <= sz)	// minimum size of an item is 2(ID) + 1(size) + 0(minimum size)
 	{
 		XsDataIdentifier id = static_cast<XsDataIdentifier>(XsMessage_getDataShort(msg, offset));
-		uint8_t itemSize = XsMessage_getDataByte(msg, offset+2);
-		if (offset + itemSize + 3 > sz || itemSize == 0)
+		XsSize itemSize = XsMessage_getDataByte(msg, offset+2);
+		if (offset + itemSize + 3 > sz)
 			break;	// the item is corrupt
 
 		Variant* var = createVariant(id);
 		if (var)
 		{
-			var->readFromMessage(*msg, offset+3, itemSize);
+			itemSize = var->readFromMessage(*msg, offset+3, itemSize);
 			MAP.insert(id, var);
-			assert(var->sizeInMsg() == itemSize);	// this is not strictly necessary, but useful during initial development
 		}
 		offset += 3 + itemSize;	// never use var->sizeInMsg() here, since it _may_ differ
 	}
@@ -2128,15 +2282,34 @@ void XsDataPacket_toMessage(const XsDataPacket* thisPtr, XsMessage* msg)
 	msg->resizeData(0);	// clear the data part while leaving header intact
 	msg->setMessageId(XMID_MtData2);
 
-	int offset = 0;
+	XsSize offset = 0;
 	msg->resizeData(2048);	// prevent constant message resizing by pre-allocating a large message and later reducing its size
 	for (auto const& i : MAP)
 	{
-		msg->setDataShort((uint16_t) i.second->dataId(), offset);
-		int sz = i.second->sizeInMsg();
-		msg->setDataByte((uint8_t)(int8_t)sz, offset+2);
-		i.second->writeToMessage(*msg, offset+3);
-		offset += 3+sz;
+		XsSize sz = i.second->sizeInMsg();
+		if (sz < 255)
+		{
+			msg->setDataShort((uint16_t) i.second->dataId(), offset);
+			msg->setDataByte((uint8_t)sz, offset+2);
+			i.second->writeToMessage(*msg, offset+3);
+			offset += 3+sz;
+		}
+		else
+		{
+			XsSize sz2 = sz;
+			XsSize offset2 = offset;
+			while (sz2 >= 255)
+			{
+				msg->setDataShort((uint16_t) i.second->dataId(), offset2);
+				msg->setDataByte((uint8_t)255, offset2+2);
+				offset2 += 258;
+				sz2 -= 255;
+			}
+			msg->setDataShort((uint16_t) i.second->dataId(), offset2);
+			msg->setDataByte((uint8_t)sz2, offset2+2);	// note that this size may be 0
+			i.second->writeToMessage(*msg, offset+3);	// individual write functions should takke extended size into account
+			offset = offset2+3+sz2;
+		}
 	}
 	msg->resizeData(offset);
 }
@@ -2150,7 +2323,10 @@ void XsDataPacket_toMessage(const XsDataPacket* thisPtr, XsMessage* msg)
 */
 XsSnapshot* XsDataPacket_fullSnapshot(const XsDataPacket* thisPtr, XsSnapshot* returnVal)
 {
-	return genericGet<XsSnapshot, XsFullSnapshotVariant>(thisPtr, returnVal, XDI_FullSnapshot);
+	genericGet<XsSnapshot, XsFullSnapshotVariant>(thisPtr, returnVal, XDI_FullSnapshot);
+	if (!returnVal->m_deviceId.isValid() && thisPtr->m_deviceId.isValid())
+		returnVal->m_deviceId = thisPtr->m_deviceId;
+	return returnVal;
 }
 
 /*! \brief Returns true if the XsDataPacket contains Full Snapshot data
@@ -2204,10 +2380,75 @@ void XsDataPacket_setAwindaSnapshot(XsDataPacket* thisPtr, XsSnapshot const * da
 */
 int XsDataPacket_isAwindaSnapshotARetransmission(const XsDataPacket* thisPtr)
 {
+	if (!thisPtr->d)
+		return false;
 	auto it = MAP.find(XDI_AwindaSnapshot);
 	if (it == MAP.end())
 		return false;
 	return (it->second->dataId() & XDI_RetransmissionMask) == XDI_RetransmissionFlag;
+}
+
+/*! \brief Returns the Glove Snapshot part of the XsDataPacket
+	\details Glove Snapshot is an internal format used by Xsens devices for high accuracy data transfer.
+	In most cases XDA processing will remove this item from the XsDataPacket and replace it with items that
+	are more directly usable.
+	\param returnVal The object to store the requested data in. This must be a properly constructed object.
+	\param hand Which hand to get data for, must be either XHI_LeftHand or XHI_RightHand
+	\returns The supplied \a returnVal, filled with the requested data or cleared if it was not available
+*/
+XsGloveSnapshot* XsDataPacket_gloveSnapshot(const XsDataPacket* thisPtr, XsGloveSnapshot* returnVal, XsHandId hand)
+{
+	switch (hand)
+	{
+	case XHI_LeftHand:
+		return genericGet<XsGloveSnapshot, XsGloveSnapshotVariant>(thisPtr, returnVal, XDI_GloveSnapshotLeft);
+	case XHI_RightHand:
+		return genericGet<XsGloveSnapshot, XsGloveSnapshotVariant>(thisPtr, returnVal, XDI_GloveSnapshotRight);
+	case XHI_Unknown:
+	default:
+		memset(returnVal, 0, sizeof(XsGloveSnapshot));
+		return returnVal;
+	}
+}
+
+/*! \brief Returns true if the XsDataPacket contains Glove Snapshot data
+	\param hand Which hand to get data for, must be either XHI_LeftHand or XHI_RightHand for a particular side or XHI_Unknown for any side
+	\returns true if the XsDataPacket contains Glove Snapshot data
+*/
+int XsDataPacket_containsGloveSnapshot(const XsDataPacket* thisPtr, XsHandId hand)
+{
+	switch (hand)
+	{
+	case XHI_LeftHand:
+		return genericContains(thisPtr, XDI_GloveSnapshotLeft);
+	case XHI_RightHand:
+		return genericContains(thisPtr, XDI_GloveSnapshotRight);
+	case XHI_Unknown:
+		return genericContains(thisPtr, XDI_GloveSnapshotLeft) || genericContains(thisPtr, XDI_GloveSnapshotRight);
+	default:
+		return false;
+	}
+}
+
+/*! \brief Sets the Glove Snapshot part of the XsDataPacket
+	\param data The new data to set
+	\param retransmission When non-zero, the item is marked as a retransmitted packet
+	\param hand Which hand to get data for, must be either XHI_LeftHand or XHI_RightHand
+*/
+void XsDataPacket_setGloveSnapshot(XsDataPacket* thisPtr, XsGloveSnapshot const * data, int retransmission, XsHandId hand)
+{
+	switch (hand)
+	{
+	case XHI_LeftHand:
+		genericSet<XsGloveSnapshot, XsGloveSnapshotVariant>(thisPtr, data, XDI_GloveSnapshotLeft | (retransmission ? XDI_RetransmissionFlag : XDI_None));
+		break;
+	case XHI_RightHand:
+		genericSet<XsGloveSnapshot, XsGloveSnapshotVariant>(thisPtr, data, XDI_GloveSnapshotRight | (retransmission ? XDI_RetransmissionFlag : XDI_None));
+		break;
+	case XHI_Unknown:
+	default:
+		break;
+	}
 }
 
 /*! \brief Converts input vector \a input with data identifier \a id to output XsVector \a returnVal */
@@ -2217,7 +2458,7 @@ static void convertRawVector(XsUShortVector const& input, XsDataIdentifier id, X
 	returnVal.setSize(3);
 	if ((id & XDI_DataFormatMask) == XDI_RawSigned)
 		caster = signed_cast;
-	for (int i = 0; i < 3; i++)
+	for (XsSize i = 0; i < 3; i++)
 		returnVal[i] = caster(input[i]);
 }
 

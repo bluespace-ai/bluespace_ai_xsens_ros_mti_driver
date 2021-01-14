@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -40,7 +72,7 @@
 #include "xsdeviceconfiguration.h"
 #include "xsusbhubinfo.h"
 #include "xsscanner.h"
-#include <xstypes/xsens_debugtools.h>
+#include <xscommon/xsens_debugtools.h>
 #include <xscommon/xsens_janitors.h>
 #include "xsdevice_def.h"
 
@@ -58,8 +90,12 @@ Communicator::Communicator(void)
 	, m_lastResult(XRV_OK)
 	, m_defaultTimeout(500)
 {
+#ifdef XSENS_DEBUG
 	ProtocolManager::value_type addOk = protocolManager()->add(new ProtocolHandler());
-	assert(!addOk.isNull());
+	assert(addOk);
+#else
+	protocolManager()->add(new ProtocolHandler());
+#endif
 
 	JLDEBUGG("Created " << (void*) this);
 }
@@ -70,6 +106,7 @@ Communicator::~Communicator()
 {
 	JLDEBUGG("Destroyed " << (void*) this);
 	assert(m_preparedForDestruction);
+	m_masterInfo = nullptr;
 }
 
 /*! \brief Prepares communicator for destruction
@@ -146,7 +183,7 @@ XsString Communicator::lastResultText() const
 */
 XsSize Communicator::childDeviceCount() const
 {
-	return m_masterInfo ? m_masterInfo->deviceConfiguration().numberOfDevices() : 0;
+	return m_masterInfo ? m_masterInfo->deviceConfigurationConst().numberOfDevices() : 0;
 }
 
 /*! \brief Handles a \a message
@@ -156,14 +193,14 @@ void Communicator::handleMessage(const XsMessage &message)
 	// handle one message at a time. This is only really necessary for dual-stream interfaces such as to the bodypack
 	xsens::Lock locky(&m_handleMux);
 
-	JLTRACEG("Received " << JLHEXLOG(message.getMessageId()) << " size " << message.getTotalMessageSize());
+	//JLTRACEG("Received " << JLHEXLOG(message.getMessageId()) << " size " << message.getTotalMessageSize());
 	if (message.getMessageId() == XMID_Error)
 	{
 		char buffer[256];
 		XsSize sz = message.getTotalMessageSize();
 		const uint8_t* m = message.getMessageStart();
 		for (XsSize i = 0; i < sz; ++i)
-			sprintf(buffer+2*i, "%02X", m[i]);
+			sprintf(buffer+2*i, "%02X", (unsigned int) m[i]);
 		buffer[2*sz] = 0;
 		JLALERTG("Error message received: " << buffer);
 		JLIF(gJournal, JLL_Alert, m_replyMonitor->dumpObjectList(gJournal, JLL_Alert));
@@ -266,8 +303,12 @@ std::shared_ptr<ReplyObject> Communicator::addReplyObject(ReplyObject* obj)
 void Communicator::addProtocolHandler(IProtocolHandler* handler)
 {
 	assert(handler != 0);
+#ifdef XSENS_DEBUG
 	ProtocolManager::value_type addOk = protocolManager()->add(handler);
-	assert(!addOk.isNull());
+	assert(addOk);
+#else
+	protocolManager()->add(handler);
+#endif
 }
 
 /*! \brief Removes a protocol handler

@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -35,10 +67,14 @@
 
 #include <xstypes/xsmessage.h>
 #include <xstypes/xsdataidentifier.h>
+#include <xstypes/xscandataidentifier.h>
+#include <xstypes/xscanframeformat.h>
 
 struct XsDeviceId;
 struct XsOutputConfigurationArray;
 struct XsOutputConfiguration;
+struct XsCanOutputConfigurationArray;
+struct XsCanOutputConfiguration;
 
 class MessageSerializer
 {
@@ -47,6 +83,8 @@ public:
 	virtual ~MessageSerializer();
 
 	MessageSerializer &operator<<(XsDataIdentifier value);
+	MessageSerializer &operator<<(XsCanDataIdentifier value);
+	MessageSerializer &operator<<(XsCanFrameFormat value);
 	MessageSerializer &operator<<(const XsDeviceId &id);
 	MessageSerializer &operator<<(uint8_t value);
 	MessageSerializer &operator<<(uint16_t value);
@@ -92,6 +130,9 @@ public:
 	MessageSerializer &operator<<(const XsOutputConfigurationArray &config);
 	MessageSerializer &operator<<(const XsOutputConfiguration &cfg);
 
+	MessageSerializer &operator<<(const XsCanOutputConfigurationArray &config);
+	MessageSerializer &operator<<(const XsCanOutputConfiguration &cfg);
+
 	/*! \returns The current index */
 	inline XsSize index() const { return m_index; }
 
@@ -109,6 +150,8 @@ public:
 	virtual ~MessageDeserializer();
 
 	MessageDeserializer &operator>>(XsDataIdentifier &value);
+	MessageDeserializer &operator>>(XsCanDataIdentifier &value);
+	MessageDeserializer &operator>>(XsCanFrameFormat &value);
 	MessageDeserializer &operator>>(XsDeviceId &id);
 	MessageDeserializer &operator>>(uint8_t &value);
 	MessageDeserializer &operator>>(int8_t &value);
@@ -148,8 +191,11 @@ public:
 	MessageDeserializer &operator>>(XsOutputConfigurationArray &config);
 	MessageDeserializer &operator>>(XsOutputConfiguration &cfg);
 
+	MessageDeserializer &operator>>(XsCanOutputConfigurationArray &config);
+	MessageDeserializer &operator>>(XsCanOutputConfiguration &cfg);
+
 	//! \returns The current message
-	const XsMessage& message() { return m_message; }
+	const XsMessage& message() const { return m_message; }
 
 	//! \returns The current index
 	inline XsSize index() const { return m_index; }

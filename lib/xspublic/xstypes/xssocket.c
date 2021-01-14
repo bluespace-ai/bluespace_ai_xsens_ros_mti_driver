@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -35,6 +67,7 @@
 #include <winerror.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
+#include <iphlpapi.h>
 
 #pragma comment(lib, "ws2_32.lib")
 #else
@@ -58,7 +91,10 @@ static int closesocket(SOCKET s)
 	return 0;
 }
 #endif
-
+#if defined(__FreeBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
+# define USE_GETIFADDRS 1
+# include <ifaddrs.h>
+#endif
 #include <errno.h>
 
 // MSG_NOSIGNAL is linux stuff
@@ -123,8 +159,8 @@ static void getRemoteHostAddress(const struct sockaddr_storage *remote, XsString
 			length = INET6_ADDRSTRLEN;
 			break;
 	}
-	XsString_resize(address, length);
-	if (inet_ntop(remote->ss_family, src, address->m_data, length) == NULL)
+	XsString_resize(address, (XsSize)(ptrdiff_t) length);
+	if (inet_ntop(remote->ss_family, src, address->m_data, (size_t)(ptrdiff_t) length) == NULL)
 		XsString_erase(address, 0, address->m_size);
 }
 
@@ -159,7 +195,7 @@ static XsResultValue translateAndReturnSocketError(XsSocket* thisPtr, int functi
 	case WSA_INVALID_HANDLE:
 	case WSA_INVALID_PARAMETER:
 	case WSAEINVAL:
-		result  = XRV_INVALIDPARAM;
+		result = XRV_INVALIDPARAM;
 		break;
 	case WSA_NOT_ENOUGH_MEMORY:
 		result = XRV_OUTOFMEMORY;
@@ -170,11 +206,17 @@ static XsResultValue translateAndReturnSocketError(XsSocket* thisPtr, int functi
 	case WSAEMSGSIZE:
 		result = XRV_BUFFEROVERFLOW;
 		break;
+	case WSAETIMEDOUT:
+		result = XRV_TIMEOUTNODATA;
+		break;
+	case WSAEACCES:
+	case WSAEADDRINUSE:
+		result = XRV_IN_USE;
+		break;
 	case WSA_IO_INCOMPLETE:
 	case WSA_IO_PENDING:
 	case WSAEINTR:
 	case WSAEBADF:
-	case WSAEACCES:
 	case WSAEFAULT:
 	case WSAEMFILE:
 	case WSAEWOULDBLOCK:
@@ -189,7 +231,6 @@ static XsResultValue translateAndReturnSocketError(XsSocket* thisPtr, int functi
 	case WSAEOPNOTSUPP:
 	case WSAEPFNOSUPPORT:
 	case WSAEAFNOSUPPORT:
-	case WSAEADDRINUSE:
 	case WSAEADDRNOTAVAIL:
 	case WSAENETDOWN:
 	case WSAENETUNREACH:
@@ -201,7 +242,6 @@ static XsResultValue translateAndReturnSocketError(XsSocket* thisPtr, int functi
 	case WSAENOTCONN:
 	case WSAESHUTDOWN:
 	case WSAETOOMANYREFS:
-	case WSAETIMEDOUT:
 	case WSAECONNREFUSED:
 	case WSAELOOP:
 	case WSAENAMETOOLONG:
@@ -326,14 +366,14 @@ void XsSocket_create(XsSocket* thisPtr, enum NetworkLayerProtocol ip, enum IpPro
 	we will fetch the information from the socket. Doing so by default would add a possible
 	extra point of failure.
 */
-void XsSocket_createFromNativeSocket(XsSocket* thisPtr, SOCKET nativeSocket, struct sockaddr *theirInfo, socklen_t infolen, XsDataFlags flags)
+void XsSocket_createFromNativeSocket(XsSocket* thisPtr, SOCKET nativeSocket, struct sockaddr const *theirInfo, socklen_t infolen, XsDataFlags flags)
 {
 	XsSocket_initialize(thisPtr, flags);
 	thisPtr->d->m_sd = nativeSocket;
 
 	if (theirInfo)
 	{
-		memcpy(&thisPtr->d->m_remoteAddr, theirInfo, infolen);
+		memcpy(&thisPtr->d->m_remoteAddr, theirInfo, (size_t)(ptrdiff_t) infolen);
 		thisPtr->d->m_remoteAddrLen = infolen;
 	}
 	else
@@ -506,7 +546,7 @@ int XsSocket_select(XsSocket* thisPtr, int mstimeout, int *canRead, int *canWrit
 */
 int XsSocket_read(XsSocket* thisPtr, void* dest, XsSize size, int timeout)
 {
-	return XsSocket_readFrom(thisPtr, dest, (int)size, NULL, NULL, timeout);
+	return XsSocket_readFrom(thisPtr, dest, size, NULL, NULL, timeout);
 }
 
 /* peek at the size of the incoming data */
@@ -541,6 +581,7 @@ int XsSocket_readFrom(XsSocket* thisPtr, void* dest, XsSize size, XsString* host
 	socklen_t l = sizeof(sender);
 
 	rv = XsSocket_select(thisPtr, timeout, &canRead, NULL);
+	(void) canRead;
 	if (rv <= 0)
 		return rv;
 
@@ -590,6 +631,7 @@ int XsSocket_readFrom2ByteArray(XsSocket* thisPtr, XsByteArray* dest, XsString* 
 	socklen_t l = sizeof(sender);
 
 	rv = XsSocket_select(thisPtr, timeout, &canRead, NULL);
+	(void) canRead;
 	if (rv <= 0)
 		return rv;
 
@@ -598,8 +640,11 @@ int XsSocket_readFrom2ByteArray(XsSocket* thisPtr, XsByteArray* dest, XsString* 
 
 	rv = recvfrom(thisPtr->d->m_sd, thisPtr->d->m_peekBuf, PEEKBUFSIZE, 0, (struct sockaddr *)&sender, &l);
 	if (rv <= 0)
-		return rv;
-	XsByteArray_assign(dest, rv, thisPtr->d->m_peekBuf);
+	{
+		translateSocketError(thisPtr, rv);
+		return -1;
+	}
+	XsByteArray_assign(dest, (XsSize)(ptrdiff_t) rv, thisPtr->d->m_peekBuf);
 
 	if (hostname)
 		getRemoteHostAddress(&sender, hostname);
@@ -607,7 +652,7 @@ int XsSocket_readFrom2ByteArray(XsSocket* thisPtr, XsByteArray* dest, XsString* 
 	if (port)
 		*port = ntohs(((struct sockaddr_in*)&sender)->sin_port);
 
-	translateSocketError(thisPtr, rv);
+	translateSocketError(thisPtr, 0);
 	return rv;
 }
 
@@ -623,14 +668,15 @@ int XsSocket_write(XsSocket* thisPtr, const void* data, XsSize size)
 {
 	int canWrite;
 	int rv = XsSocket_select(thisPtr, 0, NULL, &canWrite);
+	(void) canWrite;
 	if (rv <= 0)
 		return rv;
 
-	return send(thisPtr->d->m_sd, data, (int)size, MSG_NOSIGNAL);
+	return send(thisPtr->d->m_sd, data, (int)(ptrdiff_t)size, MSG_NOSIGNAL);
 }
 
 /* Return non-zero if the hostname is actually an IPv4 address */
-int isIPv4Address(const XsString* hostname)
+int isIPv4Address(XsString const* hostname)
 {
 	char *c;
 	int expectNum = 1;
@@ -668,7 +714,7 @@ int isIPv4Address(const XsString* hostname)
 }
 
 /* Prefix the hostname with ::ffff: if we're on ipv6 and hostname looks like a ipv4 address */
-void XsSocket_fixupHostname(XsSocket* thisPtr, XsString* hostname)
+void XsSocket_fixupHostname(XsSocket const* thisPtr, XsString* hostname)
 {
 	if (!hostname || !hostname->m_data)
 		return;
@@ -683,7 +729,7 @@ void XsSocket_fixupHostname(XsSocket* thisPtr, XsString* hostname)
 	}
 }
 
-typedef int (*lookupTestFunction)(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo* info);
+typedef int (*lookupTestFunction)(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo const* info);
 
 /* Do a lookup of the given hostname and port
 
@@ -719,7 +765,7 @@ static XsResultValue XsSocket_internalLookup(XsSocket* thisPtr, const XsString* 
 	hints.ai_socktype = (thisPtr->d->m_ipProtocol == IP_UDP) ? SOCK_DGRAM : SOCK_STREAM;
 	hints.ai_flags = hints_flags;
 
-	sprintf(gaport, "%u", port);
+	sprintf(gaport, "%u", (unsigned int) port);
 	if (hostname)
 	{
 		XsString host;
@@ -738,7 +784,8 @@ static XsResultValue XsSocket_internalLookup(XsSocket* thisPtr, const XsString* 
 		ret = getaddrinfo(NULL, gaport, &hints, &lookupInfo);
 	}
 
-	if (ret) {
+	if (ret)
+	{
 		switch (ret)
 		{
 		case EAI_BADFLAGS:
@@ -763,6 +810,7 @@ static XsResultValue XsSocket_internalLookup(XsSocket* thisPtr, const XsString* 
 		}
 	}
 
+	setLastResult(thisPtr, XRV_NOTFOUND, -1);
 	for (p = lookupInfo; p != NULL; p = p->ai_next)
 	{
 		s = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
@@ -777,21 +825,21 @@ static XsResultValue XsSocket_internalLookup(XsSocket* thisPtr, const XsString* 
 			{
 				if ((socklen_t)p->ai_addrlen < *addrlen)
 					*addrlen = (socklen_t)p->ai_addrlen;
-				memcpy(info, p->ai_addr, *addrlen);
+				memcpy(info, p->ai_addr, (size_t)(ptrdiff_t) *addrlen);
 			}
 			break;
 		}
 		(void)closesocket(s);
 	}
 	freeaddrinfo(lookupInfo);
-	return setLastResult(thisPtr, (ret == 0) ? XRV_OK : XRV_NOTFOUND, ret);
+	return setLastResult(thisPtr, (ret == 0) ? XRV_OK : thisPtr->d->m_lastResult, ret);
 }
 
 /* try and see if we can connect on currentSocket to the remote host */
-static int defaultLookupTest(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo* info)
+static int defaultLookupTest(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo const* info)
 {
 	(void)thisPtr;
-	return connect(currentSocket, info->ai_addr, (int)info->ai_addrlen);
+	return connect(currentSocket, info->ai_addr, (int) info->ai_addrlen);
 }
 
 /*! \brief Perform a lookup */
@@ -820,6 +868,7 @@ int XsSocket_writeTo(XsSocket* thisPtr, const void* data, XsSize size, const XsS
 	int rv;
 
 	rv = XsSocket_select(thisPtr, 0, NULL, &canWrite);
+	(void) canWrite;
 	if (rv <= 0)
 		return rv;
 
@@ -833,6 +882,175 @@ int XsSocket_writeTo(XsSocket* thisPtr, const void* data, XsSize size, const XsS
 	}
 
 	sent = sendto(thisPtr->d->m_sd, data, (int)size, MSG_NOSIGNAL, addr, addrlen);
+	translateSocketError(thisPtr, sent);
+	return sent;
+}
+
+/*! \brief Enable sending and receiving broadcasts on this socket
+	\details By default sockets do not receive broadcasts and can't send them. This function can enable this option.
+	\param enable Set to 1 to enable broadcasts, 0 to disable them again
+	\return 1 if successful, 0 if a failure occurred
+	\relates XsSocket
+*/
+int XsSocket_enableBroadcasts(XsSocket* thisPtr, int enable)
+{
+	int broadcast = enable ? 1 : 0;
+	int res = setsockopt(thisPtr->d->m_sd, SOL_SOCKET, SO_BROADCAST, (char*)&broadcast, sizeof(broadcast));
+	if (res != 0)
+	{
+		thisPtr->d->m_lastResult = translateAndReturnSocketError(thisPtr, res);
+		return 0;
+	}
+	thisPtr->d->m_lastResult = XRV_OK;
+	return 1;
+}
+
+#ifdef USE_GETIFADDRS
+static uint32_t SockAddrToUint32(struct sockaddr * a)
+{
+	return ((a)&&(a->sa_family == AF_INET)) ? ntohl(((struct sockaddr_in *)a)->sin_addr.s_addr) : 0;
+}
+#endif
+
+/*! \brief Broadcast data over the socket to the port indicated by \a port
+
+	\param[in] data the data to write
+	\param[in] size the size of the data
+	\param[in] port the port to send data to
+
+	\returns the number of bytes written, -1 on error, depending on whether the majority of sub broadcasts succeeded or failed.
+	\relates XsSocket
+*/
+int XsSocket_broadcast(XsSocket* thisPtr, const void* data, XsSize size, uint16_t port)
+{
+	struct sockaddr_in addr;
+	int sent = 0;
+	int failed = 0;
+	int ok = 0;
+	int canWrite;
+	int rv;
+
+	rv = XsSocket_select(thisPtr, 0, NULL, &canWrite);
+	(void) canWrite;
+	if (rv <= 0)
+		return rv;
+
+	if (thisPtr->d->m_ipProtocol == IP_UDP)
+	{
+		addr.sin_family       = AF_INET;
+		addr.sin_port         = htons(port);
+		addr.sin_addr.s_addr  = INADDR_BROADCAST; // this is equiv to 255.255.255.255 and won't work!
+
+#ifdef _WIN32
+		do
+		{
+			// Windows XP style implementation
+			MIB_IPADDRTABLE * ipTable = NULL;
+			{
+				ULONG bufLen = 0;
+				for (int i=0; i<5; i++)
+				{
+					DWORD ipRet = GetIpAddrTable(ipTable, &bufLen, FALSE);
+					if (ipRet == ERROR_INSUFFICIENT_BUFFER)
+					{
+						free(ipTable);  // in case we had previously allocated it
+						ipTable = (MIB_IPADDRTABLE *) malloc(bufLen);
+					}
+					else if (ipRet == NO_ERROR)
+						break;
+					else
+					{
+						free(ipTable);
+						ipTable = NULL;
+						break;
+					}
+				}
+			}
+
+			if (ipTable)
+			{
+				IP_ADAPTER_INFO * pAdapterInfo = NULL;
+				{
+					ULONG bufLen = 0;
+					for (int i=0; i<5; i++)
+					{
+						DWORD apRet = GetAdaptersInfo(pAdapterInfo, &bufLen);
+						if (apRet == ERROR_BUFFER_OVERFLOW)
+						{
+							free(pAdapterInfo);  // in case we had previously allocated it
+							pAdapterInfo = (IP_ADAPTER_INFO *) malloc(bufLen);
+						}
+						else if (apRet == ERROR_SUCCESS)
+							break;
+						else
+						{
+							free(pAdapterInfo);
+							pAdapterInfo = NULL;
+							break;
+						}
+					}
+				}
+
+				for (DWORD i=0; i<ipTable->dwNumEntries; i++)
+				{
+					const MIB_IPADDRROW* row = &ipTable->table[i];
+					uint32_t ad = ntohl(row->dwAddr) | ~ntohl(row->dwMask);
+					char bcastAddr[32];
+					sprintf(bcastAddr, "%u.%u.%u.%u", (ad >> 24)&0xFF, (ad >> 16) & 0xFF, (ad >> 8) & 0xFF, ad & 0xFF);
+					inet_pton(AF_INET, bcastAddr, &addr.sin_addr);
+					sent = sendto(thisPtr->d->m_sd, data, (int)size, MSG_NOSIGNAL, (struct sockaddr const*) &addr, sizeof(addr));
+					if (sent < 0)
+					{
+						++failed;
+						translateSocketError(thisPtr, sent);
+					}
+					else if (sent > 0)
+						++ok;
+				}
+
+				free(pAdapterInfo);
+				free(ipTable);
+			}
+		}
+		while (0);
+#elif defined(USE_GETIFADDRS)
+		// BSD-style implementation
+		struct ifaddrs * ifap;
+		if (getifaddrs(&ifap) == 0)
+		{
+			struct ifaddrs * p = ifap;
+			while (p)
+			{
+				uint32_t bcastAddr = (uint32_t)SockAddrToUint32(p->ifa_dstaddr);
+				if (bcastAddr > 0)
+				{
+					char bcastAddrStr[32];
+					sprintf(bcastAddrStr, "%u.%u.%u.%u", (bcastAddr >> 24)&0xFF, (bcastAddr >> 16) & 0xFF, (bcastAddr >> 8) & 0xFF, bcastAddr & 0xFF);
+					inet_pton(AF_INET, bcastAddrStr, &addr.sin_addr);
+					sent = (int)sendto(thisPtr->d->m_sd, data, size, MSG_NOSIGNAL, (struct sockaddr const*) &addr, sizeof(addr));
+					if (sent < 0)
+					{
+						++failed;
+						translateSocketError(thisPtr, sent);
+					}
+					else if (sent > 0)
+						++ok;
+				}
+				p = p->ifa_next;
+			}
+			freeifaddrs(ifap);
+		}
+#else
+		// just use direct local broadcast, this may or may not work depending on the system configuration
+		sent = sendto(thisPtr->d->m_sd, data, (int)size, MSG_NOSIGNAL, (struct sockaddr const*) &addr, sizeof(addr));
+		if (sent < 0)
+			++failed;
+		else
+			++ok;
+#endif
+	}
+	if (failed >= ok)
+		return -1;
 	translateSocketError(thisPtr, sent);
 	return sent;
 }
@@ -875,6 +1093,7 @@ XsSocket* XsSocket_accept(XsSocket* thisPtr, int mstimeout)
 	{
 		int read;
 		int rv = XsSocket_select(thisPtr, mstimeout, &read, NULL);
+		(void) read;
 		if (rv == 0)
 		{
 			(void)setLastResult(thisPtr, XRV_TIMEOUTNODATA, 0);
@@ -967,7 +1186,7 @@ XsResultValue XsSocket_setSocketOption(XsSocket *thisPtr, enum XsSocketOption op
 
 	keeps the bind alive after leaving the function
 */
-static int binder(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo* info)
+static int binder(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo const* info)
 {
 	int res;
 	int yesval = 1;
@@ -981,9 +1200,14 @@ static int binder(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo* info
 
 	res = setsockopt(thisPtr->d->m_sd, SOL_SOCKET, SO_REUSEADDR, yes, sizeof(yesval));
 	if (res)
+	{
+		translateSocketError(thisPtr, res);
 		return res;
+	}
 
-	return bind(thisPtr->d->m_sd, info->ai_addr, (int)info->ai_addrlen);
+	res = bind(thisPtr->d->m_sd, info->ai_addr, (int)info->ai_addrlen);
+	translateSocketError(thisPtr, res);
+	return res;
 }
 
 /*! \brief Bind to the \a hostname and \a port combination
@@ -1043,7 +1267,7 @@ XsResultValue XsSocket_listen(XsSocket* thisPtr, int maxPending)
 
 	Keep the connection alive
 */
-static int connector(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo* info)
+static int connector(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo const* info)
 {
 	int ret;
 	(void)currentSocket;

@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -60,8 +92,6 @@ SerialCommunicator::SerialCommunicator()
 	startPollThread();
 }
 
-/*! \brief Default destructor
-*/
 SerialCommunicator::~SerialCommunicator()
 {
 }
@@ -124,25 +154,25 @@ XsResultValue SerialCommunicator::gotoConfig(bool detectRs485)
 	XsMessage rcv = reply->message(gotoConfigTimeout() + interfaceTimeout + 1000); // set higher timeout for RS485
 	setDoGotoConfig(false);
 
-	if (rcv.getMessageId() == XMID_GotoConfigAck)
+	if (rcv.getMessageId() != XMID_GotoConfigAck)
 	{
-		// wait a bit longer for all potentially incoming gotoConfigAcks to be received and processed
-		while (true)
-		{
-			std::shared_ptr<ReplyObject> reply2 = addReplyObject(XMID_GotoConfigAck);
-			XsMessage rcv = reply2->message(100);
-			if (rcv.getMessageId() != XMID_GotoConfigAck)
-				break;
-		}
-
 		messageExtractor().setMaxIncompleteRetryCount(oldCount);
-		JLTRACEG("Ok: " << rcv.getMessageId());
-		return (setAndReturnLastResult(XRV_OK));
+		JLDEBUGG("Fail: " << rcv.getMessageId());
+		return (setAndReturnLastResult(XRV_CONFIGCHECKFAIL));
+	}
+
+	// wait a bit longer for all potentially incoming gotoConfigAcks to be received and processed
+	while (true)
+	{
+		std::shared_ptr<ReplyObject> reply2 = addReplyObject(XMID_GotoConfigAck);
+		rcv = reply2->message(100);
+		if (rcv.getMessageId() != XMID_GotoConfigAck)
+			break;
 	}
 
 	messageExtractor().setMaxIncompleteRetryCount(oldCount);
-	JLDEBUGG("Fail: " << rcv.getMessageId());
-	return (setAndReturnLastResult(XRV_CONFIGCHECKFAIL));
+	JLTRACEG("Ok: " << rcv.getMessageId());
+	return (setAndReturnLastResult(XRV_OK));
 }
 
 /*! \brief Write raw data to the open COM or USB port
@@ -151,7 +181,7 @@ XsResultValue SerialCommunicator::writeRawData(const XsByteArray &data)
 {
 	if (!isPortOpen())
 		return XRV_NOPORTOPEN;
-	return m_streamInterface->writeData(data);
+	return m_streamInterface->writeData(data, nullptr);
 }
 
 /*! \brief Flushes all remaining data on the open port
@@ -377,9 +407,11 @@ XsResultValue SerialCommunicator::readDataToBuffer(XsByteArray& raw)
 	case XRV_UNEXPECTED_DISCONNECT:
 		if (masterDevice() != nullptr)
 			masterDevice()->onConnectionLost();
-		// Fallthrough.
+		//lint -fallthrough
 	case XRV_NOFILEORPORTOPEN:
 		closePort();
+		break;
+
 	default:
 		break;
 	}

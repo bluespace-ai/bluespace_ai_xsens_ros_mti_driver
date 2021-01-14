@@ -14,6 +14,9 @@
 
         publisher_queue_size: 5
 
+        # TF transform frame_id (default: imu_link), you may want to change it if you use multiple devices
+        #frame_id: "imu_link"
+
         # Message publishers
         pub_imu: true
         pub_quaternion: true
@@ -29,6 +32,8 @@
         pub_gnss: true
         pub_twist: true
         pub_transform: true
+        pub_positionLLA: true
+        pub_velocity: true
 
         ## Sensor standard deviation [x,y,z] (optional)
         ## This value is used to override the covariance matrix in sensor_msgs/Imu and

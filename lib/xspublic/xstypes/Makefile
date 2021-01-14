@@ -3,7 +3,7 @@ EXCLUDE:=xstypesdynlib.c
 C_FILES := $(filter-out $(EXCLUDE), $(wildcard *.c))
 CPP_FILES := $(wildcard *.cpp)
 OBJECTS := $(C_FILES:.c=.c.o) $(CPP_FILES:.cpp=.cpp.o)
-CFLAGS+= -I$(shell dirname $$(pwd))/xspublic
+CFLAGS+= -fPIC -I$(shell dirname $$(pwd))/xspublic
 CXXFLAGS+= -std=c++11 -I$(shell dirname $$(pwd))/xspublic
 
 .PHONY: all xstypes

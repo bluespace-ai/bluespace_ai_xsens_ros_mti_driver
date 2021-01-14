@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -81,7 +113,7 @@ XSCPPPROTECTED
 
 #ifdef __cplusplus
 								//! \brief Return the data management flags of the vector.
-	inline XsSize flags() { return m_flags; }
+	inline XsSize flags() const { return m_flags; }
 public:
 	//! \brief Initialize a vector, empty or using the data in the supplied \a sz and \a src
 	inline explicit XsVector(XsSize sz = 0, const XsReal* src = 0)
@@ -99,14 +131,14 @@ public:
 		, m_size(0)
 		, m_flags(0)
 	{
-		*this = other;
+		XsVector_copy(this, &other);
 	}
 
 	//! \brief Initialize a vector that references the supplied data
 	inline explicit XsVector(XsReal* ref, XsSize sz, XsDataFlags flags_ = XSDF_None)
 		: m_data(ref)
 		, m_size(sz)
-		, m_flags(flags_)
+		, m_flags((XsSize) flags_)
 	{
 	}
 
@@ -114,7 +146,7 @@ public:
 	inline explicit XsVector(const XsVector& other, XsReal* ref, XsSize sz, XsDataFlags flags_ = XSDF_None)
 		: m_data(ref)
 		, m_size(sz)
-		, m_flags(flags_)
+		, m_flags((XsSize) flags_)
 	{
 		XsVector_copy(this, &other);
 	}
@@ -127,6 +159,20 @@ public:
 	{
 		XsVector_angularVelocityFromQuaternion(this, deltaT, &quat);
 	}
+
+#if !defined(SWIG) && !defined(__ADSP21000__)
+	//! \brief Move-construct a vector using the supplied \a other vector
+	inline XsVector(XsVector&& other)
+		: m_data(0)
+		, m_size(0)
+		, m_flags(0)
+	{
+		if (!(other.m_flags & XSDF_Managed))
+			XsVector_copy(this, &other);
+		else
+			XsVector_swap(this, &other);
+	}
+#endif
 
 	//! \brief Assignment operator. Copies from \a other into this
 	inline XsVector& operator=(const XsVector& other)
@@ -351,6 +397,12 @@ public:
 	{
 		XsVector_swap(this, &b);
 	}
+	
+	/*! \brief swap the contents of \a first and \a second */
+	friend void swap(XsVector& first, XsVector& second) 
+	{
+		first.swap(second);
+	}
 
 	/*! \brief Append \a other to this
 		\details Append the vector in \a other to the end of this vector
@@ -376,11 +428,13 @@ public:
 	/*! \brief Reverse the values in the vector */
 	inline void reverse()
 	{
+		using std::swap;
+
 		XsSize sz = size();
 		XsSize half = sz >> 1;
 		--sz;
 		for (XsSize i = 0; i < half; ++i)
-			std::swap(operator[](i), operator[](sz-i));
+			swap(operator[](i), operator[](sz-i));
 	}
 #endif
 #endif

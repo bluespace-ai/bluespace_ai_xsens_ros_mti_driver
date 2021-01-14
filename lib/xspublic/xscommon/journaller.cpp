@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -42,25 +74,18 @@
 #include <xstypes/xsthread.h>	// for xsGetCurrentThreadId
 #include <xstypes/xstimestamp.h>
 #include <xstypes/xstimeinfo.h>
+#include <memory>
 
 #ifndef XSENS_NO_AUTOLIB
 #pragma comment(lib, "psapi.lib")
 #endif
-
-typedef std::map<XsString, JournalFile*> JournalFileMap;
-//! \brief A map of filenames to JournalFile objects, used by Journaller objects to share files
-JournalFileMap* gJournalFileMap;
-//! \brief Some magic numbers that help to see if gJournalFileMap is set or not
-static int gMagic[3];
-//! \brief The threader object for Journaller
-JournalThreader* gJournalThreader;
 
 //! \brief The optional additional logger
 AbstractAdditionalLogger* Journaller::m_additionalLogger = nullptr;
 
 inline int threadId() {
 #if JOURNALLER_WITH_THREAD_SUPPORT && !defined(__APPLE__)
-	return xsGetCurrentThreadId();
+	return (int) xsGetCurrentThreadId();
 #else
 	return 0;
 #endif
@@ -70,7 +95,7 @@ inline int threadId() {
 	\brief A journalling class for debugging applications
 
 	\details Create a Journaller object in your application or dll main and share it among the source files
-	of your application (ie by adding "extern Journaller* journal;" in the config.h)
+	of your application (ie by adding "extern Journaller* journal;" in the xscommon_config.h)
 	Use the supplied logging macros if you want to be able to remove the logging lines at compile-time.
 
 	Multiple Journaller objects can use the same file
@@ -92,70 +117,29 @@ inline int threadId() {
 	\param purge Whether to clear the logfile or append when opening the file (default true)
 	\param initialLogLevel The initial log level to use (default JLL_Alert)
 */
-Journaller::Journaller(const char* pathfile, bool purge, JournalLogLevel initialLogLevel)
-	: m_file(nullptr)
-	, m_level(initialLogLevel)
-	, m_debugLevel(initialLogLevel)
-	, m_flushLevel(JLL_Alert)
-	, m_useDateTime(false)
-{
-	init(XsString(pathfile), purge);
-}
-
-/*! \brief Constructor
-	\details The constructor configures the object to use the specified file. If it is already open by
-	another Journaller object, the existing file is reused and it will not be purged.
-	\param pathfile The (path+) filename of the logfile to use
-	\param purge Whether to clear the logfile or append when opening the file (default true)
-	\param initialLogLevel The initial log level to use (default JLL_Alert)
-*/
 Journaller::Journaller(const XsString& pathfile, bool purge, JournalLogLevel initialLogLevel)
 	: m_file(nullptr)
 	, m_level(initialLogLevel)
 	, m_debugLevel(initialLogLevel)
 	, m_flushLevel(JLL_Alert)
+	, m_threader(new JournalThreader)
 	, m_useDateTime(false)
 {
 	init(pathfile, purge);
 }
 
-void Journaller::init(XsString pathfile, bool purge)
+/*! \brief Destructor, detaches from the logfile and closes it if this was the last reference */
+Journaller::~Journaller()
 {
-	if (gMagic[0] != 0x696e6974 ||
-		gMagic[1] != 0x69616c69 ||
-		gMagic[2] != 0x7a656400)
-	{
-		gJournalFileMap = new JournalFileMap;
-		gJournalThreader = new JournalThreader;
+}
 
-		gMagic[0] = 0x696e6974;
-		gMagic[1] = 0x69616c69;
-		gMagic[2] = 0x7a656400;
-		// "initialized", but in memory "tiniilai\0dez" how about that for a magic string?
-	}
-
+/*! \brief Initialize the Journaller by (re-)creating the internal journal file */
+void Journaller::init(XsString const& pathfile, bool purge)
+{
 #ifdef ANDROID
 	setTag(tagFromFilename(pathfile.toStdString()));
 #endif
-	m_file = getOrCreateFile(pathfile, purge);
-}
-
-JournalFile* Journaller::getOrCreateFile(const XsString& fn, bool purge)
-{
-	JournalFile* rv = nullptr;
-	JournalFileMap::iterator fit = gJournalFileMap->find(fn);
-	if (fit == gJournalFileMap->end())
-	{
-		// add file to map
-		rv = new JournalFile(fn, purge);
-		(*gJournalFileMap)[fn] = rv;
-	}
-	else
-	{
-		rv = fit->second;
-		rv->addRef();
-	}
-	return rv;
+	m_file.reset(new JournalFile(pathfile, purge));
 }
 
 /*! \returns The tag string made from file name
@@ -168,62 +152,6 @@ std::string Journaller::tagFromFilename(const std::string &fn)
 	const size_t b = fn.find_last_of("/") + 1;
 	const size_t l = fn.find_first_of(".");
 	return fn.substr(b, l - b);
-}
-
-/*! \brief 'Copy' constructor
-	\details The constructor configures the object to use the same settings as \a attachTo, the existing file
-	is reused and it will not be purged.
-	\param attachTo The Journaller to copy settings from
-*/
-Journaller::Journaller(Journaller const& attachTo)
-	: m_file(0)
-	, m_level(attachTo.logLevel())
-	, m_debugLevel(attachTo.debugLevel())
-	, m_useDateTime(attachTo.m_useDateTime)
-{
-	XsString fn(attachTo.filename());
-	if (gMagic[0] != 0x696e6974 ||
-		gMagic[1] != 0x69616c69 ||
-		gMagic[2] != 0x7a656400)
-	{
-		gJournalFileMap = new JournalFileMap;
-		gJournalThreader = new JournalThreader;
-
-		gMagic[0] = 0x696e6974;
-		gMagic[1] = 0x69616c69;
-		gMagic[2] = 0x7a656400;
-		// "initialized", but in memory "tiniilai\0dez" how about that for a magic string?
-	}
-
-	JournalFileMap::iterator fit = gJournalFileMap->find(fn);
-	if (fit == gJournalFileMap->end())
-	{
-		// add file to map
-		m_file = new JournalFile(fn, false);
-		(*gJournalFileMap)[fn] = m_file;
-	}
-	else
-	{
-		m_file = fit->second;
-		m_file->addRef();
-	}
-}
-
-/*! \brief Destructor, detaches from the logfile and closes it if this was the last reference */
-Journaller::~Journaller()
-{
-	try {
-		m_file->removeRef();
-		if (m_file->refCount() <= 0)
-		{
-			gJournalFileMap->erase(m_file->filename());
-			gJournalThreader->flushFile(m_file);
-			gJournalThreader->removeFile(m_file);
-			delete m_file;
-			m_file = 0;
-		}
-	} catch(...)
-	{}
 }
 
 /*! \brief When setting the Date Time to \a yes, the timestamps are translated from unix timestamp into a redable date/time
@@ -246,7 +174,7 @@ void Journaller::setAdditionalLogger(AbstractAdditionalLogger* additionallogger)
 }
 
 /*! \brief A list of strings representing the different log levels, use JournalLogLevel to index */
-const char* gLogLevelString[] = {
+static const char* gLogLevelString[] = {
 		"[TRACE] ",
 		"[DEBUG] ",
 		"[ALERT] ",
@@ -261,7 +189,7 @@ void Journaller::writeFileHeader(const std::string& appName)
 	m_appName = appName;
 	XsTimeStamp now = XsTimeStamp::now();
 	JLWRITE(this, "Journaller logging to " << m_file->filename() << (appName.empty() ? XsString() : XsString(" for ") + appName) << " on " << now.toString());
-	JLWRITE(this, "Current log level is " << gLogLevelString[m_level]);
+	//JLWRITE(this, "Current log level is " << gLogLevelString[m_level]);
 }
 
 /*! \brief Write a log message to the file if \a level is at least equal to the current log level
@@ -277,7 +205,7 @@ void Journaller::log(JournalLogLevel level, const std::string& msg)
 	if (level < m_level && level < m_debugLevel)
 		return;
 
-	gJournalThreader->setLineLevel(m_file, threadId(), level);
+	m_threader->setLineLevel(threadId(), level);
 	writeTime();
 #if JOURNALLER_WITH_THREAD_SUPPORT
 	writeThread();
@@ -314,9 +242,9 @@ void Journaller::writeThread()
 {
 	char buf[32];
 #ifdef __GNUC__
-	sprintf(buf, "<%08X> ", (int) threadId());
+	sprintf(buf, "<%08X> ", (unsigned int) threadId());
 #else
-	sprintf(buf, "<%04X> ", (int) threadId());
+	sprintf(buf, "<%04X> ", (unsigned int) threadId());
 #endif
 	writeMessage(buf);
 }
@@ -352,7 +280,7 @@ void Journaller::writeMessage(const std::string& msg)
 		return;
 	}
 
-	gJournalThreader->line(m_file, threadId()).append(msg);
+	m_threader->line(threadId()).append(msg);
 	char eol = *msg.rbegin();
 	if (eol == '\n' || eol == '\r')
 		flushLine();
@@ -363,14 +291,14 @@ void Journaller::writeMessage(const std::string& msg)
 void Journaller::flushLine()
 {
 	int thread = threadId();
-	std::string& line = gJournalThreader->line(m_file, thread);
-	JournalLogLevel lineLevel = gJournalThreader->lineLevel(m_file, thread);
+	std::string& line = m_threader->line(thread);
+	JournalLogLevel lineLevel = m_threader->lineLevel(thread);
 	if (!line.empty())
 	{
 		if (lineLevel >= m_level)
-			gJournalThreader->flushMessage(m_file, line);
+			m_threader->writeLine(thread, m_file.get());
 		if (lineLevel > m_debugLevel)
-			gJournalThreader->flushMessage(NULL, line);
+			m_threader->writeLine(thread, nullptr);
 		line.clear();
 	}
 }
@@ -390,7 +318,7 @@ void Journaller::setFlushLevel(JournalLogLevel level, bool writeLogLine)
 {
 	m_flushLevel = level;
 	if (writeLogLine)
-		JLGENERIC(this, JLL_None, "Flush level switched to " << gLogLevelString[m_flushLevel]);
+		JLGENERIC(this, JLL_Write, "Flush level switched to " << gLogLevelString[m_flushLevel]);
 }
 
 /*! \brief Write the current callstack to the file if \a level is at least equal to the current log level
@@ -400,10 +328,10 @@ void Journaller::writeCallstack(JournalLogLevel level)
 	if (level < m_level)
 		return;
 
-	log(level, "************ Dump Begin ************");
+	JLGENERIC(this, level, "************ Dump Begin ************");
 	JournalStackWalker sw(this);
 	sw.ShowCallstack();
-	log(level, "************* Dump End *************");
+	JLGENERIC(this, level, "************* Dump End *************");
 }
 
 /*! \brief Set the log level for logging to file
@@ -415,7 +343,7 @@ void Journaller::setLogLevel(JournalLogLevel level, bool writeLogLine)
 {
 	m_level = level;
 	if (writeLogLine)
-		JLGENERIC(this, JLL_None, "Log level switched to " << gLogLevelString[level]);
+		JLGENERIC(this, JLL_Write, "Log level set to " << gLogLevelString[level]);
 }
 
 /*! \brief Set the log level for logging to debug output
@@ -427,7 +355,7 @@ void Journaller::setDebugLevel(JournalLogLevel level, bool writeLogLine)
 {
 	m_debugLevel = level;
 	if (writeLogLine)
-		JLGENERIC(this, JLL_None, "Debugger output log level switched to " << gLogLevelString[level]);
+		JLGENERIC(this, JLL_Write, "Debugger output log level set to " << gLogLevelString[level]);
 }
 
 /*! \brief Returns the filename of the used journal file */
@@ -461,38 +389,104 @@ std::ostream& operator << (std::ostream& os, JlHexLogger<char> const& hex)
 	return os << JlHexLogger<int>((int) hex.m_value);
 }
 
-/*! \brief Changes the log file
+/*! \brief Move the log file to the supplied path, keeping current contents intact
 	\param pathfile The path of a file to change to
-	\param purge If set to true then it clears a log file that we changed to
+	\param purge If set to true (default) then it clears the log file that we changed to
+	\param eraseOld If set to true (default) then the old log file will be removed
 */
-void Journaller::changeLogFile(const XsString& pathfile, bool purge)
+void Journaller::moveLogFile(const XsString& pathfile, bool purge, bool eraseOld)
 {
-	JournalFile* newFile = getOrCreateFile(pathfile, purge);
-
-	if (newFile == m_file)
-	{
-		newFile->removeRef();
+	if (m_file && m_file->filename().replacedAll("\\", "/") == pathfile.replacedAll("\\", "/"))
 		return;
-	}
+
+	JournalFile* newFile = new JournalFile(pathfile, purge);
 
 	XsString oldFileName;
-	if (m_file)
+	std::unique_ptr<uint8_t[]> buffer;
+	XsFilePos sz = 0;
+	if (m_file && m_file->xsFile().isOpen())
 	{
 		oldFileName = m_file->filename();
 		JLWRITE(this, "Switching to file " << pathfile);
-		m_file->removeRef();
+
+		XsFile& file = m_file->xsFile();
+		sz = file.tell();
+		if (sz)
+		{
+			file.seek(0);
+			buffer.reset(new uint8_t[(int)sz]);
+			sz = file.read(buffer.get(), 1, sz);
+		}
 	}
 
-	m_file = newFile;
-	writeFileHeader(m_appName);
+	m_file.reset(newFile);
+	if (buffer && sz)
+		m_file->xsFile().write(buffer.get(), 1, sz);
+	else
+		writeFileHeader(m_appName);
+
 	if (!oldFileName.empty())
 	{
-		JLWRITE(this, "Switched from " << oldFileName << " to " << pathfile);
+		if (eraseOld)
+			_unlink(oldFileName.c_str());
+		JLDEBUG(this, "Switched from " << oldFileName << " to " << pathfile);
 	}
 	else
+		JLDEBUG(this, "Switched to " << pathfile);
+}
+
+/*! \brief Copy the contents of the current log file to \a target
+	\details After copying the contents, the current log file is closed.
+	\param target The destination Journaller to write to
+	\param eraseOld When true (default), the old log file is deleted
+*/
+void Journaller::moveLogs(Journaller* target, bool eraseOld)
+{
+	assert(target);
+	if (target->filename() == filename())
+		return;
+
+	auto newFile = target->m_file;
+	XsString oldFileName;
+	std::unique_ptr<uint8_t[]> buffer;
+	XsFilePos sz = 0;
+	if (m_file && m_file->xsFile().isOpen())
 	{
-		JLWRITE(this, "Switched to " << pathfile);
+		oldFileName = m_file->filename();
+		JLDEBUG(target, "************ Moving logs from " << oldFileName << " to " << target->filename());
+
+		XsFile& file = m_file->xsFile();
+		sz = file.tell();
+		if (sz)
+		{
+			file.seek(0);
+			buffer.reset(new uint8_t[(int)sz]);
+			sz = file.read(buffer.get(), 1, sz);
+		}
 	}
+
+	if (buffer && sz && newFile)
+		newFile->xsFile().write(buffer.get(), 1, sz);
+	m_file = newFile;
+
+	if (!oldFileName.empty())
+	{
+		if (eraseOld)
+			_unlink(oldFileName.c_str());
+		JLDEBUG(target, "************ Moved logs from " << oldFileName);
+	}
+}
+
+/*! \brief Removes stored information on the current thread after flushing all data
+	\note It is recommended to call this in the DllMain DLL_THREAD_DETACH section
+*/
+void Journaller::cleanupThread()
+{
+#if JOURNALLER_WITH_THREAD_SUPPORT
+	flush();
+	if (m_threader)
+		m_threader->cleanup(threadId());
+#endif
 }
 
 /*! \brief Cleans up any remaining stuff
@@ -506,20 +500,6 @@ void jlTerminate(Journaller** gj)
 	{
 		delete *gj;
 		*gj = nullptr;
-	}
-
-	if (gJournalThreader)
-	{
-		delete gJournalThreader;
-		gJournalThreader = nullptr;
-	}
-
-	if (gJournalFileMap)
-	{
-		for (auto g : *gJournalFileMap)
-			delete g.second;
-		delete gJournalFileMap;
-		gJournalFileMap = nullptr;
 	}
 }
 

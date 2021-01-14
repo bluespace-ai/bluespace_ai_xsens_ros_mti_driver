@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -52,14 +84,14 @@ int XsVersion_empty(const XsVersion* thisPtr)
 void XsVersion_toString(const XsVersion* thisPtr, XsString* version)
 {
 	char buffer[256];
-	size_t chars;
+	int chars;
 
 	if (thisPtr->m_build != 0 && thisPtr->m_reposVersion != 0)
 		chars = sprintf(buffer, "%d.%d.%d build %d rev %d", thisPtr->m_major, thisPtr->m_minor, thisPtr->m_revision, thisPtr->m_build, thisPtr->m_reposVersion);
 	else
 		chars = sprintf(buffer, "%d.%d.%d", thisPtr->m_major, thisPtr->m_minor, thisPtr->m_revision);
 
-	XsString_assign(version, (XsSize)chars, buffer);
+	XsString_assign(version, (XsSize)(ptrdiff_t)chars, buffer);
 	if (thisPtr->m_extra.m_size != 0)
 	{
 		const char space = ' ';
@@ -75,10 +107,8 @@ void XsVersion_toString(const XsVersion* thisPtr, XsString* version)
 void XsVersion_toSimpleString(const XsVersion* thisPtr, XsString* version)
 {
 	char buffer[256];
-	size_t chars;
-
-	chars = sprintf(buffer, "%d.%d.%d", thisPtr->m_major, thisPtr->m_minor, thisPtr->m_revision);
-	XsString_assign(version, (XsSize)chars, buffer);
+	int chars = sprintf(buffer, "%d.%d.%d", thisPtr->m_major, thisPtr->m_minor, thisPtr->m_revision);
+	XsString_assign(version, (XsSize)(ptrdiff_t)chars, buffer);
 }
 
 /*!
@@ -92,7 +122,7 @@ void XsVersion_fromString(XsVersion* thisPtr, const XsString* version)
 	int revision = 0;
 	int build = 0;
 	int reposVersion = 0;
-	int result = 0;
+	int result;
 	size_t count = 0;
 
 	assert(thisPtr);
@@ -142,9 +172,9 @@ void XsVersion_fromSimpleVersion(XsVersion* thisPtr, const XsSimpleVersion* simp
  */
 void XsVersion_toSimpleVersion(const XsVersion* thisPtr, XsSimpleVersion* simpleVersion)
 {
-	simpleVersion->m_major = thisPtr->m_major;
-	simpleVersion->m_minor = thisPtr->m_minor;
-	simpleVersion->m_revision = thisPtr->m_revision;
+	simpleVersion->m_major = (uint8_t)(int8_t)thisPtr->m_major;
+	simpleVersion->m_minor = (uint8_t)(int8_t)thisPtr->m_minor;
+	simpleVersion->m_revision = (uint8_t)(int8_t)thisPtr->m_revision;
 }
 
 /*! @} */

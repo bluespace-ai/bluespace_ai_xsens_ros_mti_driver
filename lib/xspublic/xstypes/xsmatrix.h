@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -82,7 +114,7 @@ XSCPPPROTECTED
 
 #ifdef __cplusplus
 	//! \brief Return the data management flags of the matrix.
-	inline XsSize flags() { return m_flags; }
+	inline XsSize flags() const { return m_flags; }
 public:
 	/*! \brief Initialize an XsMatrix object with the specified number of \a rows and \a cols */
 	inline explicit XsMatrix(XsSize rows = 0, XsSize cols = 0, XsSize strde = 0, const XsReal* dat = 0)
@@ -107,23 +139,39 @@ public:
 		XsMatrix_copy(this, &other);
 	}
 
+#if !defined(SWIG) && !defined(__ADSP21000__)
+	/*! \brief Move-construct an XsMatrix object from the \a other XsMatrix */
+	inline XsMatrix(XsMatrix&& other)
+		: m_data(0)
+		, m_rows(0)
+		, m_cols(0)
+		, m_stride(0)
+		, m_flags(0)
+	{
+		if (!(other.m_flags & XSDF_Managed))
+			XsMatrix_copy(this, &other);
+		else
+			XsMatrix_swap(this, &other);
+	}
+#endif
+
 	/*! \brief Initialize an XsMatrix object that references the data passed in \a ref. \a rows, \a cols and \a stride can be used to specify the layout of the data */
-	inline explicit XsMatrix(XsReal* ref, XsSize rows, XsSize cols, XsSize stride, XsDataFlags flags = XSDF_None)
+	inline explicit XsMatrix(XsReal* ref, XsSize rows, XsSize cols, XsSize stride, XsDataFlags flags /* = XSDF_None */)
 		: m_data(ref)
 		, m_rows(rows)
 		, m_cols(cols)
 		, m_stride(stride)
-		, m_flags(flags)
+		, m_flags((XsSize) flags)
 	{
 	}
 
 	/*! \brief Initialize a copy of \a other in an XsMatrix object that references the data passed in \a ref. \a rows, \a cols and \a stride can be used to specify the layout of the data */
-	inline explicit XsMatrix(const XsMatrix& other, XsReal* ref, XsSize rows, XsSize cols, XsSize stride, XsDataFlags flags = XSDF_None)
+	inline explicit XsMatrix(const XsMatrix& other, XsReal* ref, XsSize rows, XsSize cols, XsSize stride, XsDataFlags flags /* = XSDF_None */)
 		: m_data(ref)
 		, m_rows(rows)
 		, m_cols(cols)
 		, m_stride(stride)
-		, m_flags(flags)
+		, m_flags((XsSize) flags)
 	{
 		XsMatrix_copy(this, &other);
 	}
@@ -290,7 +338,12 @@ public:
 	{
 		XsMatrix_swap(this, &b);
 	}
-
+	
+	/*! \brief swaps the contents \a first with that of \a second */
+	friend void swap(XsMatrix& first, XsMatrix& second) 
+	{ 
+		first.swap(second);
+	}
 #endif
 };
 #ifndef XSENS_NO_PACK

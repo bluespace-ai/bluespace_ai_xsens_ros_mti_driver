@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -48,6 +80,16 @@
 #define elemAtX(b, i, thisArray)	((void*)(((char*) (b))+((i)*elemSize(thisArray))))
 #define elemAt(b, i)				elemAtX(b, i, thisArray)
 /*! \endcond */
+
+#ifdef DOXYGEN
+/*! \brief Initializes the XsArray-derived object with space for \a count items and copies them from \a src
+	\details This function initializes the object reserving \a count items in the buffer. \a count may
+	be 0. If \a src is not 0, \a count items from \a src will be copied.
+	\param count The number of items to reserve space for. When \a src is not NULL, thisArray is also the number of items copied from \a src
+	\param src A pointer to an array of objects to copy, may be NULL, ignored when \a count is 0
+*/
+void XsArray_constructDerived(void* thisPtr, XsSize count, void const* src);
+#endif
 
 /*! \relates XsArray
 	\brief Initializes the XsArray with space for \a count items and copies them from \a src
@@ -246,6 +288,9 @@ void XsArray_reserve(void* thisPtr, XsSize count)
 
 	// init to size
 	*((void**) &tmp.m_data) = malloc(tmp.m_reserved*elemSize(thisArray));
+	assert(tmp.m_data);
+	if (!tmp.m_data)
+		return;
 	XsArray_incAllocCount();
 
 	if (thisArray->m_descriptor->itemConstruct)
@@ -338,7 +383,7 @@ void XsArray_insert(void* thisPtr, XsSize index, XsSize count, void const* src)
 {
 	XsSize s;
 	XsArray* thisArray = (XsArray*) thisPtr;
-	int i,d = (int) count;
+	XsSize i,d = count;
 	if (thisArray->m_size + count > thisArray->m_reserved)
 		XsArray_reserve(thisArray, ((thisArray->m_size + count)*3)/2);		// we reserve 50% more space here to handle multiple sequential insertions efficiently
 
@@ -347,7 +392,7 @@ void XsArray_insert(void* thisPtr, XsSize index, XsSize count, void const* src)
 		index = thisArray->m_size;
 
 	// move items to the back by swapping
-	for (i = ((int)thisArray->m_size)-1; i >= (int) index; --i)
+	for (i = thisArray->m_size-1; i >= index && i < thisArray->m_size; --i)
 		thisArray->m_descriptor->itemSwap(elemAt(thisArray->m_data, i), elemAt(thisArray->m_data, i+d));
 
 	// copy items to the array
@@ -398,7 +443,9 @@ void XsArray_swap(void* a, void* b)
 		*((XsSize*) &tmp.m_flags) = aArray->m_flags;
 		*((XsSize*) &aArray->m_flags) = bArray->m_flags;
 		*((XsSize*) &bArray->m_flags) = tmp.m_flags;
-	} else {
+	}
+	else 
+	{
 		// elementwise swap
 		XsSize i;
 		assert(aArray->m_size == bArray->m_size);
@@ -698,7 +745,7 @@ void XsArray_reverse(void* thisPtr)
 	XsArray* thisArray = (XsArray*) thisPtr;
 	half = thisArray->m_size >> 1;
 	for (i = 0; i < half; ++i)
-		thisArray->m_descriptor->itemSwap(elemAt(thisArray->m_data, i), elemAt(thisArray->m_data, thisArray->m_size-1-i));
+		thisArray->m_descriptor->itemSwap(elemAt(thisArray->m_data, i), elemAt(thisArray->m_data, (thisArray->m_size-1)-i));
 }
 
 /*! @} */

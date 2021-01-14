@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -79,37 +111,39 @@ extern "C" {
 
 #define XSSOCKET_INFINITE_TIMEOUT -1
 
-XSTYPES_DLL_API void XsSocket_create(XsSocket* thisp, enum NetworkLayerProtocol ip, enum IpProtocol protocol);
-XSTYPES_DLL_API void XsSocket_createFromFileDescriptor(XsSocket* thisp, int sockfd, XsDataFlags flags);
-XSTYPES_DLL_API void XsSocket_destroy(XsSocket* thisp);
-XSTYPES_DLL_API XsResultValue XsSocket_close(XsSocket* thisp);
+XSTYPES_DLL_API void XsSocket_create(XsSocket* thisPtr, enum NetworkLayerProtocol ip, enum IpProtocol protocol);
+XSTYPES_DLL_API void XsSocket_createFromFileDescriptor(XsSocket* thisPtr, int sockfd, XsDataFlags flags);
+XSTYPES_DLL_API void XsSocket_destroy(XsSocket* thisPtr);
+XSTYPES_DLL_API XsResultValue XsSocket_close(XsSocket* thisPtr);
 
-XSTYPES_DLL_API XSOCKET XsSocket_nativeDescriptor(XsSocket const* thisp);
+XSTYPES_DLL_API XSOCKET XsSocket_nativeDescriptor(XsSocket const* thisPtr);
 
-XSTYPES_DLL_API int XsSocket_select(XsSocket* thisp, int mstimeout, int *canRead, int *canWrite);
-XSTYPES_DLL_API int XsSocket_read(XsSocket* thisp, void* dest, XsSize size, int timeout);
-XSTYPES_DLL_API int XsSocket_readFrom(XsSocket* thisp, void* dest, XsSize size, XsString* hostname, uint16_t* port, int timeout);
-XSTYPES_DLL_API int XsSocket_read2ByteArray(XsSocket* thisp, XsByteArray* dest, int timeout);
-XSTYPES_DLL_API int XsSocket_readFrom2ByteArray(XsSocket* thisp, XsByteArray* dest, XsString* hostname, uint16_t* port, int timeout);
+XSTYPES_DLL_API int XsSocket_select(XsSocket* thisPtr, int mstimeout, int *canRead, int *canWrite);
+XSTYPES_DLL_API int XsSocket_read(XsSocket* thisPtr, void* dest, XsSize size, int timeout);
+XSTYPES_DLL_API int XsSocket_readFrom(XsSocket* thisPtr, void* dest, XsSize size, XsString* hostname, uint16_t* port, int timeout);
+XSTYPES_DLL_API int XsSocket_read2ByteArray(XsSocket* thisPtr, XsByteArray* dest, int timeout);
+XSTYPES_DLL_API int XsSocket_readFrom2ByteArray(XsSocket* thisPtr, XsByteArray* dest, XsString* hostname, uint16_t* port, int timeout);
 
-XSTYPES_DLL_API int XsSocket_write(XsSocket* thisp, const void* buffer, XsSize size);
-XSTYPES_DLL_API int XsSocket_writeTo(XsSocket* thisp, const void* buffer, XsSize size, const XsString* hostname, uint16_t port);
+XSTYPES_DLL_API int XsSocket_write(XsSocket* thisPtr, const void* buffer, XsSize size);
+XSTYPES_DLL_API int XsSocket_writeTo(XsSocket* thisPtr, const void* buffer, XsSize size, const XsString* hostname, uint16_t port);
 
-XSTYPES_DLL_API void XsSocket_flush(XsSocket* thisp);
+XSTYPES_DLL_API void XsSocket_flush(XsSocket* thisPtr);
 
-XSTYPES_DLL_API XsSocket* XsSocket_accept(XsSocket* thisp, int mstimeout);
+XSTYPES_DLL_API XsSocket* XsSocket_accept(XsSocket* thisPtr, int mstimeout);
 
 XSTYPES_DLL_API XsSocket* XsSocket_allocate();
-XSTYPES_DLL_API void XsSocket_free(XsSocket* thisp);
+XSTYPES_DLL_API void XsSocket_free(XsSocket* thisPtr);
 
-XSTYPES_DLL_API XsResultValue XsSocket_setSocketOption(XsSocket* thisp, enum XsSocketOption option, void* valuePtr, int valueSize);
-XSTYPES_DLL_API XsResultValue XsSocket_bind(XsSocket* thisp, const XsString* hostname, uint16_t port);
-XSTYPES_DLL_API XsResultValue XsSocket_listen(XsSocket* thisp, int maxPending);
-XSTYPES_DLL_API XsResultValue XsSocket_connect(XsSocket* thisp, const XsString* host, uint16_t port);
+XSTYPES_DLL_API XsResultValue XsSocket_setSocketOption(XsSocket* thisPtr, enum XsSocketOption option, void* valuePtr, int valueSize);
+XSTYPES_DLL_API XsResultValue XsSocket_bind(XsSocket* thisPtr, const XsString* hostname, uint16_t port);
+XSTYPES_DLL_API XsResultValue XsSocket_listen(XsSocket* thisPtr, int maxPending);
+XSTYPES_DLL_API XsResultValue XsSocket_connect(XsSocket* thisPtr, const XsString* host, uint16_t port);
 
-XSTYPES_DLL_API int XsSocket_isUsable(const XsSocket* thisp);
-XSTYPES_DLL_API void XsSocket_getRemoteAddress(const XsSocket* thisp, XsString *address);
-XSTYPES_DLL_API int XsSocket_getLastSystemError(const XsSocket* thisp);
+XSTYPES_DLL_API int XsSocket_isUsable(const XsSocket* thisPtr);
+XSTYPES_DLL_API void XsSocket_getRemoteAddress(const XsSocket* thisPtr, XsString *address);
+XSTYPES_DLL_API int XsSocket_getLastSystemError(const XsSocket* thisPtr);
+XSTYPES_DLL_API int XsSocket_enableBroadcasts(XsSocket* thisPtr, int enable);
+XSTYPES_DLL_API int XsSocket_broadcast(XsSocket* thisPtr, const void* buffer, XsSize size, uint16_t port);
 
 #ifdef __cplusplus
 }
@@ -128,21 +162,20 @@ struct XsSocket
 		\param[in] protocol the protocol on top of IP to use
 		\param[in] ipVersion the ip address family to use
 	*/
-	inline explicit XsSocket(IpProtocol protocol, NetworkLayerProtocol ipVersion = NLP_IPVX) :
-		d(NULL)
+	inline explicit XsSocket(IpProtocol protocol, NetworkLayerProtocol ipVersion = NLP_IPVX)
+		: d(NULL)
 	{
 		(void)d;
 		XsSocket_create(this, ipVersion, protocol);
 	}
 
-	/*!
-	 * \brief \copybrief XsSocket_createFromFileDescriptor
-	 *
-	 * \param[in] sockfd the file descriptor of the socket to wrap
-	 * \param[in] flags if set to XSDF_Managed the wrapped socket will be closed when object is destroyed
-	 */
-	inline explicit XsSocket(int sockfd, XsDataFlags flags = XSDF_None) :
-		d(NULL)
+	/*! \brief \copybrief XsSocket_createFromFileDescriptor
+
+		\param[in] sockfd the file descriptor of the socket to wrap
+		\param[in] flags if set to XSDF_Managed the wrapped socket will be closed when object is destroyed
+	*/
+	inline explicit XsSocket(int sockfd, XsDataFlags flags = XSDF_None)
+		: d(NULL)
 	{
 		(void)d;
 		XsSocket_createFromFileDescriptor(this, sockfd, flags);
@@ -295,13 +328,12 @@ struct XsSocket
 		XsSocket_flush(this);
 	}
 
-	/*!
-	 * \brief \copybrief XsSocket_select
-	 * \param[in] mstimeout timeout to wait for socket to be readable/writeable
-	 * \param[in,out] canRead if not null then will be set to non-zero to indicate that the socket has data to read.
-	 * \param[in,out] canWrite if not null then will be set to non-zero to indicate that the socket can be written to.
-	 * \returns -1 on error, 0 on timeout, or a positive number otherwise
-	 */
+	/*! \brief \copybrief XsSocket_select
+		\param[in] mstimeout timeout to wait for socket to be readable/writeable
+		\param[in,out] canRead if not null then will be set to non-zero to indicate that the socket has data to read.
+		\param[in,out] canWrite if not null then will be set to non-zero to indicate that the socket can be written to.
+		\returns -1 on error, 0 on timeout, or a positive number otherwise
+	*/
 	int select(int mstimeout, int *canRead, int *canWrite)
 	{
 		return XsSocket_select(this, mstimeout, canRead, canWrite);
@@ -330,29 +362,29 @@ struct XsSocket
 	}
 
 	/*! \brief De-allocate the socket */
-	inline void operator delete(void* p) throw()
+	inline void operator delete(void* p) noexcept
 	{
 		XsSocket_free(reinterpret_cast<XsSocket*>(p));
 	}
 
 	/*! \brief \copybrief XsSocket_setSocketOption
-	 *	\param[in] option The socket option to change
-	 *	\param[in] valuePtr Points to the new value of the socket option
-	 *	\param[in] valueSize The size of the value \a valuePtr points to
-	 *	\returns XRV_OK on success, another XsResultValue otherwise
-	 *	\see XsSocket_setSocketOption
-	 */
+		\param[in] option The socket option to change
+		\param[in] valuePtr Points to the new value of the socket option
+		\param[in] valueSize The size of the value \a valuePtr points to
+		\returns XRV_OK on success, another XsResultValue otherwise
+		\see XsSocket_setSocketOption
+	*/
 	XsResultValue setSocketOption(XsSocketOption option, void* valuePtr, int valueSize)
 	{
 		return XsSocket_setSocketOption(this, option, valuePtr, valueSize);
 	}
 
 	/*! \brief Sets an socket option of int type
-	 *	\param[in] option The socket option to change
-	 *	\param[in] value The new value of the socket option
-	 *	\returns XRV_OK on success, another XsResultValue otherwise
-	 *	\see XsSocket_setSocketOption
-	 */
+		\param[in] option The socket option to change
+		\param[in] value The new value of the socket option
+		\returns XRV_OK on success, another XsResultValue otherwise
+		\see XsSocket_setSocketOption
+	*/
 	XsResultValue setSocketOption(XsSocketOption option, int value)
 	{
 		return XsSocket_setSocketOption(this, option, (void*)&value, sizeof(int));
@@ -422,12 +454,11 @@ struct XsSocket
 		return XsSocket_isUsable(this) != 0;
 	}
 
-	/*!
-	 * \brief Get the IP address of the remote host this socket is connected to.
-	 * \returns the remote host IP address
-	 *
-	 * Only works for connected TCP sockets
-	 */
+	/*! \brief Get the IP address of the remote host this socket is connected to.
+
+		Only works for connected TCP sockets
+		\returns the remote host IP address
+	*/
 	XsString getRemoteAddress() const
 	{
 		XsString address;
@@ -442,6 +473,28 @@ struct XsSocket
 		return XsSocket_getLastSystemError(this);
 	}
 
+	/*! \brief Broadcast data over the socket to the port indicated by \a port
+
+		\param[in] data the data to write
+		\param[in] size the size of the data
+		\param[in] port the port to send data to
+
+		\returns the number of bytes written, -1 on error, depending on whether the majority of sub broadcasts succeeded or failed.
+	*/
+	int broadcast(const void* data, XsSize size, uint16_t port)
+	{
+		return XsSocket_broadcast(this, data, size, port);
+	}
+
+	/*! \brief Enable sending and receiving broadcasts on this socket
+		\details By default sockets do not receive broadcasts and can't send them. This function can enable this option.
+		\param enable Set to 1 to enable broadcasts, 0 to disable them again
+		\return 1 if successful, 0 if a failure occurred
+	*/
+	bool enableBroadcasts(bool enable)
+	{
+		return 0 != XsSocket_enableBroadcasts(this, enable ? 1 : 0);
+	}
 private:
 #endif
 	struct XsSocketPrivate *d;

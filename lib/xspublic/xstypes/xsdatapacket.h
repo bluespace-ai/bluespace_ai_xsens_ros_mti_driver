@@ -1,5 +1,37 @@
 
-//  Copyright (c) 2003-2019 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  All rights reserved.
+//  
+//  Redistribution and use in source and binary forms, with or without modification,
+//  are permitted provided that the following conditions are met:
+//  
+//  1.	Redistributions of source code must retain the above copyright notice,
+//  	this list of conditions, and the following disclaimer.
+//  
+//  2.	Redistributions in binary form must reproduce the above copyright notice,
+//  	this list of conditions, and the following disclaimer in the documentation
+//  	and/or other materials provided with the distribution.
+//  
+//  3.	Neither the names of the copyright holders nor the names of their contributors
+//  	may be used to endorse or promote products derived from this software without
+//  	specific prior written permission.
+//  
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
+//  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+//  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY OR
+//  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.THE LAWS OF THE NETHERLANDS 
+//  SHALL BE EXCLUSIVELY APPLICABLE AND ANY DISPUTES SHALL BE FINALLY SETTLED UNDER THE RULES 
+//  OF ARBITRATION OF THE INTERNATIONAL CHAMBER OF COMMERCE IN THE HAGUE BY ONE OR MORE 
+//  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
+//  
+
+
+//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -55,6 +87,9 @@
 #include "xsrange.h"
 #include "xstriggerindicationdata.h"
 #include "xssnapshot.h"
+#include "xsglovesnapshot.h"
+#include "xsglovedata.h"
+#include "xshandid.h"
 
 #ifndef XSNOEXPORT
 #define XSNOEXPORT
@@ -75,6 +110,7 @@ typedef struct XsDataPacket XsDataPacket;
 #endif
 
 XSTYPES_DLL_API void XsDataPacket_construct(XsDataPacket* thisPtr);
+XSTYPES_DLL_API void XsDataPacket_copyConstruct(XsDataPacket* thisPtr, XsDataPacket const* src);
 XSTYPES_DLL_API void XsDataPacket_destruct(XsDataPacket* thisPtr);
 XSTYPES_DLL_API void XsDataPacket_clear(XsDataPacket* thisPtr, XsDataIdentifier id);
 XSTYPES_DLL_API void XsDataPacket_copy(XsDataPacket* copy, XsDataPacket const* src);
@@ -138,6 +174,9 @@ XSTYPES_DLL_API XsDataIdentifier XsDataPacket_coordinateSystemOrientation(const 
 XSTYPES_DLL_API XsSdiData* XsDataPacket_sdiData(const XsDataPacket* thisPtr, XsSdiData* returnVal);
 XSTYPES_DLL_API int XsDataPacket_containsSdiData(const XsDataPacket* thisPtr);
 XSTYPES_DLL_API void XsDataPacket_setSdiData(XsDataPacket* thisPtr, const XsSdiData* data);
+XSTYPES_DLL_API XsGloveData* XsDataPacket_gloveData(const XsDataPacket* thisPtr, XsGloveData* returnVal, XsHandId hand);
+XSTYPES_DLL_API int XsDataPacket_containsGloveData(const XsDataPacket* thisPtr, XsHandId hand);
+XSTYPES_DLL_API void XsDataPacket_setGloveData(XsDataPacket* thisPtr, const XsGloveData* data, XsHandId hand);
 XSTYPES_DLL_API XsDeviceId* XsDataPacket_storedDeviceId(const XsDataPacket* thisPtr, XsDeviceId* returnVal);
 XSTYPES_DLL_API int XsDataPacket_containsStoredDeviceId(const XsDataPacket* thisPtr);
 XSTYPES_DLL_API void XsDataPacket_setStoredDeviceId(XsDataPacket* thisPtr, const XsDeviceId* data);
@@ -216,6 +255,9 @@ XSTYPES_DLL_API void XsDataPacket_setGnssAge(XsDataPacket* thisPtr, uint8_t age)
 XSTYPES_DLL_API XsRawGnssSatInfo* XsDataPacket_rawGnssSatInfo(const XsDataPacket* thisPtr, XsRawGnssSatInfo* returnVal);
 XSTYPES_DLL_API int XsDataPacket_containsRawGnssSatInfo(const XsDataPacket* thisPtr);
 XSTYPES_DLL_API void XsDataPacket_setRawGnssSatInfo(XsDataPacket* thisPtr, const XsRawGnssSatInfo* r);
+XSTYPES_DLL_API uint32_t XsDataPacket_gnssPvtPulse(const XsDataPacket* thisPtr);
+XSTYPES_DLL_API int XsDataPacket_containsGnssPvtPulse(const XsDataPacket* thisPtr);
+XSTYPES_DLL_API void XsDataPacket_setGnssPvtPulse(XsDataPacket* thisPtr, uint32_t counter);
 
 XSTYPES_DLL_API XsDataPacket* XsDataPacket_merge(XsDataPacket* thisPtr, const XsDataPacket* other, int overwrite);
 XSTYPES_DLL_API void XsDataPacket_setTriggerIndication(XsDataPacket* thisPtr, XsDataIdentifier triggerId, const XsTriggerIndicationData * triggerIndicationData);
@@ -231,6 +273,10 @@ XSTYPES_DLL_API int XsDataPacket_isAwindaSnapshotARetransmission(const XsDataPac
 XSTYPES_DLL_API void XsDataPacket_setFullSnapshot(XsDataPacket* thisPtr, XsSnapshot const * data, int retransmission);
 XSTYPES_DLL_API XsSnapshot* XsDataPacket_fullSnapshot(const XsDataPacket* thisPtr, XsSnapshot* returnVal);
 XSTYPES_DLL_API int XsDataPacket_containsFullSnapshot(const XsDataPacket* thisPtr);
+
+XSTYPES_DLL_API void XsDataPacket_setGloveSnapshot(XsDataPacket* thisPtr, XsGloveSnapshot const * data, int retransmission, XsHandId hand);
+XSTYPES_DLL_API XsGloveSnapshot* XsDataPacket_gloveSnapshot(const XsDataPacket* thisPtr, XsGloveSnapshot* returnVal, XsHandId hand);
+XSTYPES_DLL_API int XsDataPacket_containsGloveSnapshot(const XsDataPacket* thisPtr, XsHandId hand);
 
 XSTYPES_DLL_API void XsDataPacket_setRawBlob(XsDataPacket* thisPtr, const XsByteArray * data);
 XSTYPES_DLL_API XsByteArray* XsDataPacket_rawBlob(const XsDataPacket* thisPtr, XsByteArray* returnVal);
@@ -271,8 +317,7 @@ struct XsDataPacket {
 	*/
 	inline XsDataPacket(const XsDataPacket& pack)
 	{
-		XsDataPacket_construct(this);
-		*this = pack;
+		XsDataPacket_copyConstruct(this, &pack);
 	}
 
 	//! \copydoc XsDataPacket_destruct
@@ -286,7 +331,7 @@ struct XsDataPacket {
 		\returns A reference to this %XsDataPacket
 		\sa XsDataPacket_copy
 	*/
-	inline const XsDataPacket& operator = (const XsDataPacket& other)
+	inline XsDataPacket& operator = (const XsDataPacket& other)
 	{
 		if (this != &other)
 			XsDataPacket_copy(this, &other);
@@ -298,6 +343,15 @@ struct XsDataPacket {
 	{
 		XsDataPacket_swap(this, &other);
 	}
+
+#ifndef SWIG
+	/*! \brief Swaps \a first with \a second
+	*/
+	XSNOEXPORT inline friend void swap(XsDataPacket& first, XsDataPacket& second)
+	{
+		first.swap(second);
+	}
+#endif
 
 	/*! \copydoc XsDataPacket_clear(XsDataPacket*,XsDataIdentifier)*/
 	inline void clear(XsDataIdentifier id = XDI_None)
@@ -736,6 +790,25 @@ struct XsDataPacket {
 	inline void setSdiData(const XsSdiData& data)
 	{
 		XsDataPacket_setSdiData(this, &data);
+	}
+
+	/*! \brief \copybrief XsDataPacket_gloveData(const XsDataPacket*, XsGloveData*, XsHandId) */
+	XSNOCOMEXPORT inline XsGloveData gloveData(XsHandId hand) const
+	{
+		XsGloveData returnVal;
+		return *XsDataPacket_gloveData(this, &returnVal, hand);
+	}
+
+	/*! \copydoc XsDataPacket_containsGloveData(const XsDataPacket*, XsHandId) */
+	XSNOCOMEXPORT inline bool containsGloveData(XsHandId hand = XHI_Unknown) const
+	{
+		return 0 != XsDataPacket_containsGloveData(this, hand);
+	}
+
+	/*! \copydoc XsDataPacket_setGloveData(XsDataPacket*, const XsGloveData*, XsHandId) */
+	XSNOEXPORT inline void setGloveData(const XsGloveData& data, XsHandId hand)
+	{
+		XsDataPacket_setGloveData(this, &data, hand);
 	}
 
 	/*! \brief \copybrief XsDataPacket_storedDeviceId(const XsDataPacket*, XsDeviceId*)
@@ -1233,6 +1306,27 @@ struct XsDataPacket {
 	{
 		XsDataPacket_setRawGnssSatInfo(this, &data);
 	}
+
+	/*! \brief \copybrief XsDataPacket_gnssPvtPulse(const XsDataPacket*)
+		\return a struct with GnssPvtPulse
+	*/
+	inline uint32_t gnssPvtPulse(void) const
+	{
+		return XsDataPacket_gnssPvtPulse(this);
+	}
+
+	/*! \brief \copybrief XsDataPacket_containsGnssPvtPulse(const XsDataPacket*) */
+	inline bool containsGnssPvtPulse(void) const
+	{
+		return 0 != XsDataPacket_containsGnssPvtPulse(this);
+	}
+
+	/*! \copydoc XsDataPacket_setGnssPvtPulse(XsDataPacket*, uint32_t) */
+	inline void setGnssPvtPulse(uint32_t counter)
+	{
+		XsDataPacket_setGnssPvtPulse(this, counter);
+	}
+
 	/*! \brief \copybrief XsDataPacket_fullSnapshot(const XsDataPacket*, XsSnapshot*) */
 	inline XsSnapshot fullSnapshot(void) const
 	{
@@ -1276,6 +1370,25 @@ struct XsDataPacket {
 		return 0 != XsDataPacket_isAwindaSnapshotARetransmission(this);
 	}
 
+	/*! \brief \copybrief XsDataPacket_gloveSnapshot(const XsDataPacket*, XsGloveSnapshot*, XsHandId) */
+	XSNOEXPORT inline XsGloveSnapshot gloveSnapshot(XsHandId hand) const
+	{
+		XsGloveSnapshot returnVal;
+		return *XsDataPacket_gloveSnapshot(this, &returnVal, hand);
+	}
+
+	/*! \brief \copybrief XsDataPacket_containsGloveSnapshot(const XsDataPacket*, XsHandId) */
+	XSNOEXPORT inline bool containsGloveSnapshot(XsHandId hand = XHI_Unknown) const
+	{
+		return 0 != XsDataPacket_containsGloveSnapshot(this, hand);
+	}
+
+	/*! \copydoc XsDataPacket_setGloveSnapshot(XsDataPacket*, XsGloveSnapshot const *, int, XsHandId) */
+	XSNOEXPORT inline void setGloveSnapshot(XsGloveSnapshot const& data, bool retransmission, XsHandId hand)
+	{
+		XsDataPacket_setGloveSnapshot(this, &data, retransmission ? 1 : 0, hand);
+	}
+
 	/*! \copydoc XsDataPacket_merge(XsDataPacket*, const XsDataPacket*, int) */
 	inline XsDataPacket& merge(const XsDataPacket& other, bool overwrite = true)
 	{
@@ -1285,7 +1398,7 @@ struct XsDataPacket {
 	/*! \brief Set the time of arrival of the data packet
 		\param t The time of arrival
 	*/
-	inline void setTimeOfArrival(XsTimeStamp t)
+	inline void setTimeOfArrival(const XsTimeStamp& t)
 	{
 		m_toa = t;
 	}
@@ -1299,7 +1412,7 @@ struct XsDataPacket {
 	/*! \brief Set the estimated time of sampling of the data packet
 		\param t The estimated time of sampling
 	*/
-	inline void setEstimatedTimeOfSampling(XsTimeStamp t)
+	inline void setEstimatedTimeOfSampling(const XsTimeStamp& t)
 	{
 		m_etos = t;
 	}
