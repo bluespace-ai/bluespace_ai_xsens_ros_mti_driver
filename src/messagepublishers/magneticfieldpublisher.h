@@ -38,43 +38,46 @@
 #define MAGNETICFIELDPUBLISHER_H
 
 #include "packetcallback.h"
-#include <geometry_msgs/msg/vector3_stamped.hpp>
+#include "publisherhelperfunctions.h"
+#include <sensor_msgs/msg/magnetic_field.hpp>
 
-struct MagneticFieldPublisher : public PacketCallback
+struct MagneticFieldPublisher : public PacketCallback, PublisherHelperFunctions
 {
-    rclcpp::Publisher<geometry_msgs::msg::Vector3Stamped>::SharedPtr pub;
+    rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr pub;
     std::string frame_id = DEFAULT_FRAME_ID;
-    // double magnetic_field_variance[3];
+    double magnetic_field_variance[3];
 
     MagneticFieldPublisher(rclcpp::Node &node)
     {
+        std::vector<double> variance = {0, 0, 0};
+        node.declare_parameter("magnetic_field_stddev", variance);
+
         int pub_queue_size = 5;
         node.get_parameter("publisher_queue_size", pub_queue_size);
-        pub = node.create_publisher<geometry_msgs::msg::Vector3Stamped>("/imu/mag", pub_queue_size);
+        pub = node.create_publisher<sensor_msgs::msg::MagneticField>("/imu/mag", pub_queue_size);
         node.get_parameter("frame_id", frame_id);
-        // variance_from_stddev_param("~magnetic_field_stddev", magnetic_field_variance);
+        variance_from_stddev_param("magnetic_field_stddev", magnetic_field_variance, node);
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
         if (packet.containsCalibratedMagneticField())
         {
-            // TODO: Use sensor_msgs::MagneticField
             // Problem: Sensor gives normalized magnetic field vector with unknown units
-            geometry_msgs::msg::Vector3Stamped msg;
+            sensor_msgs::msg::MagneticField msg;
 
             msg.header.stamp = timestamp;
             msg.header.frame_id = frame_id;
 
             XsVector mag = packet.calibratedMagneticField();
 
-            msg.vector.x = mag[0];
-            msg.vector.y = mag[1];
-            msg.vector.z = mag[2];
+            msg.magnetic_field.x = mag[0];
+            msg.magnetic_field.y = mag[1];
+            msg.magnetic_field.z = mag[2];
 
-            // msg.magnetic_field_covariance[0] = magnetic_field_variance[0];
-            // msg.magnetic_field_covariance[4] = magnetic_field_variance[1];
-            // msg.magnetic_field_covariance[8] = magnetic_field_variance[2];
+            msg.magnetic_field_covariance[0] = magnetic_field_variance[0];
+            msg.magnetic_field_covariance[4] = magnetic_field_variance[1];
+            msg.magnetic_field_covariance[8] = magnetic_field_variance[2];
 
             pub->publish(msg);
         }
