@@ -58,14 +58,12 @@
 #include "messagepublishers/positionllapublisher.h"
 #include "messagepublishers/velocitypublisher.h"
 
-// #define XS_DEFAULT_BAUDRATE (115200)
-
 XdaInterface::XdaInterface(const std::string &node_name, const rclcpp::NodeOptions &options)
 	: Node(node_name, options)
 	, m_device(nullptr)
 	, m_xdaCallback(*this)
 {
-	// declareCommonParameters();
+	declareCommonParameters();
 	RCLCPP_INFO(get_logger(), "Creating XsControl object...");
 	m_control = XsControl::construct();
 	assert(m_control != 0);
@@ -164,31 +162,31 @@ void XdaInterface::registerPublishers()
 
 bool XdaInterface::connectDevice()
 {
-	// Read baudrate parameter if set
+	XsPortInfo mtPort;
 	XsBaudRate baudrate = XBR_Invalid;
-	if (has_parameter("baudrate"))
-	{
+	bool checkDeviceID = false;
+	std::string deviceId = "";
+
+	// Check if scanning is enabled
+	bool scan_for_devices = false;
+	get_parameter("scan_for_devices", scan_for_devices);
+
+	if (!scan_for_devices){
+		// Read baudrate parameter
 		int baudrateParam = 0;
 		get_parameter("baudrate", baudrateParam);
 		RCLCPP_INFO(get_logger(), "Found baudrate parameter: %d", baudrateParam);
 		baudrate = XsBaud::numericToRate(baudrateParam);
-	}
-	// Read device ID parameter
-	bool checkDeviceID = false;
-	std::string deviceId;
-	if (has_parameter("device_id"))
-	{
+
+		// Read device ID parameter if set
 		get_parameter("device_id", deviceId);
-		checkDeviceID = true;
-		RCLCPP_INFO(get_logger(), "Found device ID parameter: %s.",deviceId.c_str());
+		if (deviceId != "")
+		{
+			checkDeviceID = true;
+			RCLCPP_INFO(get_logger(), "Found device ID parameter: %s.", deviceId.c_str());
+		}
 
-	}
-	// Read port parameter if set
-	XsPortInfo mtPort;
-
-	// TODO: Port this for allow_undeclared_parameters
-	if (has_parameter("port"))
-	{
+		// Read port parameter
 		std::string portName;
 		get_parameter("port", portName);
 		RCLCPP_INFO(get_logger(), "Found port name parameter: %s", portName.c_str());
@@ -259,18 +257,23 @@ bool XdaInterface::prepare()
 	if (!m_device->gotoMeasurement())
 		return handleError("Could not put device into measurement mode");
 
-	// TODO: Port this for allow_undeclared_parameters
-	std::string logFile;
-	if (get_parameter("log_file", logFile))
-	{
-		if (m_device->createLogFile(logFile) != XRV_OK)
-			return handleError("Failed to create a log file! (" + logFile + ")");
-		else
-			RCLCPP_INFO(get_logger(), "Created a log file: %s", logFile.c_str());
+	bool enable_logging = false;
+	get_parameter("enable_logging", enable_logging);
 
-		RCLCPP_INFO(get_logger(), "Recording to %s ...", logFile.c_str());
-		if (!m_device->startRecording())
-			return handleError("Could not start recording");
+	if (enable_logging)
+	{
+		std::string logFile;
+		if (get_parameter("log_file", logFile))
+		{
+			if (m_device->createLogFile(logFile) != XRV_OK)
+				return handleError("Failed to create a log file! (" + logFile + ")");
+			else
+				RCLCPP_INFO(get_logger(), "Created a log file: %s", logFile.c_str());
+
+			RCLCPP_INFO(get_logger(), "Recording to %s ...", logFile.c_str());
+			if (!m_device->startRecording())
+				return handleError("Could not start recording");
+		}
 	}
 
 	return true;
@@ -324,4 +327,12 @@ void XdaInterface::declareCommonParameters()
 	declare_parameter("pub_transform", should_publish);
 	declare_parameter("pub_positionLLA", should_publish);
 	declare_parameter("pub_velocity", should_publish);
+
+	declare_parameter("scan_for_devices", true);
+	declare_parameter("device_id", "");
+	declare_parameter("port", "");
+	declare_parameter("baudrate", XsBaud::rateToNumeric(XBR_Invalid));
+
+	declare_parameter("enable_logging", false);
+	declare_parameter("log_file", "log.mtb");
 }

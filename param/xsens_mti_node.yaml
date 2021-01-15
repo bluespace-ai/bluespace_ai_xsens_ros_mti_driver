@@ -2,20 +2,27 @@
     ros__parameters:
 
         ## Device settings, provide one of the following:
-        ##  - device_id
-        ##  - port + baudrate information
-        ##  - nothing: the driver scans for devices and selects the first found.
-        # device_id: '077007EF' # uppercase hex string
-        # port: '/dev/ttyUSB0'
-        # baudrate: 115200 # non necessary for some devices
+        ##  - scan_for devices = 
+        ##          true:   the driver ignores port and baudrate settings, scans for devices on all ports and selects the first found
+        ##          false: = Requires correct port and baudrate both to be specified
+        scan_for_devices: true
+        port: "" # port name, e.g. '/dev/ttyUSB0'
+        baudrate: 115200 # non necessary for some devices
 
+        ## Connect only to specific device_id:
+        ##  device_id = '077007EF' (uppercase hex string), returns with error if the device with ID is not found on the ports
+        ##  device_id = "" Null string disables this check
+        device_id: "" # Null String ("") by default, else uppercase hex string, e.g. '077007EF'
+
+        # Enable logging. Requires name of the file to be specified.
+        enable_logging: false
         ## Log file (optional), placed in ~/.ros/ otherwise use absolute path
-        # log_file: log.mtb
+        log_file: log.mtb
 
         publisher_queue_size: 5
 
         # TF transform frame_id (default: imu_link), you may want to change it if you use multiple devices
-        #frame_id: "imu_link"
+        frame_id: "imu_link"
 
         # Message publishers
         pub_imu: true
@@ -38,7 +45,8 @@
         ## Sensor standard deviation [x,y,z] (optional)
         ## This value is used to override the covariance matrix in sensor_msgs/Imu and
         ## sensor_msgs/MagneticField messages.
-        # linear_acceleration_stddev: [0, 0, 0] # [m/s^2]
-        # angular_velocity_stddev: [0, 0, 0] # [rad/s]
-        # orientation_stddev: [0, 0, 0] # [rad]
-        # magnetic_field_stddev: [0, 0, 0] # [Tesla]
+        ## Important: Make sure the values provided are in decimal points, or else might give error in execution
+        linear_acceleration_stddev: [0.0, 0.0, 0.0] # [m/s^2]
+        angular_velocity_stddev: [0.0, 0.0, 0.0] # [rad/s]
+        orientation_stddev: [0.0, 0.0, 0.0] # [rad]
+        magnetic_field_stddev: [0.0, 0.0, 0.0] # [Tesla]

@@ -38,10 +38,11 @@
 #define IMUPUBLISHER_H
 
 #include "packetcallback.h"
+#include "publisherhelperfunctions.h"
 #include <sensor_msgs/msg/imu.hpp>
 
 
-struct ImuPublisher : public PacketCallback
+struct ImuPublisher : public PacketCallback, PublisherHelperFunctions
 {
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr pub;
     double orientation_variance[3];
@@ -52,24 +53,19 @@ struct ImuPublisher : public PacketCallback
     ImuPublisher(rclcpp::Node &node)
         : node_handle(node)
     {
-	// TODO: Port this for allow_undeclared_parameters
-        std::vector<double> variance;
-        // node.declare_parameter("orientation_stddev", variance);
-        // node.declare_parameter("angular_velocity_stddev", variance);
-        // node.declare_parameter("linear_acceleration_stddev", variance);
-        // node.declare_parameter("orientation_stddev", orientation_variance);
-        // node.declare_parameter("angular_velocity_stddev", angular_velocity_variance);
-        // node.declare_parameter("linear_acceleration_stddev", linear_acceleration_variance);
+        std::vector<double> variance = {0, 0, 0};
+        node.declare_parameter("orientation_stddev", variance);
+        node.declare_parameter("angular_velocity_stddev", variance);
+        node.declare_parameter("linear_acceleration_stddev", variance);
 
         int pub_queue_size = 5;
         node.get_parameter("publisher_queue_size", pub_queue_size);
         pub = node.create_publisher<sensor_msgs::msg::Imu>("/imu/data", pub_queue_size);
 
         // REP 145: Conventions for IMU Sensor Drivers (http://www.ros.org/reps/rep-0145.html)
-	// TODO: Port this for allow_undeclared_parameters
-        variance_from_stddev_param("orientation_stddev", orientation_variance);
-        variance_from_stddev_param("angular_velocity_stddev", angular_velocity_variance);
-        variance_from_stddev_param("linear_acceleration_stddev", linear_acceleration_variance);
+        variance_from_stddev_param("orientation_stddev", orientation_variance, node);
+        variance_from_stddev_param("angular_velocity_stddev", angular_velocity_variance, node);
+        variance_from_stddev_param("linear_acceleration_stddev", linear_acceleration_variance, node);
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
@@ -155,28 +151,6 @@ struct ImuPublisher : public PacketCallback
             }
 
             pub->publish(msg);
-        }
-    }
-
-    void variance_from_stddev_param(std::string param, double *variance_out)
-    {
-    	// TODO: Port this for allow_undeclared_parameters
-        std::vector<double> stddev;
-        if (node_handle.get_parameter(param, stddev))
-        {
-            if (stddev.size() == 3)
-            {
-                auto squared = [](double x) { return x * x; };
-                std::transform(stddev.begin(), stddev.end(), variance_out, squared);
-            }
-            else
-            {
-                RCLCPP_WARN(node_handle.get_logger(), "Wrong size of param: %s, must be of size 3", param.c_str());
-            }
-        }
-        else
-        {
-            memset(variance_out, 0, 3 * sizeof(double));
         }
     }
 };
