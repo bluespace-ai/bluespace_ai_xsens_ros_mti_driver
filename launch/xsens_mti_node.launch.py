@@ -15,8 +15,8 @@ def generate_launch_description():
     parameters_file_path = Path(get_package_share_directory('xsens_mti_driver'), 'param', 'xsens_mti_node.yaml')
     xsens_mti_node = Node(
             package='xsens_mti_driver',
-            node_executable='xsens_mti_node',
-            node_name='xsens_mti_node',
+            executable='xsens_mti_node',
+            name='xsens_mti_node',
             output='screen',
             parameters=[parameters_file_path],
             arguments=[]
