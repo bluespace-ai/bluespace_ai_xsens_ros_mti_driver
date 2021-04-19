@@ -2,8 +2,8 @@
 <package format="3">
   <name>xsens_mti_driver</name>
   <version>1.0.1</version>
-  <description>ROS driver for Xsens MTi IMU sensors</description>
-  <maintainer email="support@xsens.com">Xsens</maintainer>
+  <description>ROS 2.0 driver for Xsens MTi IMU sensors</description>
+  <maintainer email="jasprit@bluespace.ai">BlueSpace.ai</maintainer>
   <license>BSD</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
