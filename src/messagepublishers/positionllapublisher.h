@@ -1,3 +1,6 @@
+// Copyright 2021 BlueSpace.ai, Inc.
+//
+// Source code modified from the source provided by Xsens Technologies (see below)
 
 //  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
