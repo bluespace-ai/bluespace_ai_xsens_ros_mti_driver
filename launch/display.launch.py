@@ -29,8 +29,8 @@ def generate_launch_description():
     rviz_config_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'rviz', 'display.rviz')
     rviz2_node = Node(
         package='rviz2',
-        node_executable='rviz2',
-        node_name='xsens_rviz2',
+        executable='rviz2',
+        name='xsens_rviz2',
         output='screen',
         arguments=[["-d"],[rviz_config_path]],
     )
@@ -40,8 +40,8 @@ def generate_launch_description():
     urdf_file_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'urdf', 'MTi_6xx.urdf')
     state_publisher_node = Node(
         package='robot_state_publisher',
-        node_executable='robot_state_publisher',
-        node_name='xsens_state_publisher',
+        executable='robot_state_publisher',
+        name='xsens_state_publisher',
         output='screen',
         arguments=[urdf_file_path],
     )
