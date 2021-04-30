@@ -1,15 +1,15 @@
 =[ Xsens MTi driver for ROS 2.0]============================================================
 
 Documentation:
-    You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section.
+    You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section. The SDK can be downloaded from https://www.xsens.com/software-downloads.
 
 Prerequisites:
-    - ROS 2.0 Eloquent or Foxy
+    - ROS 2.0 Eloquent
     - C/C++ Compiler: GCC 5.4.0 or MSVC 14.0
     - C++14
 
 Building:
-    - Copy xsens_ros_mti_driver folder from your MT SDK directory into your ROS 2.0 workspace 'src' folder.
+    - Copy xsens_ros_mti_driver folder into your ROS 2.0 workspace 'src' folder.
         Make sure the permissions are set to o+rw on your files and directories.
 
     - Build xspublic from your catkin workspace:
