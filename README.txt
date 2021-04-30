@@ -55,6 +55,8 @@ Running:
     - There is also an example that shows a 3D visualization of the device (orientation data should be enabled in the device):
             $ ros2 launch xsens_mti_driver display.launch.py
 
+    - The driver has been tested on amd64 as well as ARM 64-bit (aarch64) architectures. 
+
 
 Notes:
     - ROS timestamps
