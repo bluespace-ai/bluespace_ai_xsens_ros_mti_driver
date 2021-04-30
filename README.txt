@@ -21,6 +21,13 @@ Building:
     - Source workspace:
         $ source install/setup.bash
 
+Changes in this release compared to the Xsens ROS 1.0 driver open source:
+    - Added ROS 2.0 support: The ROS 1.0 wrapper node was modified to work with ROS 2.0.
+    - Migration to declared configuration parameters: ROS 1.0 driver supported undeclared parameters. Since ROS 2.0 guidelines discourage undeclared parameters, there are some minor modifications in the xsens_mti_node.yaml to support all the configuration capabilities from ROS1.0. For more details check the config file.
+        - A boolean parameter scan_for_devices was added to enable switching between port scanning and connecting to a specific port for Xsens devices.
+        - A boolean parameter enable_logging was added for logging. When enabled, the name of the file needs to be specified in the log_file parameter.
+    - Magnetometer topic switched to sensor_msgs/MagneticField : The message type of the magnetometer measurement topic (/imu/mag) was switched to sensor_msgs/MagneticField from previous geometry_msgs/Vector3Stamped. This was a TODO item left in the original source.
+
 Running:
     - Configure your MTi device to output desired data (e.g. for display example - orientation output)
 
