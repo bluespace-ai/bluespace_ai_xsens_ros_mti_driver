@@ -4,7 +4,7 @@ Documentation:
     You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section. The SDK can be downloaded from https://www.xsens.com/software-downloads.
 
 Prerequisites:
-    - ROS 2.0 Eloquent
+    - ROS 2.0 Foxy
     - C/C++ Compiler: GCC 5.4.0 or MSVC 14.0
     - C++14
 
@@ -47,6 +47,8 @@ Running:
 
     - There is also an example that shows a 3D visualization of the device (orientation data should be enabled in the device):
             $ ros2 launch xsens_mti_driver display.launch.py
+
+    - The driver has been tested on amd64 as well as ARM 64-bit (aarch64) architectures. 
 
 
 Notes:
