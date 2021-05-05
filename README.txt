@@ -9,11 +9,11 @@ Prerequisites:
     - C++14
 
 Building:
-    - Copy xsens_ros_mti_driver folder into your ROS 2.0 workspace 'src' folder.
+    - Copy bluespace_ai_xsens_mti_driver folder into your ROS 2.0 workspace 'src' folder.
         Make sure the permissions are set to o+rw on your files and directories.
 
-    - Build xspublic from your catkin workspace:
-        $ pushd src/xsens_ros_mti_driver/lib/xspublic && make && popd
+    - Build xspublic from your ament workspace:
+        $ pushd src/bluespace_ai_xsens_mti_driver/lib/xspublic && make && popd
 
     - Build Xsens MTi driver package:
         $ colcon build
@@ -31,8 +31,8 @@ Changes in this release compared to the Xsens ROS 1.0 driver open source:
 Running:
     - Configure your MTi device to output desired data (e.g. for display example - orientation output)
 
-    - Launch the Xsens MTi driver from your catkin workspace:
-            $ ros2 launch xsens_mti_driver xsens_mti_node.launch.py
+    - Launch the Xsens MTi driver from your ament workspace:
+            $ ros2 launch bluespace_ai_xsens_mti_driver xsens_mti_node.launch.py
 
         After the device has been detected, you can communicate with it from another process / terminal window.
         For example:
@@ -53,8 +53,14 @@ Running:
             ---
 
     - There is also an example that shows a 3D visualization of the device (orientation data should be enabled in the device):
-            $ ros2 launch xsens_mti_driver display.launch.py
+            $ ros2 launch bluespace_ai_xsens_mti_driver display.launch.py
 
+Compatibility:
+    - The driver is compatible with following Xsens IMU product lines:
+            MTi 1-series
+            MTi 10-series
+            MTi 100-series
+            MTi 600-series
     - The driver has been tested on amd64 as well as ARM 64-bit (aarch64) architectures. 
 
 
@@ -121,3 +127,6 @@ Notes:
         When having problems with the device being busy the first 20 seconds after
         plugin, purge the modemmanager application.
 
+Acknowledgement:
+    Thank you to Steven Gies and his engineering team at Xsens Technologies for testing this driver against their complete MTi IMU product portfolio and reviewing the driver source.
+    
