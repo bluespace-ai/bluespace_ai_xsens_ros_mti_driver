@@ -19,14 +19,14 @@ def generate_launch_description():
     driver_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             launch_file_path=PathJoinSubstitution([
-                FindPackageShare('xsens_mti_driver'), 'launch', 'xsens_mti_node.launch.py'
+                FindPackageShare('bluespace_ai_xsens_mti_driver'), 'launch', 'xsens_mti_node.launch.py'
                 ]),
             )
         )
     ld.add_action(driver_launch)
 
     # Rviz2 node
-    rviz_config_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'rviz', 'display.rviz')
+    rviz_config_path = os.path.join(get_package_share_directory('bluespace_ai_xsens_mti_driver'), 'rviz', 'display.rviz')
     rviz2_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -37,7 +37,7 @@ def generate_launch_description():
     ld.add_action(rviz2_node)
 
     # Robot State Publisher node
-    urdf_file_path = os.path.join(get_package_share_directory('xsens_mti_driver'), 'urdf', 'MTi_6xx.urdf')
+    urdf_file_path = os.path.join(get_package_share_directory('bluespace_ai_xsens_mti_driver'), 'urdf', 'MTi_6xx.urdf')
     state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',

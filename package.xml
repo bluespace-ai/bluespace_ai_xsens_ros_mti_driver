@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>xsens_mti_driver</name>
+  <name>bluespace_ai_xsens_mti_driver</name>
   <version>1.0.1</version>
   <description>ROS 2.0 driver for Xsens MTi IMU sensors</description>
   <maintainer email="jasprit@bluespace.ai">BlueSpace.ai</maintainer>
