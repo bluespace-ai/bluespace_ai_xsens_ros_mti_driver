@@ -1,7 +1,7 @@
 =[ Xsens MTi driver for ROS 2.0]============================================================
 
 Documentation:
-    You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section. The SDK can be downloaded from https://www.xsens.com/software-downloads.
+    You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section. The SDK can be downloaded from https://www.xsens.com/software-downloads. Please note, this is a 3rd Party driver with no official support. Check the compatibility section for the compatible devices. For official support on Xsens MTi products, please refer to Xsense knowledge base: https://base.xsens.com
 
 Prerequisites:
     - ROS 2.0 Eloquent
