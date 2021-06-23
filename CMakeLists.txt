@@ -29,11 +29,18 @@ add_executable(
 	src/xdacallback.cpp
 )
 
+add_custom_command(
+  TARGET xsens_mti_node
+  PRE_LINK
+  COMMAND make
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/xspublic
+)
+
 target_include_directories(xsens_mti_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/xspublic>
   $<INSTALL_INTERFACE:include>)
 
-ament_target_dependencies(xsens_mti_node 
+ament_target_dependencies(xsens_mti_node
   rclcpp
   tf2
   tf2_ros
