@@ -64,6 +64,8 @@
 #include <xscontroller/xsscanner.h>
 #include <xscontroller/xscontrol_def.h>
 #include <xscontroller/xsdevice_def.h>
+#include <mavros_msgs/msg/rtcm.h>
+
 
 #include "messagepublishers/packetcallback.h"
 #include "messagepublishers/accelerationpublisher.h"
@@ -302,6 +304,17 @@ bool XdaInterface::prepare()
 	}
 
 	return true;
+}
+
+void XdaInterface::rtcmCallback(const mavros_msgs::msg::RTCM::SharedPtr msg)
+{
+	RCLCPP_INFO(this->get_logger(), "RTCM received at [%d]", msg->header.stamp.sec);
+	XsMessage rtcm(XMID_ForwardGnssData);
+	uint16_t rtcmMessageLength = (const uint16_t)msg->data.size();
+	rtcm.setDataBuffer((const uint8_t*)&msg->data[0], rtcmMessageLength, 0);
+
+	XsMessage rcv;
+	m_device->sendCustomMessage(rtcm, false, rcv, 0);
 }
 
 void XdaInterface::close()

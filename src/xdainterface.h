@@ -63,6 +63,7 @@
 #define XDAINTERFACE_H
 
 #include <rclcpp/rclcpp.hpp>
+#include <mavros_msgs/msg/rtcm.hpp>
 
 #include "xdacallback.h"
 #include <xstypes/xsportinfo.h>
@@ -83,6 +84,7 @@ public:
 
 	void spinFor(std::chrono::milliseconds timeout);
 	void registerPublishers();
+	void rtcmCallback(const mavros_msgs::msg::RTCM::SharedPtr msg);
 
 	bool connectDevice();
 	bool prepare();
