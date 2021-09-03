@@ -12,14 +12,14 @@ Building:
     - Copy bluespace_ai_xsens_mti_driver folder into your ROS 2.0 workspace 'src' folder.
         Make sure the permissions are set to o+rw on your files and directories.
 
-    - Build xspublic from your ament workspace:
-        $ pushd src/bluespace_ai_xsens_ros_mti_driver/lib/xspublic && make && popd
-
     - Build Xsens MTi driver package:
         $ colcon build
 
     - Source workspace:
         $ source install/setup.bash
+
+Note: Building of 'xspublic' from the ament workspace has been automated in the CMake script. To build it manually, run the following from the ROS2.0 workspace root:
+        $ pushd src/bluespace_ai_xsens_ros_mti_driver/lib/xspublic && make && popd
 
 Changes in this release compared to the Xsens ROS 1.0 driver open source:
     - Added ROS 2.0 support: The ROS 1.0 wrapper node was modified to work with ROS 2.0.
