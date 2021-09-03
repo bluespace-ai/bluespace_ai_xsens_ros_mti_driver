@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -95,7 +95,8 @@ typedef void (*XsArrayRawCopy)(void*, void const*, XsSize, XsSize);
 	\details Ususally there is one static instance per type of array that will be used by all
 	XsArrays of that type.
 */
-struct XsArrayDescriptor {
+struct XsArrayDescriptor
+{
 #ifndef __cplusplus
 	const
 #else
@@ -116,6 +117,12 @@ typedef struct XsArrayDescriptor XsArrayDescriptor;
 #ifdef __cplusplus
 #include <iterator>
 #include <stdexcept>
+
+#if __cplusplus >= 201103L && !defined(XSENS_HAVE_TYPE_TRAITS)
+#include <type_traits>
+#define XSENS_HAVE_TYPE_TRAITS
+#endif
+
 extern "C" {
 #endif
 
@@ -133,8 +140,8 @@ XSTYPES_DLL_API void XsArray_swap(void* a, void* b);
 XSTYPES_DLL_API int XsArray_compare(void const* a, void const* b);
 XSTYPES_DLL_API int XsArray_compareSet(void const* a, void const* b);
 XSTYPES_DLL_API int XsArray_comparePredicate(void const* a, void const* b, XsArrayItemCompareFunc predicate);
-XSTYPES_DLL_API int XsArray_find(void const* thisPtr, void const* needle);
-XSTYPES_DLL_API int XsArray_findPredicate(void const* thisPtr, void const* needle, XsArrayItemCompareFunc predicate);
+XSTYPES_DLL_API ptrdiff_t XsArray_find(void const* thisPtr, void const* needle);
+XSTYPES_DLL_API ptrdiff_t XsArray_findPredicate(void const* thisPtr, void const* needle, XsArrayItemCompareFunc predicate);
 XSTYPES_DLL_API int XsArray_empty(void const* thisPtr);
 XSTYPES_DLL_API void const* XsArray_at(void const* thisPtr, XsSize index);
 XSTYPES_DLL_API void* XsArray_atIndex(void* thisPtr, XsSize index);
@@ -144,7 +151,8 @@ XSTYPES_DLL_API void XsArray_rawCopy(void* to, void const* from, XsSize count, X
 XSTYPES_DLL_API void XsArray_sort(void* thisPtr);
 XSTYPES_DLL_API void XsArray_reverse(void* thisPtr);
 
-struct XsArray {
+struct XsArray
+{
 	XSARRAY_DECL(void)
 #ifdef __cplusplus
 	//! \copydoc XsArray_construct
@@ -226,7 +234,8 @@ typedef struct XsArray XsArray;
 	\tparam I The class that inherits from the XsArrayImpl. Some functions (such as the streaming operator) require the inheriting type to be returned for proper functionality.
 */
 template <typename T, XsArrayDescriptor const& D, typename I>
-struct XsArrayImpl : private XsArray {
+struct XsArrayImpl : private XsArray
+{
 	//! \brief The contained type
 	typedef T value_type;
 
@@ -240,7 +249,7 @@ struct XsArrayImpl : private XsArray {
 		\param count the number of items in src
 		\param src pointer to an array of output configurations
 		\sa XsArray_construct
-	 */
+	*/
 	inline explicit XsArrayImpl<T, D, I>(XsSize count = 0, T const* src = 0)
 		: XsArray(&D, count, src)
 	{
@@ -258,7 +267,7 @@ struct XsArrayImpl : private XsArray {
 	inline explicit XsArrayImpl<T, D, I>(Iterator const& beginIt, Iterator const& endIt)
 		: XsArray(&D, 0, 0)
 	{
-		ptrdiff_t diff = endIt-beginIt;
+		ptrdiff_t diff = endIt - beginIt;
 		if (diff > 0)
 		{
 			reserve((XsSize) diff);
@@ -291,7 +300,7 @@ struct XsArrayImpl : private XsArray {
 		\param predicate the custom item comparison predicate to apply
 		\returns 0 if the two arrays are considered equal
 		\sa XsArray_comparePredicate
-	 */
+	*/
 	inline int comparePredicate(ArrayImpl const& other, XsArrayItemCompareFunc predicate) const
 	{
 		return XsArray_comparePredicate(this, &other, predicate);
@@ -302,7 +311,7 @@ struct XsArrayImpl : private XsArray {
 		\param predicate the custom item comparison predicate to apply
 		\returns true if the two arrays are considered equal
 		\sa XsArray_comparePredicate
-	 */
+	*/
 	inline bool isEqualPredicate(ArrayImpl const& other, XsArrayItemCompareFunc predicate) const
 	{
 		return !XsArray_comparePredicate(this, &other, predicate);
@@ -313,7 +322,7 @@ struct XsArrayImpl : private XsArray {
 		\param other the array to compare against
 		\returns true if the two arrays are equal
 		\sa XsArray_compareArray
-	 */
+	*/
 	inline bool operator == (ArrayImpl const& other) const
 	{
 		return !XsArray_compare(this, &other);
@@ -351,7 +360,8 @@ protected:
 #ifndef XSENS_NOITERATOR
 	/*! \brief STL-style iterator */
 	template <ptrdiff_t F, typename R, typename Derived>
-	struct IteratorImplBase {
+	struct IteratorImplBase
+	{
 	public:
 		//! \brief Difference between two items
 		typedef ptrdiff_t difference_type;
@@ -377,16 +387,37 @@ protected:
 		//! \brief Copy constructor
 		inline IteratorImplBase(this_type const& i) : m_ptr(i.m_ptr) {}
 	public:
+#ifndef SWIG
 		/*! \brief indexed data access operator */
-		inline value_type const& operator[] (ptrdiff_t index) const
+		template <typename J>
+		inline T const& operator[](J index) const
 		{
-			return *ptrAt(m_ptr, F*index);
+#ifdef XSENS_HAVE_TYPE_TRAITS
+			static_assert(std::is_integral<J>::value || std::is_enum<J>::value, "Integral index required.");
+#endif
+			return *ptrAt(m_ptr, F * static_cast<ptrdiff_t>(index));
 		}
 		/*! \brief indexed data access operator */
-		inline value_type& operator[] (ptrdiff_t index)
+		template <typename J>
+		inline T& operator[](J index)
 		{
-			return *ptrAt(m_ptr, F*index);
+#ifdef XSENS_HAVE_TYPE_TRAITS
+			static_assert(std::is_integral<J>::value || std::is_enum<J>::value, "Integral index required.");
+#endif
+			return *ptrAt(m_ptr, F * static_cast<ptrdiff_t>(index));
 		}
+#else
+		/*! \brief indexed data access operator */
+		inline T const& operator[](int index) const
+		{
+			return *ptrAt(m_ptr, F * static_cast<ptrdiff_t>(index));
+		}
+		/*! \brief indexed data access operator */
+		inline T& operator[](int index)
+		{
+			return *ptrAt(m_ptr, F * static_cast<ptrdiff_t>(index));
+		}
+#endif
 		//! \brief Assignment operator
 		inline this_type& operator =(void* p)
 		{
@@ -434,24 +465,24 @@ protected:
 		//! \brief Increment by \a count operator
 		inline this_type const& operator +=(ptrdiff_t count)
 		{
-			m_ptr = ptrAt(m_ptr, F*count);
+			m_ptr = ptrAt(m_ptr, F * count);
 			return *(this_type*)this;
 		}
 		//! \brief Decrement by \a count operator
 		inline this_type const& operator -=(ptrdiff_t count)
 		{
-			m_ptr = ptrAt(m_ptr, -F*count);
+			m_ptr = ptrAt(m_ptr, -F * count);
 			return *(this_type*)this;
 		}
 		//! \brief Addition by \a count operator
 		inline this_type operator +(ptrdiff_t count) const
 		{
-			return this_type(ptrAt(m_ptr, F*count));
+			return this_type(ptrAt(m_ptr, F * count));
 		}
 		//! \brief Subtraction by \a count operator
 		inline this_type operator -(ptrdiff_t count) const
 		{
-			return this_type(ptrAt(m_ptr, -F*count));
+			return this_type(ptrAt(m_ptr, -F * count));
 		}
 		/*! \brief Returns the difference in number of items between the two iterators
 			\details The function computes the difference between this iterator and \a other. The
@@ -465,23 +496,50 @@ protected:
 			return (F * (reinterpret_cast<char*>(m_ptr) - reinterpret_cast<char*>(other.m_ptr))) / D.itemSize;
 		}
 		//! \brief Iterator comparison
-		inline bool operator == (this_type const& i) const { return m_ptr == i.m_ptr; }
+		inline bool operator == (this_type const& i) const
+		{
+			return m_ptr == i.m_ptr;
+		}
 		//! \brief Iterator comparison, taking direction into account
-		inline bool operator <= (this_type const& i) const { return (F==1)?(m_ptr <= i.m_ptr):(m_ptr >= i.m_ptr); }
+		inline bool operator <= (this_type const& i) const
+		{
+			return (F == 1) ? (m_ptr <= i.m_ptr) : (m_ptr >= i.m_ptr);
+		}
 		//! \brief Iterator comparison, taking direction into account
-		inline bool operator <  (this_type const& i) const { return (F==1)?(m_ptr <  i.m_ptr):(m_ptr >  i.m_ptr); }
+		inline bool operator < (this_type const& i) const
+		{
+			return (F == 1) ? (m_ptr <  i.m_ptr) : (m_ptr >  i.m_ptr);
+		}
 		//! \brief Iterator comparison
-		inline bool operator != (this_type const& i) const { return m_ptr != i.m_ptr; }
+		inline bool operator != (this_type const& i) const
+		{
+			return m_ptr != i.m_ptr;
+		}
 		//! \brief Iterator comparison, taking direction into account
-		inline bool operator >= (this_type const& i) const { return (F==1)?(m_ptr >= i.m_ptr):(m_ptr <= i.m_ptr); }
+		inline bool operator >= (this_type const& i) const
+		{
+			return (F == 1) ? (m_ptr >= i.m_ptr) : (m_ptr <= i.m_ptr);
+		}
 		//! \brief Iterator comparison, taking direction into account
-		inline bool operator >  (this_type const& i) const { return (F==1)?(m_ptr >  i.m_ptr):(m_ptr <  i.m_ptr); }
+		inline bool operator > (this_type const& i) const
+		{
+			return (F == 1) ? (m_ptr >  i.m_ptr) : (m_ptr <  i.m_ptr);
+		}
 		//! \brief Dereferencing operator
-		inline R& operator *() const { return *(R*) ptr(); }
+		inline R& operator *() const
+		{
+			return *(R*) ptr();
+		}
 		//! \brief Pointer operator
-		inline R* operator ->() const { return (R*) ptr(); }
+		inline R* operator ->() const
+		{
+			return (R*) ptr();
+		}
 		//! \brief Access to internal pointer object, use should be avoided
-		inline T* ptr() const { return m_ptr; }
+		inline T* ptr() const
+		{
+			return m_ptr;
+		}
 	private:
 		//! \brief The internal pointer
 		T* m_ptr;
@@ -527,44 +585,92 @@ public:
 	//! \brief STL-style mutable forward iterator
 	typedef IteratorImpl<1> iterator;
 	//! \brief STL-style mutable reverse iterator
-	typedef IteratorImpl<-1> reverse_iterator;
+	typedef IteratorImpl < -1 > reverse_iterator;
 	//! \brief STL-style mutable const forward iterator
 	typedef IteratorImplConst<1> const_iterator;
 	//! \brief STL-style mutable const reverse iterator
-	typedef IteratorImplConst<-1> const_reverse_iterator;
+	typedef IteratorImplConst < -1 > const_reverse_iterator;
 
 	/*! \brief STL-style const_iterator to the first data item in the array */
-	inline const_iterator begin() const { return const_iterator(m_data); }
+	inline const_iterator begin() const
+	{
+		return const_iterator(m_data);
+	}
 	/*! \brief STL-style const_iterator to the first data item past the end of the array */
-	inline const_iterator end() const { return begin() + (ptrdiff_t) size(); }
+	inline const_iterator end() const
+	{
+		return begin() + (ptrdiff_t) size();
+	}
 
 	/*! \brief STL-style const_reverse_iterator to the first data item in the reversed array */
-	inline const_reverse_iterator rbegin() const { return rend() - (ptrdiff_t) size(); }
+	inline const_reverse_iterator rbegin() const
+	{
+		return rend() - (ptrdiff_t) size();
+	}
 	/*! \brief STL-style const_reverse_iterator to the first data item past the end of the reversed array */
-	inline const_reverse_iterator rend() const { return const_reverse_iterator(m_data) + (ptrdiff_t) 1; }
+	inline const_reverse_iterator rend() const
+	{
+		return const_reverse_iterator(m_data) + (ptrdiff_t) 1;
+	}
 
 	/*! \brief STL-style iterator to the first data item in the array */
-	inline iterator begin() { return iterator(m_data); }
+	inline iterator begin()
+	{
+		return iterator(m_data);
+	}
 	/*! \brief STL-style iterator to the first data item past the end of the array */
-	inline iterator end() { return begin() + (ptrdiff_t) size(); }
+	inline iterator end()
+	{
+		return begin() + (ptrdiff_t) size();
+	}
 
 	/*! \brief STL-style reverse_iterator to the first data item in the reversed array */
-	inline reverse_iterator rbegin() { return rend() - (ptrdiff_t) size(); }
+	inline reverse_iterator rbegin()
+	{
+		return rend() - (ptrdiff_t) size();
+	}
 	/*! \brief STL-style reverse_iterator to the first data item past the end of the reversed array */
-	inline reverse_iterator rend() { return reverse_iterator(m_data) + (ptrdiff_t) 1; }
+	inline reverse_iterator rend()
+	{
+		return reverse_iterator(m_data) + (ptrdiff_t) 1;
+	}
 #endif
+#ifndef SWIG
 	/*! \brief indexed data access operator */
-	inline T const& operator[] (XsSize index) const
+	template <typename J>
+	inline T const& operator[](J index) const
 	{
-		assert(index < m_size);
-		return *ptrAt(m_data, (ptrdiff_t) index);
+#ifdef XSENS_HAVE_TYPE_TRAITS
+		static_assert(std::is_integral<J>::value || std::is_enum<J>::value, "Integral index required.");
+#endif
+		assert(static_cast<XsSize>(index) < m_size);
+		return *ptrAt(m_data, static_cast<ptrdiff_t>(index));
 	}
 	/*! \brief indexed data access operator */
-	inline T& operator[] (XsSize index)
+	template <typename J>
+	inline T& operator[](J index)
 	{
-		assert(index < m_size);
-		return *ptrAt(m_data, (ptrdiff_t) index);
+#ifdef XSENS_HAVE_TYPE_TRAITS
+		static_assert(std::is_integral<J>::value || std::is_enum<J>::value, "Integral index required.");
+#endif
+		assert(static_cast<XsSize>(index) < m_size);
+		return *ptrAt(m_data, static_cast<ptrdiff_t>(index));
 	}
+#else
+	/*! \brief indexed data access operator */
+	inline T const& operator[](int index) const
+	{
+		assert(static_cast<XsSize>(index) < m_size);
+		return *ptrAt(m_data, static_cast<ptrdiff_t>(index));
+	}
+	/*! \brief indexed data access operator */
+	inline T& operator[](int index)
+	{
+		assert(static_cast<XsSize>(index) < m_size);
+		return *ptrAt(m_data, static_cast<ptrdiff_t>(index));
+	}
+#endif
+
 	/*! \brief indexed data access \sa operator[] \param index Index of item to access. \returns The item at \a index (by value). */
 	inline T value(XsSize index) const
 	{
@@ -596,7 +702,7 @@ public:
 		if (!m_size)
 			throw std::out_of_range("out of range");
 #endif
-		return *ptrAt(m_data, m_size-1);
+		return *ptrAt(m_data, m_size - 1);
 	}
 	/*! \brief indexed data access \sa operator[] \param index Index of item to access. \returns The item at \a index (by reference). */
 	inline T const& at(XsSize index) const
@@ -607,7 +713,7 @@ public:
 		if (index >= m_size)
 			throw std::out_of_range("index out of range");
 #endif
-		return *ptrAt(m_data, index);
+		return *ptrAt(m_data, (ptrdiff_t) index);
 	}
 	/*! \brief indexed data access \sa operator[] \param index Index of item to access. \returns The item at \a index (by reference). */
 	inline T& at(XsSize index)
@@ -685,15 +791,15 @@ public:
 	/*! \brief Adds \a item to the end of the array \sa XsArray_insert \param item The item to append to the array. */
 	inline void push_back(T const& item)
 	{
-		insert(&item, (XsSize) -1, 1);
+		insert(&item, (XsSize) - 1, 1);
 	}
 	/*! \brief Removes \a count items from the end of the array \sa XsArray_erase \param count The number items to remove */
 	inline void pop_back(XsSize count = 1)
 	{
 		if (count >= size())
-			erase(0, (XsSize) -1);
+			erase(0, (XsSize) - 1);
 		else
-			erase(size()-count, count);
+			erase(size() - count, count);
 	}
 	/*! \brief Adds \a item to the start of the array \sa XsArray_insert \param item The item to insert at the front of the array */
 	inline void push_front(T const& item)
@@ -709,7 +815,7 @@ public:
 		\returns The number of items currently in the array
 		\sa reserved \sa setSize \sa resize
 	*/
-	inline XsSize size() const
+	inline XsSize size() const noexcept
 	{
 		return m_size;
 	}
@@ -767,17 +873,23 @@ public:
 		return *this;
 	}
 	/*! \brief Returns whether the array is empty. \details This differs slightly from a straight check for size() != 0 in that it also works for fixed-size XsArrays. \returns true if the array is empty. */
-	inline bool empty() const
+	inline bool empty() const noexcept
 	{
 		return (size() == 0) || (m_data == 0) || (m_flags & XSDF_Empty);
 	}
 
 #ifndef XSENS_NOITERATOR
 	/*! \brief Return the inheriting object */
-	inline I const& inherited() const { return *static_cast<I const*>(this); }
+	inline I const& inherited() const
+	{
+		return *static_cast<I const*>(this);
+	}
 
 	/*! \brief Return the inheriting object */
-	inline I& inherited() { return *static_cast<I*>(this); }
+	inline I& inherited()
+	{
+		return *static_cast<I*>(this);
+	}
 
 #endif
 	/*! \brief Swap the contents of the array with those of \a other. \param other The array to swap contents with. \sa XsArray_swap*/
@@ -817,13 +929,13 @@ public:
 #endif
 
 	/*! \copydoc XsArray_find */
-	inline int find(T const& needle) const
+	inline ptrdiff_t find(T const& needle) const
 	{
 		return XsArray_find(this, &needle);
 	}
 #ifndef SWIG
 	/*! \copydoc XsArray_findPredicate */
-	inline int findPredicate(T const& needle, XsArrayItemCompareFunc predicate) const
+	inline ptrdiff_t findPredicate(T const& needle, XsArrayItemCompareFunc predicate) const
 	{
 		return XsArray_findPredicate(this, &needle, predicate);
 	}
@@ -835,12 +947,12 @@ public:
 		beginning of the array it returns 0. If it points beyond the end, it returns the current size()
 	*/
 	template <ptrdiff_t F, typename R, typename Derived>
-	XsSize indexOf(IteratorImplBase<F,R,Derived> const& it) const
+	XsSize indexOf(IteratorImplBase<F, R, Derived> const& it) const
 	{
 		ptrdiff_t d = ((char const*) it.ptr() - (char const*) m_data);
 		if (d >= 0)
 		{
-			XsSize r = d/D.itemSize;
+			XsSize r = d / D.itemSize;
 			if (r <= size())
 				return r;
 			return size();
@@ -885,7 +997,7 @@ private:
 	*/
 	inline static const T* ptrAt(void const* ptr, ptrdiff_t count)
 	{
-		return (const T*)(void const*)(((char const*)ptr)+count*(ptrdiff_t)D.itemSize);
+		return (const T*)(void const*)(((char const*)ptr) + count * (ptrdiff_t)D.itemSize);
 	}
 
 	/*! \internal
@@ -899,7 +1011,7 @@ private:
 	*/
 	inline static T* ptrAt(void* ptr, ptrdiff_t count)
 	{
-		return (T*)(void*)(((char*)ptr)+count*(ptrdiff_t)D.itemSize);
+		return (T*)(void*)(((char*)ptr) + count * (ptrdiff_t)D.itemSize);
 	}
 };
 #endif

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -85,16 +85,17 @@ XSTYPES_DLL_API void XsDeviceIdArray_construct(XsDeviceIdArray* thisPtr, XsSize 
 #ifdef __cplusplus
 } // extern "C"
 
-struct XsDeviceIdArray : public XsArrayImpl<XsDeviceId, g_xsDeviceIdArrayDescriptor, XsDeviceIdArray> {
+struct XsDeviceIdArray : public XsArrayImpl<XsDeviceId, g_xsDeviceIdArrayDescriptor, XsDeviceIdArray>
+{
 	//! \brief Constructs an XsDeviceIdArray
 	inline explicit XsDeviceIdArray(XsSize sz = 0, XsDeviceId const* src = 0)
-		 : ArrayImpl(sz, src)
+		: ArrayImpl(sz, src)
 	{
 	}
 
 	//! \brief Constructs an XsDeviceIdArray as a copy of \a other
 	inline XsDeviceIdArray(XsDeviceIdArray const& other)
-		 : ArrayImpl(other)
+		: ArrayImpl(other)
 	{
 	}
 

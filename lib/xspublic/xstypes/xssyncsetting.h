@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -92,7 +92,8 @@ XSTYPES_DLL_API int XsSyncSetting_compare(const struct XsSyncSetting* a, const s
 #endif
 
 /*! \brief A structure for storing all xsens sync settings */
-struct XsSyncSetting {
+struct XsSyncSetting
+{
 	XsSyncLine		m_line;						/*!< The sync lines enabled. \see XsSyncLine. */
 	XsSyncFunction	m_function;					/*!< The action to be performed, when an input sync line changes \see XsSyncFunction. */
 	XsSyncPolarity	m_polarity;					/*!< The edge on which the action is performed, \see XsSyncPolarity. */
@@ -106,14 +107,14 @@ struct XsSyncSetting {
 #ifdef __cplusplus
 	//! \brief Default constructor, initializes to the given (default) settings
 	explicit XsSyncSetting(XsSyncLine line = XSL_Invalid
-				, XsSyncFunction function = XSF_Invalid
-				, XsSyncPolarity polarity = XSP_RisingEdge
-				, uint32_t pulseWidth = 1000
-				, int32_t offset = 0
-				, uint16_t skipFirst = 0
-				, uint16_t skipFactor = 0
-				, uint16_t clockPeriod = 0
-				, uint8_t triggerOnce = 0)
+			, XsSyncFunction function = XSF_Invalid
+		, XsSyncPolarity polarity = XSP_RisingEdge
+		, uint32_t pulseWidth = 1000
+		, int32_t offset = 0
+		, uint16_t skipFirst = 0
+		, uint16_t skipFactor = 0
+		, uint16_t clockPeriod = 0
+		, uint8_t triggerOnce = 0)
 		: m_line(line)
 		, m_function(function)
 		, m_polarity(polarity)

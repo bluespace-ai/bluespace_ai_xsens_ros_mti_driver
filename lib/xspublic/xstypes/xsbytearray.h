@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -97,16 +97,17 @@ XSTYPES_DLL_API void XsByteArray_construct(XsByteArray* thisPtr, XsSize count, u
 #ifdef __cplusplus
 } // extern "C"
 
-struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByteArray> {
+struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByteArray>
+{
 	//! \brief Constructs an XsByteArray
 	inline explicit XsByteArray(XsSize sz = 0, uint8_t const* src = 0)
-		 : ArrayImpl(sz, src)
+		: ArrayImpl(sz, src)
 	{
 	}
 
 	//! \brief Constructs an XsByteArray as a copy of \a other
 	inline XsByteArray(XsByteArray const& other)
-		 : ArrayImpl(other)
+		: ArrayImpl(other)
 	{
 	}
 
@@ -136,14 +137,26 @@ struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByte
 	inline XsByteArray(XsString const& src)
 		: ArrayImpl()
 	{
-		assign(src.size()+1, reinterpret_cast<uint8_t const*>(src.c_str()));
+		assign(src.size() + 1, reinterpret_cast<uint8_t const*>(src.c_str()));
 	}
 
 	//! \brief Return a pointer to the internal data buffer
-	inline uint8_t* data() { return begin().operator ->(); }
+	inline uint8_t* data()
+	{
+		return begin().operator ->();
+	}
 
 	//! \brief Return a pointer to the internal data buffer
-	inline uint8_t const* data() const { return begin().operator ->(); }
+	inline uint8_t const* data() const
+	{
+		return begin().operator ->();
+	}
+
+	//! \brief Return an XsString with a copy of the contained data
+	inline XsString toXsString() const
+	{
+		return XsString(size(), reinterpret_cast<const char*>(data()));
+	}
 
 	/*! \brief Return the data at position \a offset converted into a T
 		\details This function will translate a part of the contained data into a type T. T needs to be a real
@@ -155,9 +168,9 @@ struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByte
 	template <typename T>
 	inline T getValue(XsSize offset) const
 	{
-		assert(offset+sizeof(T) <= size());
+		assert(offset + sizeof(T) <= size());
 		T tmp;
-		memcpy(&tmp, data()+offset, sizeof(T));
+		memcpy(&tmp, data() + offset, sizeof(T));
 		return tmp;
 	}
 
@@ -170,7 +183,7 @@ struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByte
 	{
 		XsSize offset = size();
 		resize(offset + sizeof(T));
-		memcpy(data()+offset, &value, sizeof(T));
+		memcpy(data() + offset, &value, sizeof(T));
 	}
 
 	/*! \brief Set \a value T in the byte array at byte position \a offset
@@ -183,7 +196,7 @@ struct XsByteArray : public XsArrayImpl<uint8_t, g_xsByteArrayDescriptor, XsByte
 	{
 		if (size() < offset + sizeof(T))
 			resize(offset + sizeof(T));
-		memcpy(data()+offset, &value, sizeof(T));
+		memcpy(data() + offset, &value, sizeof(T));
 	}
 };
 #endif

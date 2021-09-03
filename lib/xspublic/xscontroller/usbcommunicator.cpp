@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -72,7 +72,7 @@
 /*! \brief Construct and returns new USB communicator
 	\returns The new USB communicator
 */
-Communicator *UsbCommunicator::construct()
+Communicator* UsbCommunicator::construct()
 {
 	return new UsbCommunicator;
 }
@@ -119,17 +119,17 @@ XsResultValue UsbCommunicator::gotoMeasurement()
 	\param pi The port to use
 	\returns The shared pointer to a stream interface
 */
-std::shared_ptr<StreamInterface> UsbCommunicator::createStreamInterface(const XsPortInfo &pi)
+std::shared_ptr<StreamInterface> UsbCommunicator::createStreamInterface(const XsPortInfo& pi)
 {
 	assert(pi.isUsb());
 	m_usbInterface = new UsbInterface();
 	std::shared_ptr<StreamInterface> stream(m_usbInterface,
-			[this](StreamInterface *intf)
-			{
-				m_usbInterface = nullptr;
-				delete intf;
-			}
-		);
+		[this](StreamInterface * intf)
+	{
+		m_usbInterface = nullptr;
+		delete intf;
+	}
+	);
 
 	setLastResult(m_usbInterface->open(pi));
 

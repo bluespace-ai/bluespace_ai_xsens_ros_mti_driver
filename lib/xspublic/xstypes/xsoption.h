@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -73,8 +73,9 @@
 	available other data. XsOptions can be logically ORed together
 */
 //AUTO namespace xstypes {
-enum XsOption {
-	  XSO_None = 0					//!< No option
+enum XsOption
+{
+	XSO_None = 0					//!< No option
 	, XSO_Calibrate = 0x0001		//!< Compute calibrated inertial data from raw data and temperature
 	, XSO_Orientation = 0x0002		//!< Compute orientation, the orientation is typically only computed in one stream. If not specified the system will decide: when reading from file it will use XSO_OrientationInBufferedStream, otherwise XSO_OrientationInLiveStream.
 
@@ -90,9 +91,8 @@ enum XsOption {
 	, XSO_SkipDataBundling = 0x2000					//!< When set, the onAll...DataAvailable callbacks will not be called by the master device. This prevents some internal buffering.
 	, XSO_ExpectNoRetransmissionsInFile = 0x4000	//!< When set and reading a file, missing data is immediately treated as unavailable. The default behaviour is to read further in the file to see if the data was retransmitted.
 	, XSO_Reserved = 0x8000							//!< Reserved for internal use
-
-	, XSO_All = 0xFFFF				//!< All options, note that setting 'all options' is not valid, but it is useful for clearing all options
 };
+#define XSO_All		((XsOption)0xFFFF)				//!< All options, note that setting 'all options' is not valid, but it is useful for clearing all options
 
 /*! @} */
 typedef enum XsOption XsOption;
@@ -103,22 +103,22 @@ typedef enum XsOption XsOption;
 //! \brief Logical OR operator for XsOption values
 inline XsOption operator | (XsOption a, XsOption b)
 {
-	return (XsOption) ((int)a | (int)b);
+	return (XsOption)((int)a | (int)b);
 }
 //! \brief Logical AND operator for XsOption values
 inline XsOption operator & (XsOption a, XsOption b)
 {
-	return (XsOption) ((int)a & (int)b);
+	return (XsOption)((int)a & (int)b);
 }
 //! \brief Logical XOR operator for XsOption values
 inline XsOption operator ^ (XsOption a, XsOption b)
 {
-	return (XsOption) ((int)a ^ (int)b);
+	return (XsOption)((int)a ^ (int)b);
 }
 //! \brief Logical NEG operator for XsOption values
-inline XsOption operator ~ (XsOption a)
+inline XsOption operator ~(XsOption a)
 {
-	return (XsOption) (~(int)a);
+	return (XsOption)(~(int)a);
 }
 //! \brief Return the option with mutually exclusive values 'fixed'
 inline XsOption XsOption_purify(XsOption a)

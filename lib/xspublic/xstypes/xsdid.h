@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -95,6 +95,7 @@
 #define XS_DID_TYPEL_OEM				0x00020000
 #define XS_DID_TYPEL_SYNCSTATION		0x00030000
 #define XS_DID_TYPEL_BUS_MASTER			0x00040000
+#define XS_DID_TYPEL_DONGLE_ANT			0x00010000		//Note: this is the same range as XS_DID_TYPEL_DONGLE
 
 #define XS_DID_TYPEL_RS232				0x00000000
 #define XS_DID_TYPEL_RS422				0x00010000
@@ -133,6 +134,7 @@
 #define XS_DID_TYPE_AWINDA				XS_DID_TYPEH_AWINDAMASTER
 #define XS_DID_TYPE_AWINDA_STATION		(XS_DID_TYPEH_AWINDAMASTER | XS_DID_TYPEL_STATION)
 #define XS_DID_TYPE_AWINDA_DONGLE		(XS_DID_TYPEH_AWINDAMASTER | XS_DID_TYPEL_DONGLE)
+#define XS_DID_TYPE_AWINDA_DONGLE_ANT	(XS_DID_TYPEH_AWINDAMASTER | XS_DID_TYPEL_DONGLE_ANT)
 #define XS_DID_TYPE_AWINDA_OEM			(XS_DID_TYPEH_AWINDAMASTER | XS_DID_TYPEL_OEM)
 #define XS_DID_TYPE_SYNCSTATION			(XS_DID_TYPEH_AWINDAMASTER | XS_DID_TYPEL_SYNCSTATION)
 
@@ -185,7 +187,7 @@
 #define XS_DID_GLOVETYPE_LEFT			0x00000001
 #define XS_DID_GLOVETYPE_RIGHT			0x00000002
 
-#define XS_DID_GLOVEMASTER_UNKNOWN 		( XS_DID_GLOVEMASTER | XS_DID_GLOVETYPE_UNKNOWN )
+#define XS_DID_GLOVEMASTER_UNKNOWN		( XS_DID_GLOVEMASTER | XS_DID_GLOVETYPE_UNKNOWN )
 #define XS_DID_GLOVEMASTER_LEFT			( XS_DID_GLOVEMASTER | XS_DID_GLOVETYPE_LEFT )
 #define XS_DID_GLOVEMASTER_RIGHT		( XS_DID_GLOVEMASTER | XS_DID_GLOVETYPE_RIGHT )
 

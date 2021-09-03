@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -72,7 +72,7 @@ class UsbInterface;
 class UsbCommunicator : public SerialPortCommunicator
 {
 public:
-	static Communicator *construct();
+	static Communicator* construct();
 	UsbCommunicator();
 
 	virtual XsResultValue gotoConfig(bool detectRs485) override;
@@ -80,10 +80,10 @@ public:
 
 protected:
 	virtual ~UsbCommunicator();
-	std::shared_ptr<StreamInterface> createStreamInterface(const XsPortInfo &pi) override;
+	std::shared_ptr<StreamInterface> createStreamInterface(const XsPortInfo& pi) override;
 
 private:
-	UsbInterface *m_usbInterface;
+	UsbInterface* m_usbInterface;
 };
 
 #endif

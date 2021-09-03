@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,22 +66,22 @@
 #include "iointerface.h"
 #include <errno.h>
 #ifndef _WIN32
-#	include <unistd.h>		// close
-#	include <sys/ioctl.h>	// ioctl
-#	include <fcntl.h>		// open, O_RDWR
-#	include <string.h>		// strcpy
-#	include <sys/param.h>
-#	include <stdarg.h>
+	#include <unistd.h>		// close
+	#include <sys/ioctl.h>	// ioctl
+	#include <fcntl.h>		// open, O_RDWR
+	#include <string.h>		// strcpy
+	#include <sys/param.h>
+	#include <stdarg.h>
 #else
-#	include <winbase.h>
-#   include <io.h>
+	#include <winbase.h>
+	#include <io.h>
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
-#	define _CRT_SECURE_NO_DEPRECATE
-#	ifdef _WIN32
-#		pragma warning(disable:4996)
-#	endif
+	#define _CRT_SECURE_NO_DEPRECATE
+	#ifdef _WIN32
+		#pragma warning(disable:4996)
+	#endif
 #endif
 
 /*! \class IoInterface
@@ -93,18 +93,18 @@
 
 // IOInterface functions
 /*! \copydoc SerialInterface::open(const XsPortInfo&, XsFilePos, XsFilePos, PortOptions) */
-XsResultValue IoInterface::open ( const XsPortInfo&, XsFilePos, XsFilePos, PortOptions)
+XsResultValue IoInterface::open(const XsPortInfo&, XsFilePos, XsFilePos, PortOptions)
 {
 	return XRV_INVALIDOPERATION;
 }
 /*! \copydoc SerialInterface::setTimeout(uint32_t) */
-XsResultValue IoInterface::setTimeout (uint32_t ms)
+XsResultValue IoInterface::setTimeout(uint32_t ms)
 {
 	(void) ms;
 	return XRV_INVALIDOPERATION;
 }
 /*! \copydoc SerialInterface::waitForData(XsFilePos, XsByteArray&) */
-XsResultValue IoInterface::waitForData (XsFilePos maxLength, XsByteArray& data)
+XsResultValue IoInterface::waitForData(XsFilePos maxLength, XsByteArray& data)
 {
 	(void) maxLength;
 	(void) data;

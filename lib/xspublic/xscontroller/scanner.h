@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -77,7 +77,7 @@
 struct XsIntArray;
 
 #ifdef _WIN32
-#	include <setupapi.h>
+	#include <setupapi.h>
 #endif
 
 class Scanner
@@ -91,20 +91,21 @@ public:
 		Scanner& scanner() const;
 	};
 
-	XsResultValue fetchBasicInfo(XsPortInfo &portInfo, uint32_t singleScanTimeout, bool detectRs485);
+	XsResultValue fetchBasicInfo(XsPortInfo& portInfo, uint32_t singleScanTimeout, bool detectRs485);
 	bool xsScanPort(XsPortInfo& portInfo, XsBaudRate baud, uint32_t singleScanTimeout, bool detectRs485);
 	virtual bool xsScanPorts(XsPortInfoArray& ports, XsBaudRate baudrate, uint32_t singleScanTimeout, bool ignoreNonXsensDevices, bool detectRs485);
 	bool xsFilterResponsiveDevices(XsPortInfoArray& ports, XsBaudRate baudrate, uint32_t singleScanTimeout, bool detectRs485);
 
 #ifdef _WIN32
-	static std::string getDevicePath(HDEVINFO hDevInfo, SP_DEVINFO_DATA *DeviceInfoData);
-	int xsScanGetHubNumber(HDEVINFO hDevInfo, SP_DEVINFO_DATA *deviceInfoData);
+	static std::string getDevicePath(HDEVINFO hDevInfo, SP_DEVINFO_DATA* DeviceInfoData);
+	int xsScanGetHubNumber(HDEVINFO hDevInfo, SP_DEVINFO_DATA* deviceInfoData);
 	XsPortInfo xsScanPortByHubId(const char* id);
 	bool xsScanXsensUsbHubs(XsIntArray& hubs, XsPortInfoArray& ports);
 #endif
 	static bool isXsensUsbDevice(uint16_t vid, uint16_t pid);
 	bool xsEnumerateSerialPorts(XsPortInfoArray& ports, bool ignoreNonXsensDevices);
 	virtual bool xsEnumerateNetworkDevices(XsPortInfoArray& ports);
+	virtual bool xsEnumerateBluetoothDevices(XsPortInfoArray& ports);
 
 	XsUsbHubInfo xsScanUsbHub(const XsPortInfo& portInfo);
 
@@ -113,9 +114,9 @@ public:
 
 namespace XsScannerNamespace
 {
-	extern volatile std::atomic_bool abortPortScan;
-	extern Scanner* gScanner;
-	extern XsScanLogCallbackFunc gScanLogCallback;
+extern volatile std::atomic_bool abortPortScan;
+extern Scanner* gScanner;
+extern XsScanLogCallbackFunc gScanLogCallback;
 }
 
 #if 1

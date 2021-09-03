@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,14 +69,14 @@
 #include <wchar.h>
 
 #ifdef _WIN32
-#	include <windows.h>
-#	include "xssimpleversion.h"
+	#include <windows.h>
+	#include "xssimpleversion.h"
 #else
-#	include <errno.h>
-#	include <unistd.h>
-#	include <sys/time.h>
-#	include <pthread.h>
-#	include <string.h>
+	#include <errno.h>
+	#include <unistd.h>
+	#include <sys/time.h>
+	#include <pthread.h>
+	#include <string.h>
 #endif
 #include <time.h>
 
@@ -85,10 +85,10 @@
 */
 
 //! The number of seconds in a normal day
-const XsTimeStamp XsTime_secPerDay = { 60*60*24LL };
+const XsTimeStamp XsTime_secPerDay = { 60 * 60 * 24LL };
 
 //! The number of milliseconds in a normal day
-const XsTimeStamp XsTime_milliSecPerDay = { 60*60*24*1000LL };
+const XsTimeStamp XsTime_milliSecPerDay = { 60 * 60 * 24 * 1000LL };
 
 //! The maximum positive value of an XsTimeStamp value
 const XsTimeStamp XsTime_timeStampMax = { 0x7FFFFFFFFFFFFFFFLL };
@@ -101,11 +101,11 @@ const XsTimeStamp XsTime_timeStampMax = { 0x7FFFFFFFFFFFFFFFLL };
 
 	clock_gettime() is not available on Apple/Darwin platforms. This function helps
 	maintaining compatibility with Linux code.
- */
+*/
 #ifndef CLOCK_REALTIME
-#define CLOCK_REALTIME 0
+	#define CLOCK_REALTIME 0
 #endif
-static int clock_gettime(int clk_id, struct timespec *tp)
+static int clock_gettime(int clk_id, struct timespec* tp)
 {
 	(void)clk_id;
 	struct timeval now;
@@ -134,7 +134,7 @@ static int clock_gettime(int clk_id, struct timespec *tp)
 uint32_t XsTime_getTimeOfDay(struct tm* date_, time_t* secs_)
 {
 #ifdef _WIN32
-	typedef void(WINAPI *GetSystemTimeType)(LPFILETIME);
+	typedef void(WINAPI * GetSystemTimeType)(LPFILETIME);
 	static GetSystemTimeType getSystemTime = 0;
 	static int havePreciseFileTime = 0;
 	if (getSystemTime == 0)
@@ -159,13 +159,13 @@ uint32_t XsTime_getTimeOfDay(struct tm* date_, time_t* secs_)
 		FILETIME now;
 		__time64_t tin;
 		getSystemTime(&now);
-		t = (int64_t) (((((uint64_t) now.dwHighDateTime << 32) | now.dwLowDateTime)/10000) - 11644473600000);
-		tin = t/1000;
+		t = (int64_t)(((((uint64_t) now.dwHighDateTime << 32) | now.dwLowDateTime) / 10000) - 11644473600000);
+		tin = t / 1000;
 		if (date_ != NULL)
-			_localtime64_s(date_,&tin);
+			_localtime64_s(date_, &tin);
 		if (secs_ != NULL)
 			*secs_ = (time_t) tin;
-		return (uint32_t) (t % (XsTime_secPerDay.m_msTime*1000));
+		return (uint32_t)(t % (XsTime_secPerDay.m_msTime * 1000));
 	}
 	else
 	{
@@ -180,7 +180,7 @@ uint32_t XsTime_getTimeOfDay(struct tm* date_, time_t* secs_)
 		__time64_t tin;
 
 		GetSystemTimeAsFileTime(&now);
-		t = (int64_t) (((((uint64_t) now.dwHighDateTime << 32) | now.dwLowDateTime)/10000) - 11644473600000);
+		t = (int64_t)(((((uint64_t) now.dwHighDateTime << 32) | now.dwLowDateTime) / 10000) - 11644473600000);
 
 		if (QueryPerformanceCounter(&pc))
 		{
@@ -194,9 +194,9 @@ uint32_t XsTime_getTimeOfDay(struct tm* date_, time_t* secs_)
 				startTimeSysTime = t;
 			}
 
-			tNow = startTimeSysTime + (1000*(pc.QuadPart - startTimePerfCount))/perfCountFreq;	//lint !e414
+			tNow = startTimeSysTime + (1000 * (pc.QuadPart - startTimePerfCount)) / perfCountFreq;	//lint !e414
 
-			if (t > tNow || (tNow-t) > CORRECTION_DELTA_MS)
+			if (t > tNow || (tNow - t) > CORRECTION_DELTA_MS)
 			{
 				startTimePerfCount = pc.QuadPart;
 				startTimeSysTime = t;
@@ -205,25 +205,25 @@ uint32_t XsTime_getTimeOfDay(struct tm* date_, time_t* secs_)
 				t = tNow;
 		}
 
-		tin = t/1000;
+		tin = t / 1000;
 		if (date_ != NULL)
-			_localtime64_s(date_,&tin);
+			_localtime64_s(date_, &tin);
 		if (secs_ != NULL)
 			*secs_ = (time_t) tin;
-		return (uint32_t) (t % (XsTime_secPerDay.m_msTime*1000));
+		return (uint32_t)(t % (XsTime_secPerDay.m_msTime * 1000));
 	}
 #else
 	struct timespec tp;
 	clock_gettime(CLOCK_REALTIME, &tp); // compile with -lrt
 
 	if (date_ != NULL)
-		localtime_r(&tp.tv_sec,date_);
+		localtime_r(&tp.tv_sec, date_);
 
 	if (secs_ != NULL)
 		secs_[0] = tp.tv_sec;
 
 	// 86400 = 24*60*60 = secs in a day, this gives us the seconds since midnight
-	return (uint32_t)((1000 * (tp.tv_sec % XsTime_secPerDay.m_msTime)) + (tp.tv_nsec/1000000));
+	return (uint32_t)((1000 * (tp.tv_sec % XsTime_secPerDay.m_msTime)) + (tp.tv_nsec / 1000000));
 #endif
 }
 
@@ -231,7 +231,7 @@ uint32_t XsTime_getTimeOfDay(struct tm* date_, time_t* secs_)
 	\param date : if non-zero the local (!) date and time is stored in the tm struct this parameter points to
 	\returns The UTC date and time as seconds since 1970
 */
-int64_t XsTime_getDateTime(struct tm *date)
+int64_t XsTime_getDateTime(struct tm* date)
 {
 #ifdef _WIN32
 	__time64_t t;
@@ -242,9 +242,9 @@ int64_t XsTime_getDateTime(struct tm *date)
 #else
 	time_t t;
 	time(&t);
-	if(date != 0)
+	if (date != 0)
 	{
-		struct tm *result = localtime(&t);
+		struct tm* result = localtime(&t);
 		memcpy(date, result, sizeof(struct tm));
 	}
 	return (int64_t)t;
@@ -253,25 +253,32 @@ int64_t XsTime_getDateTime(struct tm *date)
 
 /*! \brief Retrieves the date as string representation
 	The format is YYYYMMDD
-	so 25 dec 2010 is stored as an array dest[8] = {'2', '0', '1', '0', '1', '2', '2', '5' }
+	so 25 dec 2010 is stored as an array dest[9] = { '2', '0', '1', '0', '1', '2', '2', '5' }
 	\param dest : A pointer to an array of at least (!) 8 bytes
 	\param date : If date is non-zero this date is converted, otherwise the current date is retrieved and used)
 */
 void XsTime_getDateAsString(char* dest, const struct tm* date)
 {
 	struct tm dt;
-	int year, month;
+	unsigned int year, month;
 
-	if(date != 0)
+	if (date != 0)
 		dt = *date;
 	else
 		XsTime_getDateTime(&dt);
 
-	year = dt.tm_year + 1900;
-	month = dt.tm_mon + 1;
+	year = (unsigned int) (dt.tm_year + 1900);
+	month = (unsigned int) (dt.tm_mon + 1);
 
 	char tmpDest[9];
-	snprintf(tmpDest, 9, "%04d%02d%02d", year, month, dt.tm_mday);
+#if defined(__GNUC__) && !defined(__APPLE__) && !defined(__ANDROID_API__)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"	// valid date values will always fit properly
+#endif
+	snprintf(tmpDest, 9, "%04u%02u%02u", year, month, (unsigned int) dt.tm_mday);
+#if defined(__GNUC__) && !defined(__APPLE__) && !defined(__ANDROID_API__)
+	#pragma GCC diagnostic pop
+#endif
 	memcpy(dest, tmpDest, 8);
 }
 
@@ -307,7 +314,7 @@ void XsTime_getDateAsWString(wchar_t* dest, const struct tm* date)
 	struct tm dt;
 	int year, month;
 
-	if(date != 0)
+	if (date != 0)
 		dt = *date;
 	else
 		XsTime_getDateTime(&dt);
@@ -370,8 +377,7 @@ void XsTime_udelay(uint64_t us)
 	do
 	{
 		QueryPerformanceCounter(&stop);
-	}
-	while (start.QuadPart + ((double)(us) * countPerMicroSecond) > stop.QuadPart);
+	} while (start.QuadPart + ((double)(us) * countPerMicroSecond) > stop.QuadPart);
 #else
 	struct timespec ts;
 	int ret = -1;
@@ -401,7 +407,7 @@ int64_t XsTime_timeStampNow(XsTimeStamp* now)
 		now = &tmp;
 
 	now->m_msTime = (long long) XsTime_getTimeOfDay(NULL, &s);
-	now->m_msTime = (now->m_msTime % 1000) + (((long long)s)*1000);
+	now->m_msTime = (now->m_msTime % 1000) + (((long long)s) * 1000);
 
 	return now->m_msTime;
 }
@@ -424,8 +430,8 @@ void XsTime_initializeTime()
 	GetSystemTimeAsFileTime(&now);
 	FileTimeToLocalFileTime(&now, &nowloc);
 
-	tutc = (int64_t) (((((uint64_t) now.dwHighDateTime << 32) | now.dwLowDateTime)/10000) - 11644473600000);
-	tloc = (int64_t) (((((uint64_t) nowloc.dwHighDateTime << 32) | nowloc.dwLowDateTime)/10000) - 11644473600000);
+	tutc = (int64_t)(((((uint64_t) now.dwHighDateTime << 32) | now.dwLowDateTime) / 10000) - 11644473600000);
+	tloc = (int64_t)(((((uint64_t) nowloc.dwHighDateTime << 32) | nowloc.dwLowDateTime) / 10000) - 11644473600000);
 
 #else
 	struct timespec tp;

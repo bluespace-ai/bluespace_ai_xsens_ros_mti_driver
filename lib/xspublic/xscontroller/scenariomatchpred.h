@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,14 +71,14 @@
 
 /*! \brief Returns true if \a lhs has the same type as \a rhs
 */
-inline bool scenarioTypeMatches(const XsFilterProfile &lhs, const XsFilterProfile &rhs)
+inline bool scenarioTypeMatches(const XsFilterProfile& lhs, const XsFilterProfile& rhs)
 {
 	return lhs.type() == rhs.type();
 }
 
 /*! \brief Returns true if \a lhs has the same type as \a rhs
 */
-inline bool operator ==(const XsFilterProfile &lhs, const XsFilterProfile &rhs)
+inline bool operator ==(const XsFilterProfile& lhs, const XsFilterProfile& rhs)
 {
 	return scenarioTypeMatches(lhs, rhs);
 }
@@ -86,12 +86,13 @@ inline bool operator ==(const XsFilterProfile &lhs, const XsFilterProfile &rhs)
 /*! \class ScenarioMatchPred
 	\brief The class that compares two scenarios for matching
 */
-class ScenarioMatchPred {
+class ScenarioMatchPred
+{
 public:
 
 	/*! \brief Default constructor
 	*/
-	ScenarioMatchPred(const XsFilterProfile &scenario)
+	ScenarioMatchPred(const XsFilterProfile& scenario)
 		: m_scenarioType(scenario.type())
 	{
 	}
@@ -107,7 +108,7 @@ public:
 	/*! \param s : The filter profile to compare
 		\returns true if \a s matches
 	*/
-	bool operator()(const XsFilterProfile &s) const
+	bool operator()(const XsFilterProfile& s) const
 	{
 		return s.type() == m_scenarioType;
 	}
@@ -115,7 +116,7 @@ public:
 	/*! \param s : The filter profile to compare
 		\returns true if \a s matches
 	*/
-	bool operator()(const XsFilterProfile *s) const
+	bool operator()(const XsFilterProfile* s) const
 	{
 		return s->type() == m_scenarioType;
 	}

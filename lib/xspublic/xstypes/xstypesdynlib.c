@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -63,25 +63,25 @@
 //  
 
 #ifdef _WIN32
-#	ifndef WINVER				// Allow use of features specific to Windows XP or later.
-#		define WINVER 0x0501		// Change this to the appropriate value to target other versions of Windows.
-#	endif
+	#ifndef WINVER				// Allow use of features specific to Windows XP or later.
+		#define WINVER 0x0501		// Change this to the appropriate value to target other versions of Windows.
+	#endif
 
-#	ifndef _WIN32_WINNT		// Allow use of features specific to Windows XP or later.
-#		define _WIN32_WINNT 0x0501	// Change this to the appropriate value to target other versions of Windows.
-#	endif
+	#ifndef _WIN32_WINNT		// Allow use of features specific to Windows XP or later.
+		#define _WIN32_WINNT 0x0501	// Change this to the appropriate value to target other versions of Windows.
+	#endif
 
-#	ifndef _WIN32_WINDOWS		// Allow use of features specific to Windows 98 or later.
-#		define _WIN32_WINDOWS 0x0501 // Change this to the appropriate value to target Windows Me or later.
-#	endif
+	#ifndef _WIN32_WINDOWS		// Allow use of features specific to Windows 98 or later.
+		#define _WIN32_WINDOWS 0x0501 // Change this to the appropriate value to target Windows Me or later.
+	#endif
 
-#	ifndef _WIN32_IE			// Allow use of features specific to IE 6.0 or later.
-#		define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
-#	endif
-#	ifndef WIN32_LEAN_AND_MEAN
-#		define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-#	endif
-#	include <windows.h>
+	#ifndef _WIN32_IE			// Allow use of features specific to IE 6.0 or later.
+		#define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
+	#endif
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+	#endif
+	#include <windows.h>
 #else
 #endif
 #include "xstypesdynlib.h"
@@ -89,14 +89,14 @@
 #include "xsstring.h"
 
 #ifdef _MANAGED
-#pragma managed(push, off)
+	#pragma managed(push, off)
 #endif
 
 // The so_* functions are also used by programs that use xstypes as a static library
 // When the function contents change, check if this functionality is also required in these programs
 void
 #ifdef __GNUC__
-__attribute__((constructor(65535)))
+	__attribute__((constructor(65535)))
 #endif
 so_init(void)
 {
@@ -105,7 +105,7 @@ so_init(void)
 
 void
 #ifdef __GNUC__
-__attribute__((destructor))
+	__attribute__((destructor))
 #endif
 so_fini(void)
 {
@@ -113,30 +113,30 @@ so_fini(void)
 
 #ifdef _WIN32
 HMODULE g_hModule = 0;
-BOOL APIENTRY DllMain( HMODULE hModule,
-					   DWORD  ul_reason_for_call,
-					   LPVOID lpvReserved
-					 )
+BOOL APIENTRY DllMain(HMODULE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpvReserved
+)
 {
 	g_hModule = hModule;
 
 	switch (ul_reason_for_call)
 	{
-	case DLL_PROCESS_ATTACH:
-		so_init();
-		break;
-	case DLL_THREAD_ATTACH:
-		break;
-	case DLL_THREAD_DETACH:
-		break;
-	case DLL_PROCESS_DETACH:
-		// The lpvReserved parameter to DllMain is NULL if the DLL is being unloaded because of a call to FreeLibrary, it's non NULL if the DLL is being unloaded due to process termination.
-		// in case of process termination, all the threads have already been destroyed and we'll just assume that windows will clean us up
-		if (lpvReserved == NULL)
-			so_fini();
-		break;
-	default:
-		break;
+		case DLL_PROCESS_ATTACH:
+			so_init();
+			break;
+		case DLL_THREAD_ATTACH:
+			break;
+		case DLL_THREAD_DETACH:
+			break;
+		case DLL_PROCESS_DETACH:
+			// The lpvReserved parameter to DllMain is NULL if the DLL is being unloaded because of a call to FreeLibrary, it's non NULL if the DLL is being unloaded due to process termination.
+			// in case of process termination, all the threads have already been destroyed and we'll just assume that windows will clean us up
+			if (lpvReserved == NULL)
+				so_fini();
+			break;
+		default:
+			break;
 	}
 	return TRUE;
 }
@@ -164,5 +164,5 @@ XSTYPES_DLL_API void xstypesPath(XsString* path)
 #endif
 }
 #ifdef _MANAGED
-#pragma managed(pop)
+	#pragma managed(pop)
 #endif

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -86,7 +86,7 @@ ConsoleLogger::ConsoleLogger(JournalLogLevel logLevel, JournalLogLevel errLevel)
 	\param[in] function The name of the function from which the logging originates
 	\param[in] msg The actual log message
 */
-void ConsoleLogger::log(JournalLogLevel level, char const * file, int line, char const * function, std::string const & msg)
+void ConsoleLogger::log(JournalLogLevel level, char const* file, int line, char const* function, std::string const& msg)
 {
 	(void)file;
 	(void)line;
@@ -94,13 +94,13 @@ void ConsoleLogger::log(JournalLogLevel level, char const * file, int line, char
 	size_t p = strlen(function);
 	while (p > 0)
 	{
-		if (function[p-1] == ':')
+		if (function[p - 1] == ':')
 			break;
 		--p;
 	}
 
 	if (level >= logLevel())
-		std::cout << function+p << ": " << msg << std::endl;
+		std::cout << function + p << ": " << msg << std::endl;
 	if (level >= debugLevel())
-		std::cerr << function+p << ": " << msg << std::endl;
+		std::cerr << function + p << ": " << msg << std::endl;
 }

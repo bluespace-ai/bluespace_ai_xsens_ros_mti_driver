@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -110,6 +110,9 @@ bool MtiBaseDevice::setHeadingOffset(double)
 */
 XsOutputConfigurationArray MtiBaseDevice::outputConfiguration() const
 {
+	if (deviceState() == XDS_Measurement || deviceState() == XDS_Recording)
+		return m_outputConfiguration;
+
 	XsMessage snd(XMID_ReqOutputConfiguration), rcv;
 	if (!doTransaction(snd, rcv))
 		return XsOutputConfigurationArray();
@@ -129,14 +132,14 @@ XsOutputConfigurationArray MtiBaseDevice::outputConfiguration() const
 
 /*! \brief Set the output configuration for this device
 	\param config The desired output configuration
-	\returns true if the output configuration was successfully updated
+	\returns XRV_OK on success \sa XsResultValue
 */
-bool MtiBaseDevice::setOutputConfiguration(XsOutputConfigurationArray& config)
+XsResultValue MtiBaseDevice::setOutputConfigurationInternal(XsOutputConfigurationArray& config)
 {
 	if (!deviceId().isMti6X0())
 		setStringOutputMode(0, 0, 0);
 
-	return MtDeviceEx::setOutputConfiguration(config);
+	return MtDeviceEx::setOutputConfigurationInternal(config);
 }
 
 /*! \copybrief XsDevice::setAlignmentRotationMatrix
@@ -147,7 +150,7 @@ bool MtiBaseDevice::setAlignmentRotationQuaternion(XsAlignmentFrame frame, const
 	snd.setBusId(busId());
 	snd.setDataByte((uint8_t)frame);
 	for (XsSize i = 0; i < 4; ++i)
-		snd.setDataFloat((float)quat[i], (uint16_t) (1 + i * sizeof(float)));
+		snd.setDataFloat((float)quat[i], (uint16_t)(1 + i * sizeof(float)));
 	return doTransaction(snd);
 }
 
@@ -184,14 +187,14 @@ XsMatrix MtiBaseDevice::alignmentRotationMatrix(XsAlignmentFrame frame) const
 
 /*! \copybrief XsDevice::setSyncSettings
 */
-bool MtiBaseDevice::setSyncSettings(const XsSyncSettingArray &s)
+bool MtiBaseDevice::setSyncSettings(const XsSyncSettingArray& s)
 {
-	/* Mk4 sync lines:
-		* XSL_ClockIn => 0		external clock sync (SMCU)
-		* XSL_GnssClockIn => 1	GNSS clock sync (DSP?)
-		* XSL_In1 => 2			send data line (IMCU)
-		* XSL_Bi1In => 3		SMCU
-		* XSL_Bi1Out => 4		SMCU
+	/*  Mk4 sync lines:
+		 XSL_ClockIn => 0		external clock sync (SMCU)
+		 XSL_GnssClockIn => 1	GNSS clock sync (DSP?)
+		 XSL_In1 => 2			send data line (IMCU)
+		 XSL_Bi1In => 3		SMCU
+		 XSL_Bi1Out => 4		SMCU
 	*/
 
 	unsigned int timeResolution = XsDevice::syncSettingsTimeResolutionInMicroSeconds(deviceId());
@@ -200,10 +203,10 @@ bool MtiBaseDevice::setSyncSettings(const XsSyncSettingArray &s)
 		return false;
 
 	//if no item, create the length of 1 item with zero values
-	XsMessage snd(XMID_SetSyncConfiguration, (s.size() == 0) ? 12 : s.size()*12);
+	XsMessage snd(XMID_SetSyncConfiguration, (s.size() == 0) ? 12 : s.size() * 12);
 	snd.setBusId(busId());
 
-	/* create message but abort if we encounter anything out of the ordinary
+	/*  create message but abort if we encounter anything out of the ordinary
 		each sync setting is:
 		0: event / action (function)
 		1: line
@@ -217,26 +220,24 @@ bool MtiBaseDevice::setSyncSettings(const XsSyncSettingArray &s)
 	for (size_t i = 0; i < s.size(); ++i)
 	{
 		const XsSyncSetting& setting = s[i];
-		XsSize offset = i*12;
+		XsSize offset = i * 12;
 
 		snd.setDataByte(setting.m_function, offset);
 		const uint8_t line = syncLine(setting);
-		snd.setDataByte(line, offset+1);
+		snd.setDataByte(line, offset + 1);
 		assert(setting.m_polarity != XSP_None);
-		snd.setDataByte(setting.m_polarity, offset+2);
-		snd.setDataByte(setting.m_triggerOnce?1:0, offset+3);
-		snd.setDataShort(setting.m_skipFirst, offset+4);
-		snd.setDataShort(setting.m_skipFactor, offset+6);
-		snd.setDataShort((uint16_t) (setting.m_pulseWidth / timeResolution), offset+8);
+		snd.setDataByte(setting.m_polarity, offset + 2);
+		snd.setDataByte(setting.m_triggerOnce ? 1 : 0, offset + 3);
+		snd.setDataShort(setting.m_skipFirst, offset + 4);
+		snd.setDataShort(setting.m_skipFactor, offset + 6);
+		snd.setDataShort((uint16_t)(setting.m_pulseWidth / timeResolution), offset + 8);
 		uint16_t value = 0;
 		if (setting.m_function == XSF_ClockBiasEstimation || setting.m_function == XSF_SampleAndSend)
-		{
-			snd.setDataShort(setting.m_clockPeriod, offset+10);
-		}
+			snd.setDataShort(setting.m_clockPeriod, offset + 10);
 		else
 		{
-			value = (uint16_t) (int16_t) (setting.m_offset / (int) timeResolution);
-			snd.setDataShort(value, offset+10);
+			value = (uint16_t)(int16_t)(setting.m_offset / (int) timeResolution);
+			snd.setDataShort(value, offset + 10);
 		}
 	}
 
@@ -264,25 +265,25 @@ XsSyncSettingArray MtiBaseDevice::syncSettingsFromBuffer(const uint8_t* buffer) 
 	for (XsSize i = 0; i < 10; ++i)
 	{
 		uint16_t tmp_pulseWidth;
-		XsSize offset = i*12;
+		XsSize offset = i * 12;
 		XsSyncSetting ss;
 		ss.m_function = (XsSyncFunction) buffer[offset];
-		ss.m_polarity = (XsSyncPolarity) buffer[offset+2];
+		ss.m_polarity = (XsSyncPolarity) buffer[offset + 2];
 		if (ss.m_polarity == XSP_None)
 			break;
 
 		ss.m_line = syncSettingsLine(buffer, offset);
-		ss.m_triggerOnce = buffer[offset+3];
-		memcpy((void*) &ss.m_skipFirst, (void const*) &buffer[offset+4], sizeof(uint16_t));
-		memcpy((void*) &ss.m_skipFactor, (void const*) &buffer[offset+6], sizeof(uint16_t));
-		memcpy((void*) &tmp_pulseWidth, (void const*) &buffer[offset+8], sizeof(uint16_t));
+		ss.m_triggerOnce = buffer[offset + 3];
+		memcpy((void*) &ss.m_skipFirst, (void const*) &buffer[offset + 4], sizeof(uint16_t));
+		memcpy((void*) &ss.m_skipFactor, (void const*) &buffer[offset + 6], sizeof(uint16_t));
+		memcpy((void*) &tmp_pulseWidth, (void const*) &buffer[offset + 8], sizeof(uint16_t));
 		ss.m_pulseWidth = (uint32_t) tmp_pulseWidth * (uint32_t) timeResolution;
 		if (ss.m_function == XSF_ClockBiasEstimation || ss.m_function == XSF_SampleAndSend)
-			memcpy((void*) &ss.m_clockPeriod, (void const*) &buffer[offset+10], sizeof(uint16_t));
+			memcpy((void*) &ss.m_clockPeriod, (void const*) &buffer[offset + 10], sizeof(uint16_t));
 		else
 		{
 			int16_t tmp_offset;
-			memcpy((void*) &tmp_offset, (void const*) &buffer[offset+10], sizeof(int16_t));
+			memcpy((void*) &tmp_offset, (void const*) &buffer[offset + 10], sizeof(int16_t));
 			ss.m_offset = (int32_t) tmp_offset * (int32_t) timeResolution;
 		}
 
@@ -360,19 +361,11 @@ std::vector<int> MtiBaseDevice::supportedUpdateRates(XsDataIdentifier dataType) 
 		return updateRates;
 	}
 
-	std::set<int> unsupportedUpdateRates;
-	unsupportedUpdateRates.insert(500);
-	unsupportedUpdateRates.insert(250);
-	unsupportedUpdateRates.insert(125);
-
 	for (int skip = 0; skip <= baseFreq.m_frequency; ++skip)
 	{
 		int freq = calcFrequency(baseFreq.m_frequency, (uint16_t) skip);
-		if (freq * (skip+1) == baseFreq.m_frequency)
-		{
-			if (unsupportedUpdateRates.count(freq) == 0)
-				updateRates.push_back(freq);
-		}
+		if (freq * (skip + 1) == baseFreq.m_frequency)
+			updateRates.push_back(freq);
 	}
 
 	return updateRates;
@@ -393,7 +386,7 @@ bool MtiBaseDevice::setInitialPositionLLA(const XsVector& lla)
 	if (bid == XS_BID_INVALID || bid == XS_BID_BROADCAST || lla.size() != 3)
 		return false;
 
-	XsMessage snd(XMID_SetLatLonAlt, 3*sizeof(double));
+	XsMessage snd(XMID_SetLatLonAlt, 3 * sizeof(double));
 	snd.setDataDouble(lla[0], 0);
 	snd.setDataDouble(lla[1], 8);
 	snd.setDataDouble(lla[2], 16);
@@ -525,9 +518,7 @@ uint8_t MtiBaseDevice::syncLine(const XsSyncSetting& setting) const
 		SyncLineMk4 mk4Line = xslToXsl4(setting.m_line);
 		assert(mk4Line != XSL4_Invalid);
 		if (mk4Line == XSL4_ClockIn || mk4Line == XSL4_GnssClockIn)
-		{
 			assert(setting.m_function == XSF_ClockBiasEstimation);
-		}
 		return static_cast<uint8_t>(mk4Line);
 	}
 	else
@@ -535,14 +526,12 @@ uint8_t MtiBaseDevice::syncLine(const XsSyncSetting& setting) const
 		SyncLineGmt gmtLine = xslToXslgmt(setting.m_line);
 		assert(gmtLine != XSLGMT_Invalid);
 		if (gmtLine == XSLGMT_ClockIn)
-		{
 			assert(setting.m_function == XSF_SampleAndSend);
-		}
 		return static_cast<uint8_t>(gmtLine);
 	}
 }
 
-bool MtiBaseDevice::messageLooksSane(const XsMessage &msg) const
+bool MtiBaseDevice::messageLooksSane(const XsMessage& msg) const
 {
 	(void)msg;
 	return true;

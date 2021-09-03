@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -93,14 +93,17 @@ public:
 	virtual XsResultValue processBufferedData(const XsByteArray& rawIn, std::deque<XsMessage>& messages) = 0;
 
 	//! \copybrief Communicator::handleMessage
-	virtual void handleMessage(const XsMessage &message) = 0;
+	virtual void handleMessage(const XsMessage& message) = 0;
 
-	void addRawData(const XsByteArray &arr);
+	void addRawData(const XsByteArray& arr);
 	void clear();
 	void terminate();
 
 	//! \returns The parser type
-	virtual const char* parserType() const { return "DataParser"; }
+	virtual const char* parserType() const
+	{
+		return "DataParser";
+	}
 
 protected:
 	void initFunction() override;

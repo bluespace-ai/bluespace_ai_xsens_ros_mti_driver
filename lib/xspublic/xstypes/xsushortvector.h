@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,15 +66,16 @@
 #define XSUSHORTVECTOR_H
 
 #ifdef __cplusplus
-#include "xstypedefs.h"
+	#include "xstypedefs.h"
 #endif
 #ifndef __cplusplus
-#define XSUSHORTVECTOR_INITIALIZER {{0,0,0}}
+	#define XSUSHORTVECTOR_INITIALIZER {{0,0,0}}
 #endif
 
 
 /*! \brief A vector containing 3 short values. */
-struct XsUShortVector {
+struct XsUShortVector
+{
 #ifdef __cplusplus
 	//! \brief Constructor that creates the vector with all components set to 0
 	inline XsUShortVector()
@@ -124,8 +125,8 @@ struct XsUShortVector {
 	inline bool operator == (const XsUShortVector& other) const
 	{
 		return	m_data[0] == other.m_data[0] &&
-				m_data[1] == other.m_data[1] &&
-				m_data[2] == other.m_data[2];
+			m_data[1] == other.m_data[1] &&
+			m_data[2] == other.m_data[2];
 	}
 
 	//! \brief Return the size of the vector (always 3)

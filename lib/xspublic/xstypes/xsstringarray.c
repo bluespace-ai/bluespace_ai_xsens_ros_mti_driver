@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,7 +71,8 @@
 */
 
 //! \brief Descriptor for XsStringArray
-XsArrayDescriptor const g_xsStringArrayDescriptor = {
+XsArrayDescriptor const g_xsStringArrayDescriptor =
+{
 	sizeof(XsString),
 	XSEXPCASTITEMSWAP XsArray_swap,
 	XSEXPCASTITEMMAKE XsString_construct,
@@ -120,10 +121,10 @@ void XsStringArray_fromSplicedString(struct XsStringArray* thisPtr, struct XsStr
 			{
 				if (newIdx != idx)
 				{
-					XsString_assign(&s, (XsSize)(newIdx-idx), idx);
+					XsString_assign(&s, (XsSize)(newIdx - idx), idx);
 					XsArray_insert(thisPtr, thisPtr->m_size, 1, &s);
 				}
-				idx = newIdx+1;
+				idx = newIdx + 1;
 				newIdx = strpbrk(idx, sep);
 			}
 			if (*idx)
@@ -145,17 +146,17 @@ void XsStringArray_join(struct XsStringArray const* thisPtr, struct XsString* re
 {
 	// determine required buffer size
 	XsSize i;
-	XsSize chars = (thisPtr->m_size ? (thisPtr->m_size-1) : 0) * (separator->m_size ? separator->m_size-1 : 0);
+	XsSize chars = (thisPtr->m_size ? (thisPtr->m_size - 1) : 0) * (separator->m_size ? separator->m_size - 1 : 0);
 	for (i = 0; i < thisPtr->m_size; ++i)
 	{
 		XsSize sz = ((const XsString*)XsArray_at(thisPtr, i))->m_size;
-		chars += (sz ? sz-1 : 0);
+		chars += (sz ? sz - 1 : 0);
 	}
 
 	XsArray_destruct(result);
 	if (chars)
 	{
-		XsArray_reserve(result, chars+1);
+		XsArray_reserve(result, chars + 1);
 		for (i = 0; i < thisPtr->m_size; ++i)
 		{
 			const XsString* s = (const XsString*)XsArray_at(thisPtr, i);

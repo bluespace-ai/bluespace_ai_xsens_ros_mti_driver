@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,7 +70,7 @@
 #include "xsprotocoltype.h"
 
 /*! \brief Interface class for protocol manager
-\details Describes the interfaces of a manager of different protocols \sa ProtocolHandler
+    \details Describes the interfaces of a manager of different protocols \sa ProtocolHandler
 */
 class IProtocolManager
 {
@@ -98,7 +98,7 @@ public:
 		\param msg: The message to check
 		\returns true if the message passes the protocol managers sanity checks
 	*/
-	virtual bool validateMessage(XsMessage const &msg) const = 0;
+	virtual bool validateMessage(XsMessage const& msg) const = 0;
 };
 
 #endif

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,12 +66,13 @@
 #include "journalexception.h"
 
 /*! \brief A helper class that combines the StackWalker output into a std::string */
-class JournalExceptionStackWalker : public StackWalker {
+class JournalExceptionStackWalker : public StackWalker
+{
 public:
 	JournalExceptionStackWalker(JournalException* exc)
 		: StackWalker()
 		, m_exception(exc)
-		{}
+	{}
 
 	JournalException* m_exception;
 
@@ -109,9 +110,9 @@ const std::string& JournalException::stack() const
 }
 
 #ifdef XSENS_DEBUG
-#define GOTODEBDEF	true
+	#define GOTODEBDEF	true
 #else
-#define GOTODEBDEF	false
+	#define GOTODEBDEF	false
 #endif
 
 /*! When set to true, any caught exception at the C level will be passed on upward (ie to the debugger)

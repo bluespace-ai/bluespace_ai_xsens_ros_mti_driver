@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,15 +70,16 @@
 #include <xstypes/xsdeviceid.h>
 
 #ifndef __cplusplus
-#define XSGPSSATELLITEINFO_INITIALIZER	{ 0, 0, 0, 0 }
-#define XSGPSSTATUS_INITIALIZER	{ 0, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER };
+	#define XSGPSSATELLITEINFO_INITIALIZER	{ 0, 0, 0, 0 }
+	#define XSGPSSTATUS_INITIALIZER	{ 0, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER, XSGPSSATELLITEINFO_INITIALIZER };
 #endif
 
 #define XS_MAX_SVINFO		16
 
 /*! \brief Storage for status of one GPS satellite, used by MTi-G only
 */
-struct XsGpsSatelliteInfo {
+struct XsGpsSatelliteInfo
+{
 	uint8_t m_id;				//!< Satellite ID
 	uint8_t m_navigationStatus;	//!< Navigation status of the Satellite (see low-level documentation for interpretation)
 	uint8_t m_signalQuality;	//!< Signal quality
@@ -88,7 +89,8 @@ typedef struct XsGpsSatelliteInfo XsGpsSatelliteInfo;
 
 /*! \brief Storage for all GPS satellites' information, used by MTi-G only
 */
-struct GpsStatus {
+struct GpsStatus
+{
 	XsDeviceId m_deviceId;						//!< The device that reported the GPS status
 	XsGpsSatelliteInfo m_svInfo[XS_MAX_SVINFO];	//!< An array of the GPS satellite infos
 };

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,7 +70,8 @@
 /*! \brief Internal baud rate configuration codes
 */
 
-enum XSNOCOMEXPORT XsCanBaudCode {
+enum XSNOCOMEXPORT XsCanBaudCode
+{
 	// Baudrate codes for SetBaudrate message
 	XCBC_1M			= 0x0C,
 	XCBC_800k		= 0x0B,

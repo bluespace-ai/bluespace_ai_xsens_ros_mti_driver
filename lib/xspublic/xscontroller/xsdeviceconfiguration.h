@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,7 +70,7 @@
 #include <xstypes/xsbusid.h>
 #include <xstypes/xstypedefs.h>
 #ifdef __cplusplus
-#include <xstypes/xsexception.h>
+	#include <xstypes/xsexception.h>
 #endif
 
 struct MtwInfo;
@@ -99,7 +99,8 @@ XDA_DLL_API XsSize XsDeviceConfiguration_findDevice(const struct XsDeviceConfigu
 #endif
 
 /*! \brief %Device information for MT devices in an XsDeviceConfiguration. */
-struct XsMtDeviceConfiguration {
+struct XsMtDeviceConfiguration
+{
 	uint64_t	m_deviceId;				/*!< \brief This device ID */
 	uint8_t		m_reserved[8];			/*!< \brief Reserved space */
 	uint16_t	m_filterProfile;		/*!< \brief The currently chosen filter profile */
@@ -114,7 +115,8 @@ struct XsMtDeviceConfiguration {
 typedef struct XsMtDeviceConfiguration XsMtDeviceConfiguration;
 
 /*! \brief Device information for the main device in an XsDeviceConfiguration. */
-struct XsMasterDeviceConfiguration {
+struct XsMasterDeviceConfiguration
+{
 	uint64_t		m_masterDeviceId;	/*!< \brief The master device ID */
 	uint16_t		m_samplingPeriod;	/*!< \brief The sampling period */
 	uint16_t		m_outputSkipFactor;	/*!< \brief The output skip factor */
@@ -128,16 +130,18 @@ typedef struct XsMasterDeviceConfiguration XsMasterDeviceConfiguration;
 
 #ifdef __cplusplus
 /*! \class XsDeviceConfigurationException
-	Exception class thrown when an exception occured inside the XsDeviceConfiguration
+	Exception class thrown when an exception occurred inside the XsDeviceConfiguration
 */
-class XsDeviceConfigurationException : public XsException {
+class XsDeviceConfigurationException : public XsException
+{
 public:
 	XsDeviceConfigurationException() : XsException("Invalid device configuration") {}
 };
 #endif
 
 /*! \brief Structure containing a full device configuration as returned by the ReqConfig message. */
-struct XsDeviceConfiguration {
+struct XsDeviceConfiguration
+{
 #ifdef __cplusplus
 	/*! \brief Constructor
 
@@ -157,7 +161,7 @@ struct XsDeviceConfiguration {
 	/*! \brief Copy constructor
 		\param other the object to copy
 		\sa XsDeviceConfiguration_copy
-		*/
+	*/
 	XsDeviceConfiguration(const XsDeviceConfiguration& other)
 		: m_numberOfDevices(0)
 		, m_deviceInfo(0)
@@ -172,7 +176,7 @@ struct XsDeviceConfiguration {
 
 		\returns a const reference to this object
 		\sa XsDeviceConfiguration_copy
-		*/
+	*/
 	inline const XsDeviceConfiguration& operator = (const XsDeviceConfiguration& other)
 	{
 		XsDeviceConfiguration_copy(this, &other);
@@ -204,8 +208,8 @@ struct XsDeviceConfiguration {
 		\param msg the message to read the device configuration from
 
 		\sa XsDeviceConfiguration_readFromMessage
-		*/
-	inline void readFromMessage(const XsMessage &msg)
+	*/
+	inline void readFromMessage(const XsMessage& msg)
 	{
 		XsDeviceConfiguration_readFromMessage(this, &msg);
 	}
@@ -215,7 +219,7 @@ struct XsDeviceConfiguration {
 		\param msg the message to write the device configuration to
 
 		\sa XsDeviceConfiguration_writeToMessage
-		*/
+	*/
 	inline void writeToMessage(XsMessage& msg) const
 	{
 		XsDeviceConfiguration_writeToMessage(this, &msg);
@@ -274,7 +278,7 @@ struct XsDeviceConfiguration {
 		if (busId > m_numberOfDevices)
 			throw XsDeviceConfigurationException();
 
-		return m_deviceInfo[busId-1];
+		return m_deviceInfo[busId - 1];
 	}
 
 	/*! \brief The device info for the device at \a busId
@@ -294,7 +298,7 @@ struct XsDeviceConfiguration {
 		if (busId > m_numberOfDevices)
 			throw XsDeviceConfigurationException();
 
-		return m_deviceInfo[busId-1];
+		return m_deviceInfo[busId - 1];
 	}
 
 
@@ -318,7 +322,7 @@ struct XsDeviceConfiguration {
 
 	/*! \brief Set the number of devices to \a count
 		\param count the new number of devices to allocate for
-		*/
+	*/
 	inline void setNumberOfDevices(XsSize count)
 	{
 		XsDeviceConfiguration_assign(this, count, 0);
@@ -326,7 +330,7 @@ struct XsDeviceConfiguration {
 
 	/*! \brief The current number of devices
 		\returns the number of devices
-		*/
+	*/
 	inline XsSize numberOfDevices() const
 	{
 		return (XsSize) m_numberOfDevices;
@@ -341,7 +345,7 @@ struct XsDeviceConfiguration {
 	}
 
 private:
-//! \protectedsection
+	//! \protectedsection
 #endif
 	XsMasterDeviceConfiguration m_masterInfo;	//!< \brief The master info
 	const uint16_t	m_numberOfDevices;		//!< \brief The currently allocated number of devices

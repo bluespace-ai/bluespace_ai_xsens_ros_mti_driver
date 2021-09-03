@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -84,7 +84,8 @@ using namespace xsens;
 /*! \brief Pure virtual base class for N-argument specific function forwarding
 	\details The class provides the necessary locking to safely use XsControl.
 */
-class BroadcastForwardFunc {
+class BroadcastForwardFunc
+{
 public:
 	BroadcastForwardFunc(BroadcastDevice* bc) : m_broadcaster(bc) {}
 	virtual ~BroadcastForwardFunc() {}
@@ -96,7 +97,7 @@ public:
 		std::vector<XsDevice*>& ch = m_broadcaster->m_control->m_deviceList;
 
 		bool ok = true;
-		XsResultValue res = (ok?XRV_OK:XRV_NOFILEORPORTOPEN);
+		XsResultValue res = (ok ? XRV_OK : XRV_NOFILEORPORTOPEN);
 		for (std::vector<XsDevice*>::iterator it = ch.begin(); it != ch.end(); ++it)
 		{
 			if (!call(*it))
@@ -112,48 +113,64 @@ public:
 };
 
 //! \brief 0-argument const forwarding function class
-class ForwardConstFunc : public BroadcastForwardFunc {
+class ForwardConstFunc : public BroadcastForwardFunc
+{
 public:
 	typedef bool (XsDevice::*FuncType)() const;
-	inline ForwardConstFunc (BroadcastDevice* bc, FuncType func)
+	inline ForwardConstFunc(BroadcastDevice* bc, FuncType func)
 		: BroadcastForwardFunc(bc), m_func(func) {}
-	virtual bool call(XsDevice* device) { return (device->*m_func)(); }
+	virtual bool call(XsDevice* device)
+	{
+		return (device->*m_func)();
+	}
 private:
 	FuncType m_func;
 };
 
 //! \brief 1-argument const forwarding function class
 template <typename Arg1>
-class ForwardConstFunc1Arg : public BroadcastForwardFunc {
+class ForwardConstFunc1Arg : public BroadcastForwardFunc
+{
 public:
 	typedef bool (XsDevice::*FuncType)(Arg1) const;
-	inline ForwardConstFunc1Arg (BroadcastDevice* bc, FuncType func, Arg1 arg1)
+	inline ForwardConstFunc1Arg(BroadcastDevice* bc, FuncType func, Arg1 arg1)
 		: BroadcastForwardFunc(bc), m_func(func), m_arg1(arg1) {}
-	virtual bool call(XsDevice* device) { return (device->*m_func)(m_arg1); }
+	virtual bool call(XsDevice* device)
+	{
+		return (device->*m_func)(m_arg1);
+	}
 private:
 	FuncType m_func;
 	Arg1 m_arg1;
 };
 
 //! \brief 0-argument forwarding function class
-class BroadcastForwardFunc0Arg : public BroadcastForwardFunc {
+class BroadcastForwardFunc0Arg : public BroadcastForwardFunc
+{
 public:
 	typedef bool (XsDevice::*FuncType)();
-	inline BroadcastForwardFunc0Arg (BroadcastDevice* bc, FuncType func)
+	inline BroadcastForwardFunc0Arg(BroadcastDevice* bc, FuncType func)
 		: BroadcastForwardFunc(bc), m_func(func) {}
-	virtual bool call(XsDevice* device) { return (device->*m_func)(); }
+	virtual bool call(XsDevice* device)
+	{
+		return (device->*m_func)();
+	}
 private:
 	FuncType m_func;
 };
 
 //! \brief 1-argument forwarding function class
 template <typename Arg1>
-class BroadcastForwardFunc1Arg : public BroadcastForwardFunc {
+class BroadcastForwardFunc1Arg : public BroadcastForwardFunc
+{
 public:
 	typedef bool (XsDevice::*FuncType)(Arg1);
-	inline BroadcastForwardFunc1Arg (BroadcastDevice* bc, FuncType func, Arg1 arg1)
+	inline BroadcastForwardFunc1Arg(BroadcastDevice* bc, FuncType func, Arg1 arg1)
 		: BroadcastForwardFunc(bc), m_func(func), m_arg1(arg1) {}
-	virtual bool call(XsDevice* device) { return (device->*m_func)(m_arg1); }
+	virtual bool call(XsDevice* device)
+	{
+		return (device->*m_func)(m_arg1);
+	}
 private:
 	FuncType m_func;
 	Arg1 m_arg1;
@@ -161,12 +178,16 @@ private:
 
 //! \brief 2-argument forwarding function class
 template <typename Arg1, typename Arg2>
-class BroadcastForwardFunc2Arg : public BroadcastForwardFunc {
+class BroadcastForwardFunc2Arg : public BroadcastForwardFunc
+{
 public:
 	typedef bool (XsDevice::*FuncType)(Arg1, Arg2);
-	inline BroadcastForwardFunc2Arg (BroadcastDevice* bc, FuncType func, Arg1 arg1, Arg2 arg2)
+	inline BroadcastForwardFunc2Arg(BroadcastDevice* bc, FuncType func, Arg1 arg1, Arg2 arg2)
 		: BroadcastForwardFunc(bc), m_func(func), m_arg1(arg1), m_arg2(arg2) {}
-	virtual bool call(XsDevice* device) { return (device->*m_func)(m_arg1, m_arg2); }
+	virtual bool call(XsDevice* device)
+	{
+		return (device->*m_func)(m_arg1, m_arg2);
+	}
 private:
 	FuncType m_func;
 	Arg1 m_arg1;
@@ -175,12 +196,16 @@ private:
 
 //! \brief 3-argument forwarding function class
 template <typename Arg1, typename Arg2, typename Arg3>
-class BroadcastForwardFunc3Arg : public BroadcastForwardFunc {
+class BroadcastForwardFunc3Arg : public BroadcastForwardFunc
+{
 public:
 	typedef bool (XsDevice::*FuncType)(Arg1, Arg2, Arg3);
-	inline BroadcastForwardFunc3Arg (BroadcastDevice* bc, FuncType func, Arg1 arg1, Arg2 arg2, Arg3 arg3)
+	inline BroadcastForwardFunc3Arg(BroadcastDevice* bc, FuncType func, Arg1 arg1, Arg2 arg2, Arg3 arg3)
 		: BroadcastForwardFunc(bc), m_func(func), m_arg1(arg1), m_arg2(arg2), m_arg3(arg3) {}
-	virtual bool call(XsDevice* device) { return (device->*m_func)(m_arg1, m_arg2, m_arg3); }
+	virtual bool call(XsDevice* device)
+	{
+		return (device->*m_func)(m_arg1, m_arg2, m_arg3);
+	}
 private:
 	FuncType m_func;
 	Arg1 m_arg1;
@@ -189,10 +214,11 @@ private:
 };
 
 //! \brief 0-argument forwarding function class, void return
-class BroadcastForwardFunc0ArgVoid : public BroadcastForwardFunc {
+class BroadcastForwardFunc0ArgVoid : public BroadcastForwardFunc
+{
 public:
 	typedef void (XsDevice::*FuncType)();
-	inline BroadcastForwardFunc0ArgVoid (BroadcastDevice* bc, FuncType func)
+	inline BroadcastForwardFunc0ArgVoid(BroadcastDevice* bc, FuncType func)
 		: BroadcastForwardFunc(bc), m_func(func) {}
 	virtual bool call(XsDevice* device)
 	{
@@ -205,10 +231,11 @@ private:
 
 //! \brief 1-argument forwarding function class, void return
 template <typename Arg1>
-class BroadcastForwardFunc1ArgVoid : public BroadcastForwardFunc {
+class BroadcastForwardFunc1ArgVoid : public BroadcastForwardFunc
+{
 public:
 	typedef void (XsDevice::*FuncType)(Arg1);
-	inline BroadcastForwardFunc1ArgVoid (BroadcastDevice* bc, FuncType func, Arg1 arg1)
+	inline BroadcastForwardFunc1ArgVoid(BroadcastDevice* bc, FuncType func, Arg1 arg1)
 		: BroadcastForwardFunc(bc), m_func(func), m_arg1(arg1) {}
 	virtual bool call(XsDevice* device)
 	{
@@ -222,10 +249,11 @@ private:
 
 //! \brief 2-argument forwarding function class, void return
 template <typename Arg1, typename Arg2>
-class BroadcastForwardFunc2ArgVoid : public BroadcastForwardFunc {
+class BroadcastForwardFunc2ArgVoid : public BroadcastForwardFunc
+{
 public:
 	typedef void (XsDevice::*FuncType)(Arg1, Arg2);
-	inline BroadcastForwardFunc2ArgVoid (BroadcastDevice* bc, FuncType func, Arg1 arg1, Arg2 arg2)
+	inline BroadcastForwardFunc2ArgVoid(BroadcastDevice* bc, FuncType func, Arg1 arg1, Arg2 arg2)
 		: BroadcastForwardFunc(bc), m_func(func), m_arg1(arg1), m_arg2(arg2) {}
 	virtual bool call(XsDevice* device)
 	{
@@ -241,8 +269,8 @@ private:
 /*! \brief Constructor, sets up the XsControl reference
 */
 BroadcastDevice::BroadcastDevice(XsControl* control_)
-: XsDevice(XsDeviceId(0))
-, m_control(control_)
+	: XsDevice(XsDeviceId(0))
+	, m_control(control_)
 {
 }
 
@@ -289,7 +317,7 @@ XsVersion BroadcastDevice::hardwareVersion() const
 	\returns True if successful
 	\sa objectAlignmentMatrix(), headingOffset(), setHeadingOffset(), lastResult()
 */
-bool BroadcastDevice::setObjectAlignment(const XsMatrix &matrix)
+bool BroadcastDevice::setObjectAlignment(const XsMatrix& matrix)
 {
 	return BroadcastForwardFunc1Arg<const XsMatrix&>(this, &XsDevice::setObjectAlignment, matrix)();
 }
@@ -373,7 +401,7 @@ bool BroadcastDevice::gotoConfig()
 	std::vector<XsDevice*>& ch = m_control->m_deviceList;
 
 	bool ok = true;
-	XsResultValue res = (ok?XRV_OK:XRV_NOFILEORPORTOPEN);
+	XsResultValue res = (ok ? XRV_OK : XRV_NOFILEORPORTOPEN);
 	for (std::vector<XsDevice*>::reverse_iterator it = ch.rbegin(); it != ch.rend(); ++it)
 	{
 		if (!(*it)->gotoConfig())

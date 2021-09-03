@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -105,7 +105,7 @@ RestoreCommunication::~RestoreCommunication()
 	\param portName A string with a port name.
 	\returns XRV_OK if the procedure started successfully
 */
-XsResultValue RestoreCommunication::start(const XsString &portName)
+XsResultValue RestoreCommunication::start(const XsString& portName)
 {
 	m_portName = portName;
 	XsPortInfo portInfo(portName, XBR_115k2);
@@ -182,9 +182,7 @@ int32_t RestoreCommunication::innerFunction(void)
 		m_control->onRestoreCommunication(&m_portName, result);
 	}
 	else
-	{
 		m_control->onRestoreCommunication(&m_portName, XRV_RESTORE_COMMUNICATION_STOPPED);
-	}
 
 	m_isRestoring = false;
 	stopThread();
@@ -196,7 +194,7 @@ int32_t RestoreCommunication::innerFunction(void)
 	\param portInfo A port info to open.
 	\return XRV_OK if was successful.
 */
-XsResultValue RestoreCommunication::openComPort(const XsPortInfo &portInfo)
+XsResultValue RestoreCommunication::openComPort(const XsPortInfo& portInfo)
 {
 	XsResultValue result = m_serialInterface->open(portInfo);
 	if (result == XRV_ALREADYOPEN)

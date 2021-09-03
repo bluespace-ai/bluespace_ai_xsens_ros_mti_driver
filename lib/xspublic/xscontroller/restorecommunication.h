@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -78,14 +78,14 @@ public:
 	RestoreCommunication(XsControl* control);
 	~RestoreCommunication();
 
-	XsResultValue start(const XsString &portName);
+	XsResultValue start(const XsString& portName);
 	void stop();
 
 protected:
 	int32_t innerFunction(void) override;
 
 private:
-	XsResultValue openComPort(const XsPortInfo &portInfo);
+	XsResultValue openComPort(const XsPortInfo& portInfo);
 
 	XsControl* m_control;
 	SerialInterface* m_serialInterface;

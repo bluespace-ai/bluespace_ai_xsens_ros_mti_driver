@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,26 +66,26 @@
 #include "enumerateusbdevices.h"
 
 #ifdef _WIN32
-#	include <windows.h>
-#	include <string.h>
-#	include <setupapi.h>
-#	include <devguid.h>
-#	include <regstr.h>
-#	include <regex>
-#	include <cfgmgr32.h>
+	#include <windows.h>
+	#include <string.h>
+	#include <setupapi.h>
+	#include <devguid.h>
+	#include <regstr.h>
+	#include <regex>
+	#include <cfgmgr32.h>
 #else
-#	include <stdlib.h>
-#	include <string.h>
-#	include <dirent.h>
-#	include "xslibusb.h"
+	#include <stdlib.h>
+	#include <string.h>
+	#include <dirent.h>
+	#include "xslibusb.h"
 #endif
 
 #ifdef _WIN32
 /* return the device path for given windows device */
-static std::string getDevicePath(HDEVINFO hDevInfo, SP_DEVINFO_DATA *DeviceInfoData)
+static std::string getDevicePath(HDEVINFO hDevInfo, SP_DEVINFO_DATA* DeviceInfoData)
 {
 	char deviceInstanceID[MAX_DEVICE_ID_LEN];
-	SetupDiGetDeviceInstanceIdA(hDevInfo, DeviceInfoData,deviceInstanceID, MAX_DEVICE_ID_LEN, NULL);
+	SetupDiGetDeviceInstanceIdA(hDevInfo, DeviceInfoData, deviceInstanceID, MAX_DEVICE_ID_LEN, NULL);
 	return std::string(deviceInstanceID);
 }
 
@@ -110,7 +110,7 @@ static inline uint16_t vidFromDevPath(std::string const& devpath)
 			return 0;
 		return static_cast<uint16_t>(std::stoi(t1, nullptr, 16));
 	}
-	catch (std::invalid_argument &)
+	catch (std::invalid_argument&)
 	{
 		return 0;
 	}
@@ -126,7 +126,7 @@ static inline uint16_t pidFromDevPath(std::string const& devpath)
 			return 0;
 		return static_cast<uint16_t>(std::stoi(t1, nullptr, 16));
 	}
-	catch (std::invalid_argument &)
+	catch (std::invalid_argument&)
 	{
 		return 0;
 	}
@@ -139,7 +139,7 @@ static inline uint16_t pidFromDevPath(std::string const& devpath)
 	found by xsEnumerateSerialPorts().
 
 	\param[in,out] ports The list of serial ports to append to
-	\returns False if an error occured during scanning.
+	\returns False if an error occurred during scanning.
 			 True if zero or more device found or no scan could be done	because both WINUSB and LIBUSB were not defined.
 */
 bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
@@ -148,7 +148,7 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 #ifdef USE_WINUSB
 	BOOL bResult = FALSE;
 	ULONG length;
-	ULONG requiredLength=0;
+	ULONG requiredLength = 0;
 
 	// {FD51225C-700A-47e5-9999-B2D9031B88ED}
 	GUID guid = { 0xfd51225c, 0x700a, 0x47e5, { 0x99, 0x99, 0xb2, 0xd9, 0x3, 0x1b, 0x88, 0xed } };
@@ -161,10 +161,9 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 
 	// Initialize variables.
 	interfaceData.cbSize = sizeof(SP_INTERFACE_DEVICE_DATA);
-	int port = 0;
-	for (DWORD dwIndex = 0; port == 0; ++dwIndex)
+	for (DWORD dwIndex = 0; true; ++dwIndex)	//lint !e774 !e440 !e506
 	{
-		BOOL bRet = SetupDiEnumDeviceInterfaces( deviceInfo, NULL, &guid, dwIndex, &interfaceData);
+		BOOL bRet = SetupDiEnumDeviceInterfaces(deviceInfo, NULL, &guid, dwIndex, &interfaceData);
 		if (!bRet)
 		{
 			if (GetLastError() == ERROR_NO_MORE_ITEMS)
@@ -204,21 +203,21 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 			char* ptrEnd, *ptrStart = strchr(detailData->DevicePath, '#');
 			if (!ptrStart)
 				continue;
-			ptrStart = strchr(ptrStart+1, '#');
+			ptrStart = strchr(ptrStart + 1, '#');
 			if (!ptrStart)
 				continue;
-			ptrEnd = strchr(ptrStart+1, '#');
+			ptrEnd = strchr(ptrStart + 1, '#');
 			if (!ptrEnd)
 				continue;
 
-			size_t ln = (size_t) ((ptrEnd-ptrStart)-1);
-			strncpy((char*)serialNumber, ptrStart+1, ln);
+			size_t ln = (size_t)((ptrEnd - ptrStart) - 1);
+			strncpy((char*)serialNumber, ptrStart + 1, ln);
 			serialNumber[ln] = '\0';
 
 			current.setPortName(detailData->DevicePath);
 
 			unsigned int id = 0;
-			sscanf((const char *)serialNumber, "%X", &id);
+			sscanf((const char*)serialNumber, "%X", &id);
 			current.setDeviceId((uint32_t) id);
 
 			std::string devpath = getDevicePath(deviceInfo, &DevInfoData);
@@ -234,16 +233,16 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 	return true;
 #elif defined(HAVE_LIBUSB)
 	XsLibUsb libUsb;
-	libusb_context *context;
+	libusb_context* context;
 	int result = libUsb.init(&context);
 	if (result != LIBUSB_SUCCESS)
 		return true;
 
-	libusb_device **deviceList;
+	libusb_device** deviceList;
 	ssize_t deviceCount = libUsb.get_device_list(context, &deviceList);
 	for (ssize_t i = 0; i < deviceCount; i++)
 	{
-		libusb_device *device = deviceList[i];
+		libusb_device* device = deviceList[i];
 		libusb_device_descriptor desc;
 		result = libUsb.get_device_descriptor(device, &desc);
 		if (result != LIBUSB_SUCCESS)
@@ -252,7 +251,7 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 		if (desc.idVendor != XSENS_VENDOR_ID)
 			continue;
 
-		libusb_device_handle *handle;
+		libusb_device_handle* handle;
 		result = libUsb.open(device, &handle);
 		if (result != LIBUSB_SUCCESS)
 			continue;
@@ -260,7 +259,7 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 		unsigned char serialNumber[256];
 		result = libUsb.get_string_descriptor_ascii(handle, desc.iSerialNumber, serialNumber, 256);
 
-		libusb_config_descriptor *configDesc;
+		libusb_config_descriptor* configDesc;
 		result = libUsb.get_active_config_descriptor(device, &configDesc);
 		if (result != LIBUSB_SUCCESS)
 		{
@@ -269,7 +268,8 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 		}
 
 		bool kernelActive = false;
-		for (uint8_t ifCount = 0; ifCount < configDesc->bNumInterfaces; ++ifCount) {
+		for (uint8_t ifCount = 0; ifCount < configDesc->bNumInterfaces; ++ifCount)
+		{
 			int res = libUsb.kernel_driver_active(handle, ifCount);
 			kernelActive |= (res == 1);
 		}
@@ -280,11 +280,11 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 		{
 			char name[256];
 			sprintf(name, "USB%03u:%03u", libUsb.get_bus_number(device),
-								libUsb.get_device_address(device));
+				libUsb.get_device_address(device));
 			current.setPortName(name);
 
 			int id = 0;
-			sscanf((const char *)serialNumber, "%X", &id);
+			sscanf((const char*)serialNumber, "%X", &id);
 			current.setDeviceId((uint32_t) id);
 			current.setVidPid(desc.idVendor, desc.idProduct);
 			ports.push_back(current);
@@ -293,7 +293,7 @@ bool xsEnumerateUsbDevices(XsPortInfoArray& ports)
 		{
 			JLDEBUGG("Kernel driver active on USB" <<
 				libUsb.get_bus_number(device) << ":" << libUsb.get_device_address(device) <<
-					" device " << serialNumber);
+				" device " << serialNumber);
 
 		}
 		libUsb.close(handle);

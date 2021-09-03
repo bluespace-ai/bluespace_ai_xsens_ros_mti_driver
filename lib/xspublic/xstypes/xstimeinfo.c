@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -76,7 +76,7 @@
 /*! \relates XsTimeInfo
 	\brief Returns the current UTC time
 */
-void XsTimeInfo_currentTime(struct XsTimeInfo * thisPtr)
+void XsTimeInfo_currentTime(struct XsTimeInfo* thisPtr)
 {
 	XsTimeStamp timeStamp;
 
@@ -90,7 +90,7 @@ void XsTimeInfo_currentTime(struct XsTimeInfo * thisPtr)
 /*! \relates XsTimeInfo
 	\brief Returns the current local time
 */
-void XsTimeInfo_currentLocalTime(struct XsTimeInfo * thisPtr)
+void XsTimeInfo_currentLocalTime(struct XsTimeInfo* thisPtr)
 {
 	XsTimeStamp timeStamp;
 
@@ -105,7 +105,7 @@ void XsTimeInfo_currentLocalTime(struct XsTimeInfo * thisPtr)
 /*! \relates XsTimeInfo
 	\brief Removes the local time information, making the object pure UTC
 */
-void XsTimeInfo_makeUtc(struct XsTimeInfo * thisPtr)
+void XsTimeInfo_makeUtc(struct XsTimeInfo* thisPtr)
 {
 	if (thisPtr->m_utcOffset)
 	{

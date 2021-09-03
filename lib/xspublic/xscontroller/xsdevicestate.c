@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,20 +71,21 @@
 */
 
 /*! \brief Convert the device state to a human readable string */
-const char *XsDeviceState_toString(XsDeviceState s)
+const char* XsDeviceState_toString(XsDeviceState s)
 {
 	static char unknown[64];
-	switch (s) {
-	XS_ENUM_TO_STR_CASE(XDS_Initial);
-	XS_ENUM_TO_STR_CASE(XDS_Config);
-	XS_ENUM_TO_STR_CASE(XDS_Measurement);
-	XS_ENUM_TO_STR_CASE(XDS_WaitingForRecordingStart);
-	XS_ENUM_TO_STR_CASE(XDS_Recording);
-	XS_ENUM_TO_STR_CASE(XDS_FlushingData);
-	XS_ENUM_TO_STR_CASE(XDS_Destructing);
-	default:
-		sprintf(unknown, "XDS Unknown(%d)", (int) s);
-		return unknown;
+	switch (s)
+	{
+			XS_ENUM_TO_STR_CASE(XDS_Initial);
+			XS_ENUM_TO_STR_CASE(XDS_Config);
+			XS_ENUM_TO_STR_CASE(XDS_Measurement);
+			XS_ENUM_TO_STR_CASE(XDS_WaitingForRecordingStart);
+			XS_ENUM_TO_STR_CASE(XDS_Recording);
+			XS_ENUM_TO_STR_CASE(XDS_FlushingData);
+			XS_ENUM_TO_STR_CASE(XDS_Destructing);
+		default:
+			sprintf(unknown, "XDS Unknown(%d)", (int) s);
+			return unknown;
 	}
 }
 

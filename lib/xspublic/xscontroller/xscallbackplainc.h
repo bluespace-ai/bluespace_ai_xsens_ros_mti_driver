@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -73,7 +73,7 @@
 #include "xsprotocoltype.h"
 
 #ifndef __cplusplus
-#define XSCALLBACK_INITIALIZER		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+	#define XSCALLBACK_INITIALIZER		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 #endif
 
 struct XsDevice;
@@ -98,10 +98,10 @@ struct XsByteArray;
 */
 typedef struct XsCallbackPlainC
 {
-/*! \defgroup Callbacks Callback functions.
-	\addtogroup Callbacks
-	@{
-*/
+	/*! \defgroup Callbacks Callback functions.
+		\addtogroup Callbacks
+		@{
+	*/
 	/*! \brief Called when a device's state has changed (ie config mode, measurement mode, recording mode)
 		\param dev The device that initiated the callback. This may be 0 in some cases.
 		\param newState The new device state
@@ -145,7 +145,7 @@ typedef struct XsCallbackPlainC
 		\returns true if the write to file should be allowed. Note that if ANY callback decides that the write is not allowed, it will be disallowed.
 		\sa m_onWriteDataToLogFile
 	*/
-	int  (*m_onWriteMessageToLogFile)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, const struct XsMessage* message);
+	int (*m_onWriteMessageToLogFile)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, const struct XsMessage* message);
 
 	/*! \brief Called when XDA has a data packet that could be written to a log file.
 		\details This callback is for the Buffered stream, which will attempt to retransmit missed data when in Recording mode. So there should be no gaps (when recording), but the data arrival may be delayed a bit. When not recording, the behaviour is identical to the Live stream.
@@ -181,7 +181,7 @@ typedef struct XsCallbackPlainC
 		\param dev The device that generated the error message
 		\param message The message that has been received
 	*/
-	void (*m_onNonDataMessage)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, struct XsMessage const * message);
+	void (*m_onNonDataMessage)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, struct XsMessage const* message);
 
 	/*! \brief Called just after a message is detected in raw data from the device.
 		\param dev The device that sent the message
@@ -189,19 +189,19 @@ typedef struct XsCallbackPlainC
 		\param rawMessage The raw message that has been detected
 		\note This message can be invalid, since it wasn't checked for sanity
 	*/
-	void(*m_onMessageDetected)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, XsProtocolType type, struct XsByteArray const * rawMessage);
+	void(*m_onMessageDetected)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, XsProtocolType type, struct XsByteArray const* rawMessage);
 
 	/*! \brief Called just after a valid message (after parsing) is received from the device.
 		\param dev The device that sent the message
 		\param message The message that has been received
 	*/
-	void (*m_onMessageReceivedFromDevice)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, struct XsMessage const * message);
+	void (*m_onMessageReceivedFromDevice)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, struct XsMessage const* message);
 
 	/*! \brief Called just after a message is sent to the device.
 		\param dev The device that will receive the message
 		\param message The message that will be sent
 	*/
-	void (*m_onMessageSentToDevice)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, struct XsMessage const * message);
+	void (*m_onMessageSentToDevice)(struct XsCallbackPlainC* thisPtr, struct XsDevice* dev, struct XsMessage const* message);
 
 	/*! \brief Called when new data has been received for devices connected to the same main device. When processing on PC is enabled, this callback occurs after processing has been done and so the packet will contain the processing output.
 		\details This callback is for the Live stream, so there may be gaps in the data, but it will always contain the latest data. This stream will interpolate missing data to provide the fastest data output.
@@ -267,13 +267,13 @@ typedef struct XsCallbackPlainC
 	*/
 	void (*m_onTransmissionRequest)(struct XsCallbackPlainC* thisPtr, int channelId, const struct XsByteArray* data);
 
-	/*! \brief Called when restore communication is completed, stopped or an error occured.
+	/*! \brief Called when restore communication is completed, stopped or an error occurred.
 		\param portName A name of port to which device is attached.
 		\param result The result code.
 	*/
 	void (*m_onRestoreCommunication)(struct XsCallbackPlainC* thisPtr, const struct XsString* portName, XsResultValue result);
 
-//! @}
+	//! @}
 #ifdef __cplusplus
 	// Make sure that this struct is not used in C++ (except as base class for XsCallback)
 	friend class XsCallback;
@@ -305,8 +305,8 @@ protected:
 	{}
 	~XsCallbackPlainC() throw() {}
 private:
-	XsCallbackPlainC(XsCallbackPlainC const &);
-	XsCallbackPlainC& operator = (XsCallbackPlainC const &);
+	XsCallbackPlainC(XsCallbackPlainC const&);
+	XsCallbackPlainC& operator = (XsCallbackPlainC const&);
 #endif
 
 } XsCallbackPlainC;

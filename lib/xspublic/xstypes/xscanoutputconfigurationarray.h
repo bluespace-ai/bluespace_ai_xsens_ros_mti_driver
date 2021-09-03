@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -87,16 +87,17 @@ XSTYPES_DLL_API void XsCanOutputConfigurationArray_construct(XsCanOutputConfigur
 #ifdef __cplusplus
 } // extern "C"
 
-struct XsCanOutputConfigurationArray : public XsArrayImpl<XsCanOutputConfiguration, g_xsCanOutputConfigurationArrayDescriptor, XsCanOutputConfigurationArray> {
+struct XsCanOutputConfigurationArray : public XsArrayImpl<XsCanOutputConfiguration, g_xsCanOutputConfigurationArrayDescriptor, XsCanOutputConfigurationArray>
+{
 	//! \brief Constructs an XsCanOutputConfigurationArray
 	inline explicit XsCanOutputConfigurationArray(XsSize sz = 0, XsCanOutputConfiguration const* src = 0)
-		 : ArrayImpl(sz, src)
+		: ArrayImpl(sz, src)
 	{
 	}
 
 	//! \brief Constructs an XsCanOutputConfigurationArray as a copy of \a other
 	inline XsCanOutputConfigurationArray(XsCanOutputConfigurationArray const& other)
-		 : ArrayImpl(other)
+		: ArrayImpl(other)
 	{
 	}
 

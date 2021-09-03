@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -77,13 +77,14 @@
 #include <memory>
 
 #ifndef XSENS_NO_AUTOLIB
-#pragma comment(lib, "psapi.lib")
+	#pragma comment(lib, "psapi.lib")
 #endif
 
 //! \brief The optional additional logger
 AbstractAdditionalLogger* Journaller::m_additionalLogger = nullptr;
 
-inline int threadId() {
+inline int threadId()
+{
 #if JOURNALLER_WITH_THREAD_SUPPORT && !defined(__APPLE__)
 	return (int) xsGetCurrentThreadId();
 #else
@@ -102,12 +103,12 @@ inline int threadId() {
 */
 
 #if __GNUC__ >= 6
-// Ignore warning: nonnull argument ‘this’ compared to NULL [-Wnonnull-compare]
-// This happens for the JL macro's which here have a this argument, which is always nonnull
-// In the macros we compare this to NULL, which is now a warning in GCC6
-// On other locations, we do not use this for the macro, hence the warning does not show there
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnonnull-compare"
+	// Ignore warning: nonnull argument ‘this’ compared to NULL [-Wnonnull-compare]
+	// This happens for the JL macro's which here have a this argument, which is always nonnull
+	// In the macros we compare this to NULL, which is now a warning in GCC6
+	// On other locations, we do not use this for the macro, hence the warning does not show there
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wnonnull-compare"
 #endif
 
 /*! \brief Constructor
@@ -147,7 +148,7 @@ void Journaller::init(XsString const& pathfile, bool purge)
 	need a tag set.
 	\param fn The file name string
 */
-std::string Journaller::tagFromFilename(const std::string &fn)
+std::string Journaller::tagFromFilename(const std::string& fn)
 {
 	const size_t b = fn.find_last_of("/") + 1;
 	const size_t l = fn.find_first_of(".");
@@ -174,22 +175,22 @@ void Journaller::setAdditionalLogger(AbstractAdditionalLogger* additionallogger)
 }
 
 /*! \brief A list of strings representing the different log levels, use JournalLogLevel to index */
-static const char* gLogLevelString[] = {
-		"[TRACE] ",
-		"[DEBUG] ",
-		"[ALERT] ",
-		"[ERROR] ",
-		"[FATAL] ",
-		"[WRITE] "};
+static const char* gLogLevelString[] =
+{
+	"[TRACE] ",
+	"[DEBUG] ",
+	"[ALERT] ",
+	"[ERROR] ",
+	"[FATAL] ",
+	"[WRITE] "
+};
 
 /*! \brief Write a header for the log file including some meta-data about the journaller
 */
 void Journaller::writeFileHeader(const std::string& appName)
 {
 	m_appName = appName;
-	XsTimeStamp now = XsTimeStamp::now();
-	JLWRITE(this, "Journaller logging to " << m_file->filename() << (appName.empty() ? XsString() : XsString(" for ") + appName) << " on " << now.toString());
-	//JLWRITE(this, "Current log level is " << gLogLevelString[m_level]);
+	JLWRITE(this, "Journaller logging to " << m_file->filename() << (appName.empty() ? XsString() : XsString(" for ") + appName) << " on " << XsTimeStamp::now().toString());
 }
 
 /*! \brief Write a log message to the file if \a level is at least equal to the current log level
@@ -366,7 +367,7 @@ const XsString Journaller::filename() const
 
 /*! \brief Set a tag to be added before the log level tag in each log file
 */
-void Journaller::setTag(const std::string &tag)
+void Journaller::setTag(const std::string& tag)
 {
 	m_tag = tag;
 }
@@ -400,6 +401,13 @@ void Journaller::moveLogFile(const XsString& pathfile, bool purge, bool eraseOld
 		return;
 
 	JournalFile* newFile = new JournalFile(pathfile, purge);
+
+	if (!newFile->xsFile().isOpen())
+	{
+		JLERROR(this, "Could not switch to new log location " << pathfile);
+		delete newFile;
+		return;
+	}
 
 	XsString oldFileName;
 	std::unique_ptr<uint8_t[]> buffer;
@@ -504,5 +512,5 @@ void jlTerminate(Journaller** gj)
 }
 
 #if __GNUC__ >= 6
-#pragma GCC diagnostic pop
+	#pragma GCC diagnostic pop
 #endif

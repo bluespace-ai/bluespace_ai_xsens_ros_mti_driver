@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -85,13 +85,15 @@ XSTYPES_DLL_API void XsVector3_copy(XsVector* copy, XsVector3 const* src);
 #endif
 
 #ifdef __cplusplus
-/* This is allowed since the C standard says that no padding appears before the first member of a struct.
+/*  This is allowed since the C standard says that no padding appears before the first member of a struct.
 	Basically we're defining a union between a C++ inherited type and a C encapsulated type.
 */
-struct XsVector3 : public XsVector {
-XSCPPPROTECTED
+struct XsVector3 : public XsVector
+{
+	XSCPPPROTECTED
 #else
-struct XsVector3 {
+struct XsVector3
+{
 	XsVector m_vector;		//!< The underlying vector
 #endif
 	XsReal m_fixedData[3];				//!< Fixed size storage for the components in the vector
@@ -144,6 +146,7 @@ public:
 		m_data[0] = x;
 		m_data[1] = y;
 		m_data[2] = z;
+		const_cast<XsSize&>(m_flags) &= ~XSDF_Empty;
 	}
 	//	using XsVector::operator[];
 #endif

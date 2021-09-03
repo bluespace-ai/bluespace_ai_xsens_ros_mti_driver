@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,7 +69,8 @@
 	@{
 */
 /*! \brief Legacy floating point / fixed point format options */
-enum XsFloatFormat {
+enum XsFloatFormat
+{
 	FF_IEEE754Float,		//!< Single precision floating point (IEEE 754)
 	FF_FixedPoint1220,		//!< Fixed point 12.20 format (12 signed bits before decimal, 20 after)
 	FF_FixedPoint1632		//!< Fixed point 16.32 format (16 signed bits before decimal, 32 after)

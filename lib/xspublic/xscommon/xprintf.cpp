@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -65,26 +65,61 @@
 #include "xprintf.h"
 #include <memory>
 #include <stdarg.h>
-#include <stdexcept>
-#include <assert.h>
+
+#define XPRINT_FAST_BUFFER_SIZE	256
+
+/*! \brief printf-style formatting for std::string (internal). Use the xprintf macro instead of using this function directly
+	\param fmt_str The printf-style format string
+	\param ap The variadic arguments, properly initialized with va_start. The function will call va_end on this argument before exiting.
+*/
+inline std::string _xprintf_ap(char const* fmt_str, va_list ap)
+{
+	std::string rv;
+
+	// try using a fast fixed size buffer first
+	char fastBuffer[XPRINT_FAST_BUFFER_SIZE];
+	va_list apc;
+	va_copy(apc, ap);
+	int nResult = vsnprintf(fastBuffer, XPRINT_FAST_BUFFER_SIZE, fmt_str, ap);
+	va_end(ap);
+	if (nResult >= 0 && nResult < XPRINT_FAST_BUFFER_SIZE)
+		rv = fastBuffer;
+	else if (nResult < 0)
+	{
+		// fast buffer didn't work because of some parsing error, return the original format string
+		rv = fmt_str;
+	}
+	else
+	{
+		// fast buffer didn't work, but we now do know the size of our final string
+		std::unique_ptr<char[]> buffer(new char[(size_t)((ptrdiff_t)nResult + 1)]);
+		nResult = vsnprintf(buffer.get(), (size_t)((ptrdiff_t)nResult + 1), fmt_str, apc);
+
+		if (nResult < 0)
+			rv = fmt_str;
+		else
+			rv = buffer.get();
+	}
+	va_end(apc);
+	return rv;
+}
 
 /*! \brief printf-style formatting for std::string. Use the xprintf macro instead of using this function directly
 	\param fmt_str The printf-style format string
-	\param bSize The size of the temporary buffer. This is allocated on the heap so its default value of 65536
-				as suppplied by the macro xprintf is usually ok. The bSize includes the terminating 0 character.
 */
-std::string _xprintf_b(std::string const& fmt_str, int bSize, ...)
+std::string _xprintf_b(char const* fmt_str, int marker, ...)
 {
-	assert(bSize > 0);
-	std::unique_ptr<char[]> buffer(new char[bSize]);
-
 	va_list ap;
-	va_start(ap, bSize);
-	int nResult = vsnprintf(static_cast<char*>(buffer.get()), (unsigned int) bSize, fmt_str.c_str(), ap);
-	va_end(ap);
+	va_start(ap, marker);
+	return _xprintf_ap(fmt_str, ap);
+}
 
-	if (nResult < 0 || nResult >= bSize)
-		throw std::overflow_error("Unable to fit output into buffer");
-
-	return std::string(buffer.get());
+/*! \brief printf-style formatting for std::string. Use the xprintf macro instead of using this function directly
+	\param fmt_str The printf-style format string
+*/
+std::string _xprintf_b(std::string const& fmt_str, int marker, ...)
+{
+	va_list ap;
+	va_start(ap, marker);
+	return _xprintf_ap(fmt_str.c_str(), ap);
 }

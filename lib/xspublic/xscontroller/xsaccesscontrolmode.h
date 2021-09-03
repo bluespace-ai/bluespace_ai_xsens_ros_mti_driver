@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,10 +71,11 @@
 
 //AUTO namespace xscontroller {
 //! Device access control modes (XsDevice::setAccessControlMode())
-enum XsAccessControlMode {
-	 XACM_None		= -1	//!< No access control mode defined, do not use in 'set' function. Devices that support Access Control are always in either BlackList or WhiteList mode and will return an error if you try to set the Access Control Mode to XACM_None
-	,XACM_BlackList	= 0		//!< Accept all device connections, explicit rejection through blacklist
-	,XACM_WhiteList	= 1		//!< Decline all device connections, explicit acceptance through whitelist
+enum XsAccessControlMode
+{
+	XACM_None		= -1	//!< No access control mode defined, do not use in 'set' function. Devices that support Access Control are always in either BlackList or WhiteList mode and will return an error if you try to set the Access Control Mode to XACM_None
+	, XACM_BlackList	= 0		//!< Accept all device connections, explicit rejection through blacklist
+	, XACM_WhiteList	= 1		//!< Decline all device connections, explicit acceptance through whitelist
 };
 /*! @} */
 typedef enum XsAccessControlMode XsAccessControlMode;

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,11 +66,11 @@
 #include "xsens_mutex.h"
 
 #ifndef __STDC_VERSION__
-#define __STDC_VERSION__	0
+	#define __STDC_VERSION__	0
 #endif
 
 #if __STDC_VERSION__ >= 199901L
-#include <fenv.h>
+	#include <fenv.h>
 #endif
 
 namespace xsens
@@ -94,9 +94,9 @@ void mathThrowBreakFunc()
 void enableFloatingPointExceptions()
 {
 #ifdef _MSC_VER
-//	_clearfp(); // always call _clearfp before enabling/unmasking a FPU exception
-//	_controlfp(_EM_INVALID | _EM_DENORMAL | _EM_ZERODIVIDE | _EM_OVERFLOW |
-//			 _EM_UNDERFLOW | _EM_INEXACT, _MCW_EM);
+	//	_clearfp(); // always call _clearfp before enabling/unmasking a FPU exception
+	//	_controlfp(_EM_INVALID | _EM_DENORMAL | _EM_ZERODIVIDE | _EM_OVERFLOW |
+	//			 _EM_UNDERFLOW | _EM_INEXACT, _MCW_EM);
 #elif __STDC_VERSION__ >= 199901L
 	feenableexcept(FE_ALL_EXCEPT);
 #endif
@@ -109,8 +109,8 @@ void enableFloatingPointExceptions()
 void disableFloatingPointExceptions()
 {
 #ifdef _MSC_VER
-//	_clearfp();
-//	_controlfp(_CW_DEFAULT, ~0);
+	//	_clearfp();
+	//	_controlfp(_CW_DEFAULT, ~0);
 #elif __STDC_VERSION__ >= 199901L
 	feclearexcept(FE_ALL_EXCEPT);
 #endif

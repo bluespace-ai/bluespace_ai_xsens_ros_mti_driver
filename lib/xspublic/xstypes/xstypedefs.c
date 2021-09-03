@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -75,9 +75,9 @@
 	\note This function is NOT reentrant, multiple simultaneous calls may cause crashes.
 	Also, later calls will invalidate the results of earlier calls.
 */
-const char *XsDataFlags_toString(XsDataFlags f)
+const char* XsDataFlags_toString(XsDataFlags f)
 {
-	static char rv[4*20];
+	static char rv[4 * 20];
 	if (f == XSDF_None)
 		return "XSDF_None";
 

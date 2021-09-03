@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,8 +68,7 @@
 #include "xstimeinfo.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 #ifndef __cplusplus
 #define XSUTCTIME_INITIALIZER	{ 0, 0 ,0, 0, 0, 0, 0, 0, 0}
@@ -77,7 +76,7 @@ extern "C"
 
 // for backwards compatibility only, use XsTimeInfo instead
 #define XsUtcTime XsTimeInfo
-XSTYPES_DLL_API void XsUtcTime_currentTime(struct XsUtcTime * now);
+XSTYPES_DLL_API void XsUtcTime_currentTime(struct XsUtcTime* now);
 
 #ifdef __cplusplus
 } // extern "C"

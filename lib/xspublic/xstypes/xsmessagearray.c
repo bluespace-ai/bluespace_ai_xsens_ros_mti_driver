@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,7 +71,8 @@
 */
 
 //! \brief Descriptor for XsMessageArray
-XsArrayDescriptor const g_xsMessageArrayDescriptor = {
+XsArrayDescriptor const g_xsMessageArrayDescriptor =
+{
 	sizeof(XsMessage),
 	XSEXPCASTITEMSWAP XsMessage_swap,
 	XSEXPCASTITEMMAKE XsMessage_construct,

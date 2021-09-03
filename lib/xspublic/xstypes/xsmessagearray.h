@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -88,16 +88,17 @@ XSTYPES_DLL_API void XsMessageArray_construct(XsMessageArray* thisPtr, XsSize co
 #ifdef __cplusplus
 } // extern "C"
 
-struct XsMessageArray : public XsArrayImpl<XsMessage, g_xsMessageArrayDescriptor, XsMessageArray> {
+struct XsMessageArray : public XsArrayImpl<XsMessage, g_xsMessageArrayDescriptor, XsMessageArray>
+{
 	//! \brief Constructs an XsMessageArray
 	inline explicit XsMessageArray(XsSize sz = 0, XsMessage const* src = 0)
-		 : ArrayImpl(sz, src)
+		: ArrayImpl(sz, src)
 	{
 	}
 
 	//! \brief Constructs an XsMessageArray as a copy of \a other
 	inline XsMessageArray(XsMessageArray const& other)
-		 : ArrayImpl(other)
+		: ArrayImpl(other)
 	{
 	}
 

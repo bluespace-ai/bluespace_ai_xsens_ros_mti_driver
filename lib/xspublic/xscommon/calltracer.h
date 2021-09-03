@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -63,9 +63,9 @@
 //  
 
 #ifdef CALLTRACER_H
-XSENS_COMPILER_WARNING("X0008", "calltracer.h should only be included ONCE and NEVER in a header file")
+	XSENS_COMPILER_WARNING("X0008", "calltracer.h should only be included ONCE and NEVER in a header file")
 #else
-#define CALLTRACER_H
+	#define CALLTRACER_H
 #endif
 
 //#define TRACECALLS	// define before including this header file to enable semi-automatic calltracing
@@ -80,7 +80,8 @@ XSENS_COMPILER_WARNING("X0008", "calltracer.h should only be included ONCE and N
 	during creation and another one when it gets destroyed, if a minimum time has passed since
 	construction.
 */
-class CallTracer {
+class CallTracer
+{
 public:
 	Journaller* m_journal;
 	std::string m_msg;

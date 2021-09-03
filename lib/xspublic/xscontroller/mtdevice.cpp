@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,8 +69,21 @@
 #include <xstypes/xsvector3.h>
 #include "xsselftestresult.h"
 #include <xstypes/xsstatusflag.h>
+#include <algorithm>
+
+// Undef the windows min macro that conflict with e.g. std::numeric_limits<..>::min
+#ifdef min
+	#undef min
+#endif
 
 using namespace xsens;
+
+/*! \brief Constructs a standalone MtDevice with device Id \a id
+*/
+MtDevice::MtDevice(XsDeviceId const& id)
+	: XsDeviceEx(id)
+{
+}
 
 /*! \brief Constructs a standalone MtDevice based on \a comm
 */
@@ -81,7 +94,7 @@ MtDevice::MtDevice(Communicator* comm)
 
 /*! \brief Constructs a standalone MtDevice based on \a master and \a childDeviceId
 */
-MtDevice::MtDevice(XsDevice * master, const XsDeviceId &childDeviceId)
+MtDevice::MtDevice(XsDevice* master, const XsDeviceId& childDeviceId)
 	: XsDeviceEx(master, childDeviceId)
 {
 }
@@ -90,15 +103,13 @@ MtDevice::MtDevice(XsDevice * master, const XsDeviceId &childDeviceId)
 */
 MtDevice::~MtDevice()
 {
-	JLTRACEG("entry");
-	XSEXITLOGN(gJournal);
 }
 
 /*! \brief Checks for the sanity of a message
 	\param msg A message to check
 	\returns True if successful
 */
-bool MtDevice::messageLooksSane(const XsMessage &msg) const
+bool MtDevice::messageLooksSane(const XsMessage& msg) const
 {
 	return msg.getBusId() == 1 || XsDevice::messageLooksSane(msg);
 }
@@ -133,12 +144,12 @@ void MtDevice::updateFilterProfiles()
 	if (info.m_filterProfile != 0)
 	{
 		m_hardwareFilterProfile = XsFilterProfile(info.m_filterProfile & 0xFF
-			, info.m_filterProfile >> 8
-			, m_hardwareFilterProfile.kind()
-			, m_hardwareFilterProfile.label()
-			, info.m_filterType
-			, info.m_filterMajor
-			, info.m_filterMinor);
+				, info.m_filterProfile >> 8
+				, m_hardwareFilterProfile.kind()
+				, m_hardwareFilterProfile.label()
+				, info.m_filterType
+				, info.m_filterMajor
+				, info.m_filterMinor);
 	}
 
 	for (auto i = m_hardwareFilterProfiles.begin(); i != m_hardwareFilterProfiles.end(); ++i)
@@ -234,16 +245,16 @@ bool MtDevice::canDoOrientationResetInFirmware(XsResetMethod method)
 {
 	switch (method)
 	{
-	case XRM_DefaultAlignment:
-	case XRM_DefaultHeading:
-	case XRM_DefaultInclination:
-		return true;
+		case XRM_DefaultAlignment:
+		case XRM_DefaultHeading:
+		case XRM_DefaultInclination:
+			return true;
 
-	case XRM_None:
-		return false;
+		case XRM_None:
+			return false;
 
-	default:
-		break;
+		default:
+			break;
 	}
 
 	return updateRateForDataIdentifier(XDI_OrientationGroup) > 0;
@@ -254,36 +265,36 @@ bool MtDevice::scheduleOrientationReset(XsResetMethod method)
 {
 	switch (deviceState())
 	{
-	case XDS_Measurement:
-	case XDS_Recording:
-	case XDS_WaitingForRecordingStart:
-	case XDS_FlushingData:
-		if (method == XRM_StoreAlignmentMatrix)
-			return false;
-
-		if (canDoOrientationResetInFirmware(method))
-			if (!XsDevice::scheduleOrientationReset(method))
+		case XDS_Measurement:
+		case XDS_Recording:
+		case XDS_WaitingForRecordingStart:
+		case XDS_FlushingData:
+			if (method == XRM_StoreAlignmentMatrix)
 				return false;
 
-		break;
+			if (canDoOrientationResetInFirmware(method))
+				if (!XsDevice::scheduleOrientationReset(method))
+					return false;
 
-	case XDS_Config:
-		if (method != XRM_StoreAlignmentMatrix)
-			return false;
+			break;
 
-		if (canDoOrientationResetInFirmware(method))
-		{
-			if (!storeAlignmentMatrix())
+		case XDS_Config:
+			if (method != XRM_StoreAlignmentMatrix)
 				return false;
-			// read stored value from emts by reinitializing
-			return reinitialize();
-		}
-		return true;
 
-	case XDS_Initial:
-	case XDS_Destructing:
-	default:
-		return false;
+			if (canDoOrientationResetInFirmware(method))
+			{
+				if (!storeAlignmentMatrix())
+					return false;
+				// read stored value from emts by reinitializing
+				return reinitialize();
+			}
+			return true;
+
+		case XDS_Initial:
+		case XDS_Destructing:
+		default:
+			return false;
 	}
 	return true;
 }
@@ -393,10 +404,10 @@ XsFilterProfileArray MtDevice::readFilterProfilesFromDevice() const
 	result.resize(nofScenarios);
 	for (XsSize i = 0; i < nofScenarios; ++i)
 	{
-		uint8_t type = rcv.getDataByte(i*(1+1+XS_LEN_FILTERPROFILELABEL));
+		uint8_t type = rcv.getDataByte(i * (1 + 1 + XS_LEN_FILTERPROFILELABEL));
 		result[i].setType(type);
-		result[i].setVersion(rcv.getDataByte(1 + i*(1+1+XS_LEN_FILTERPROFILELABEL)));
-		result[i].setLabel((const char*) rcv.getDataBuffer(2 + i*(1+1+XS_LEN_FILTERPROFILELABEL)));
+		result[i].setVersion(rcv.getDataByte(1 + i * (1 + 1 + XS_LEN_FILTERPROFILELABEL)));
+		result[i].setLabel((const char*) rcv.getDataBuffer(2 + i * (1 + 1 + XS_LEN_FILTERPROFILELABEL)));
 		result[i].setFilterType(filterType);
 		XsString kind;
 		if (type == XFPK_Base)
@@ -417,14 +428,14 @@ void MtDevice::fetchAvailableHardwareScenarios()
 	m_hardwareFilterProfiles.clear();
 	m_hardwareFilterProfiles = readFilterProfilesFromDevice();
 	std::sort(m_hardwareFilterProfiles.begin(), m_hardwareFilterProfiles.end(),
-		[](XsFilterProfile const& left, XsFilterProfile const& right)
-		{
-			if (left.type() == right.type())
-				return strcmp(left.label(), right.label()) < 0;
-			else
-				return left.type() < right.type();
-		}
-		);
+		[](XsFilterProfile const & left, XsFilterProfile const & right)
+	{
+		if (left.type() == right.type())
+			return strcmp(left.label(), right.label()) < 0;
+		else
+			return left.type() < right.type();
+	}
+	);
 }
 
 /*! \copybrief XsDevice::productCode
@@ -437,7 +448,7 @@ XsString MtDevice::productCode() const
 
 	const char* pc = (const char*) rcv.getDataBuffer();
 	assert(pc);
-	std::string result(pc?pc:"                    ", 20);
+	std::string result(pc ? pc : "                    ", 20);
 	std::string::difference_type thingy = (std::string::difference_type) result.find(" ");
 	if (thingy < 20)
 		result.erase(result.begin() + thingy, result.end());
@@ -470,7 +481,64 @@ bool MtDevice::restoreFactoryDefaults()
 */
 XsFilterProfile MtDevice::onboardFilterProfile() const
 {
-	return m_hardwareFilterProfile;
+	XsMessage snd(XMID_ReqFilterProfile);
+	snd.setBusId(busId());
+	XsMessage rcv;
+
+	//tries to get the current filter profile from the device
+	if (!doTransaction(snd, rcv))
+		return m_hardwareFilterProfile;//in case the transaction with the device fails or if the dev is in measurement
+
+	auto profilesFromDevice = readFilterProfilesFromDevice();
+	std::string fullMessageData((const char*)rcv.getDataBuffer());
+	if (fullMessageData.empty())//for older devices where the profiles are numbers
+	{
+		auto numericFilter = rcv.getDataShort();
+		//looks-up the full profile data among all the profiles available for the device
+		for (auto currentProfile : profilesFromDevice)
+		{
+			if (currentProfile.type() == numericFilter)
+				return currentProfile;
+		}
+	}
+	else//for newer devices where the profiles are strings
+	{
+		//removes the checksum at the end of the message and keeps only the name of the profile
+		// Stop when we see the first space or at message size, whichever is the lowest.
+		fullMessageData = fullMessageData.substr(0, std::min(rcv.getDataSize(), fullMessageData.find(' ')));
+
+		//looks up the full profile structure from the ones available on the device, by using the label
+		for (auto currentProfile : profilesFromDevice)
+		{
+			if (currentProfile.label() == fullMessageData)
+				return currentProfile;
+		}
+
+		//some strings have the names of two profiles separated by a '/', so the above look-up will not work
+		//thus two separate profiles need to be found and "combined"
+		auto splitterPosition = fullMessageData.find('/');
+		if (splitterPosition != std::string::npos)
+		{
+			std::string combinedName;
+			auto firstProfileName = fullMessageData.substr(0, splitterPosition);
+			auto secondProfileName = fullMessageData.substr(splitterPosition + 1, fullMessageData.size());//the '/' is not taken into consideration
+			XsFilterProfile firstProfile, secondProfile, combinedProfile;
+			for (auto currentProfile : profilesFromDevice)
+			{
+				if (currentProfile.label() == firstProfileName)
+					firstProfile = currentProfile;
+				else if (currentProfile.label() == secondProfileName)
+					secondProfile = currentProfile;
+			}
+			//sets all the data from the first profile
+			combinedProfile = firstProfile;
+			//and changes the name to a combination from the first and second profile
+			combinedName.append(firstProfile.label()).append("/").append(secondProfile.label());
+			combinedProfile.setLabel(combinedName.c_str());
+			return combinedProfile;
+		}
+	}
+	return m_hardwareFilterProfile;//in case everything above fails
 }
 
 /*! \copybrief XsDevice::setOnboardFilterProfile
@@ -481,7 +549,7 @@ bool MtDevice::setOnboardFilterProfile(int profileType)
 		return false;
 
 	XsFilterProfileArray::iterator item = std::find_if(m_hardwareFilterProfiles.begin(), m_hardwareFilterProfiles.end(),
-		[profileType](XsFilterProfile const& p)
+			[profileType](XsFilterProfile const & p)
 	{
 		return p.type() == profileType;
 	});
@@ -513,10 +581,10 @@ bool MtDevice::setOnboardFilterProfile(XsString const& profile)
 	for (auto currentProfile : profileList)
 	{
 		item[i++] = std::find_if(m_hardwareFilterProfiles.begin(), m_hardwareFilterProfiles.end(),
-			[currentProfile](XsFilterProfile const& p)
-			{
-				return currentProfile == p.label();
-			});
+				[currentProfile](XsFilterProfile const & p)
+		{
+			return currentProfile == p.label();
+		});
 		if (i == 2)
 			break;
 	}
@@ -616,14 +684,14 @@ XsVector MtDevice::initialPositionLLA() const
 */
 uint32_t MtDevice::syncTicksToUs(uint32_t ticks) const
 {
-	return ((uint32_t) (((double) ticks) * XS_SYNC_CLOCK_TICKS_TO_US + 0.5));
+	return ((uint32_t)(((double) ticks) * XS_SYNC_CLOCK_TICKS_TO_US + 0.5));
 }
 
 /*! \brief Convert microseconds to mt sync ticks
 */
 uint32_t MtDevice::usToSyncTicks(uint32_t us) const
 {
-	return ((uint32_t) (((double) us) * XS_SYNC_CLOCK_US_TO_TICKS + 0.5));
+	return ((uint32_t)(((double) us) * XS_SYNC_CLOCK_US_TO_TICKS + 0.5));
 }
 
 /*! \returns the error mode of the device.
@@ -776,7 +844,7 @@ XsString MtDevice::stripProductCode(const XsString& code)
 	if (hwtype.empty())
 		return code;
 
-	int offset = code.findSubStr(hwtype);
+	ptrdiff_t offset = code.findSubStr(hwtype);
 	while (offset >= 0 && code[(unsigned int)offset] != '-')
 		--offset;
 
@@ -784,4 +852,12 @@ XsString MtDevice::stripProductCode(const XsString& code)
 		return code;
 
 	return code.mid(0, (unsigned int)offset);
+}
+
+/*! \brief Returns the base update rate (Hz) corresponding to the \a dataType. Returns 0 if no update rate is available
+*/
+int MtDevice::getBaseFrequency(XsDataIdentifier dataType) const
+{
+	(void) dataType;
+	return 0;
 }

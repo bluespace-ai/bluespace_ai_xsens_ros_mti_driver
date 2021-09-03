@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -78,7 +78,7 @@
 */
 
 /*! \returns The legacy bit used to identify legacy or new XsDeviceId format */
-uint64_t XsDeviceId_legacyBit(const struct XsDeviceId *thisPtr)
+uint64_t XsDeviceId_legacyBit(const struct XsDeviceId* thisPtr)
 {
 	(void)thisPtr;
 	return XS_DID64_BIT;
@@ -87,7 +87,7 @@ uint64_t XsDeviceId_legacyBit(const struct XsDeviceId *thisPtr)
 /*! \brief Test if the device ID represents a legacy device identification
 	\returns true if this XsDeviceId represents a legacy device identification
 */
-int XsDeviceId_isLegacyDeviceId(const struct XsDeviceId *thisPtr)
+int XsDeviceId_isLegacyDeviceId(const struct XsDeviceId* thisPtr)
 {
 	return ((thisPtr->m_deviceId & XS_DID64_BIT) == 0);
 }
@@ -98,9 +98,7 @@ int XsDeviceId_isLegacyDeviceId(const struct XsDeviceId *thisPtr)
 int XsDeviceId_isMtiX(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return ((thisPtr->m_deviceId & XS_DID_TYPEH_MASK) == XS_DID_TYPEH_MT_X_MPU);
-	}
 	else
 	{
 		if (memcmp(thisPtr->m_productCode, "MTi-", 4) != 0)
@@ -116,9 +114,7 @@ int XsDeviceId_isMtiX(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isMtiX0(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return ((thisPtr->m_deviceId & XS_DID_TYPEH_MASK) == XS_DID_TYPEH_MT_X0);
-	}
 	else
 	{
 		if (memcmp(thisPtr->m_productCode, "MTi-", 4) != 0)
@@ -134,18 +130,14 @@ int XsDeviceId_isMtiX0(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isMtiX00(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return ((thisPtr->m_deviceId & XS_DID_TYPEH_MASK) == XS_DID_TYPEH_MT_X00);
-	}
 	else
 	{
 		if (memcmp(thisPtr->m_productCode, "MTi-", 4) != 0)
 			return 0;
 		int deviceFamily = atoi(&thisPtr->m_productCode[4]);
 		if ((deviceFamily != 0) && (deviceFamily >= 100 && deviceFamily <= 300))
-		{
 			return 1;
-		}
 		else if (memcmp(thisPtr->m_productCode, "MTi-G-", 6) == 0)
 		{
 			deviceFamily = atoi(&thisPtr->m_productCode[6]);
@@ -164,7 +156,7 @@ int XsDeviceId_isMtigX00(const struct XsDeviceId* thisPtr)
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
 	{
 		return ((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_700) &&
-			((thisPtr->m_deviceId &~XS_DID_TYPEL_COMM_MASK) < XS_DID_MK4TYPE_MT_710_RANGE_START);
+			((thisPtr->m_deviceId & ~XS_DID_TYPEL_COMM_MASK) < XS_DID_MK4TYPE_MT_710_RANGE_START);
 	}
 	else
 	{
@@ -202,9 +194,7 @@ int XsDeviceId_isMtigX10(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isMti6X0(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return 0;
-	}
 	else
 	{
 		if (memcmp(thisPtr->m_productCode, "MTi-", 4) != 0)
@@ -221,9 +211,7 @@ int XsDeviceId_isMti6X0(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isMti8X0(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return 0;
-	}
 	else
 	{
 		if (memcmp(thisPtr->m_productCode, "MTi-", 4) != 0)
@@ -240,9 +228,7 @@ int XsDeviceId_isMti8X0(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isMti3X0(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return ((thisPtr->m_deviceId & XS_DID_TYPEH_MASK) == XS_DID_TYPEH_MT_3X0);
-	}
 	else
 		return 0;
 }
@@ -268,15 +254,44 @@ int XsDeviceId_isGlove(const struct XsDeviceId* thisPtr)
 	}
 }
 
+/*! \brief Return the side the device should be worn on.
+	\details Currently this only applies to the Xsens Glove product line. For other devices XHI_Unknown will be returned.
+	\return The hand id of the provided Glove XsDeviceId, XHI_Unknown if the device ID does not represent a Glove
+*/
+XsHandId XsDeviceId_side(struct XsDeviceId const* thisPtr)
+{
+	if (XsDeviceId_isLegacyDeviceId(thisPtr))
+	{
+		if (thisPtr->m_deviceId == XS_DID_GLOVEMASTER_LEFT)
+			return XHI_LeftHand;
+		if (thisPtr->m_deviceId == XS_DID_GLOVEMASTER_RIGHT)
+			return XHI_RightHand;
+		return XHI_Unknown;
+	}
+	else
+	{
+		if (memcmp(thisPtr->m_productCode, "Glove", 5) != 0)
+			return XHI_Unknown;
+
+		switch (thisPtr->m_productCode[8])
+		{
+			case 'L':
+				return XHI_LeftHand;
+			case 'R':
+				return XHI_RightHand;
+			default:
+				return XHI_Unknown;
+		}
+	}
+}
+
 /*! \brief Test if the device ID represents a Dot series device
 	\returns true if this XsDeviceId represents a Dot series device
 */
 int XsDeviceId_isDot(struct XsDeviceId const* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return 0;
-	}
 	else
 	{
 		if (memcmp(thisPtr->m_productCode, "XS-", 3) != 0)
@@ -328,13 +343,9 @@ int XsDeviceId_isMtw(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isMtw2(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return XS_DID_MTW2(thisPtr->m_deviceId);
-	}
 	else
-	{
 		return (memcmp(thisPtr->m_productCode, "MTw2", 4) == 0);
-	}
 }
 
 /*! \brief Test if this device ID represents an MTx
@@ -351,13 +362,9 @@ int XsDeviceId_isMtx(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isMtx2(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return XS_DID_MTX2(thisPtr->m_deviceId);
-	}
 	else
-	{
 		return (memcmp(thisPtr->m_productCode, "MTx2", 4) == 0);
-	}
 }
 
 /*! \brief Test if this device ID represents a bodypack (any version) device.
@@ -401,13 +408,11 @@ int XsDeviceId_isWirelessMaster(const struct XsDeviceId* thisPtr)
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
 	{
 		return ((thisPtr->m_deviceId & XS_DID_TYPEH_MASK) == XS_DID_TYPEH_AWINDAMASTER) &&
-				!XsDeviceId_isBodyPack(thisPtr) &&
-				!XsDeviceId_isSyncStationX(thisPtr);
+			!XsDeviceId_isBodyPack(thisPtr) &&
+			!XsDeviceId_isSyncStationX(thisPtr);
 	}
 	else
-	{
 		return (memcmp(thisPtr->m_productCode, "AW-", 3) == 0);
-	}
 }
 
 /*! \brief Test if this device ID represents an Awinda device.
@@ -448,13 +453,9 @@ int XsDeviceId_isAwindaXOem(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isAwinda2(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return XS_DID_AWINDA2(thisPtr->m_deviceId);
-	}
 	else
-	{
 		return (memcmp(thisPtr->m_productCode, "AW-", 3) == 0);
-	}
 }
 
 /*! \brief Test if this device ID represents an Awinda2 Station.
@@ -463,13 +464,9 @@ int XsDeviceId_isAwinda2(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isAwinda2Station(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return XS_DID_AWINDA2_STATION(thisPtr->m_deviceId);
-	}
 	else
-	{
 		return memcmp(thisPtr->m_productCode, "AW-A2", 5) == 0;
-	}
 }
 
 /*! \brief Test if this device ID represents an Awinda2 Dongle.
@@ -478,13 +475,9 @@ int XsDeviceId_isAwinda2Station(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isAwinda2Dongle(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return XS_DID_AWINDA2_DONGLE(thisPtr->m_deviceId);
-	}
 	else
-	{
 		return memcmp(thisPtr->m_productCode, "AW-DNG2", 7) == 0;
-	}
 }
 
 /*! \brief Test if this device ID represents an Awinda2 OEM board.
@@ -517,15 +510,9 @@ int XsDeviceId_isSyncStation2(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isHilDevice(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return 0;
-	}
 	else
-	{
-		if (strcmp(thisPtr->m_productCode, "HILDEVICE") != 0)
-			return 0;
-		return 1;
-	}
+		return strcmp(thisPtr->m_productCode, "HILDEVICE") == 0;
 }
 
 /*! \brief Test if this device ID represents an IMU.
@@ -536,9 +523,9 @@ int XsDeviceId_isImu(const struct XsDeviceId* thisPtr)
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
 	{
 		return (((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_1_MPU) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_10) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_100) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_310));
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_10) ||
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_100) ||
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_310));
 	}
 	else
 	{
@@ -564,9 +551,9 @@ int XsDeviceId_isVru(const struct XsDeviceId* thisPtr)
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
 	{
 		return (((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_2_MPU) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_20) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_200) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_320));
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_20) ||
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_200) ||
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_320));
 	}
 	else
 	{
@@ -592,9 +579,9 @@ int XsDeviceId_isAhrs(const struct XsDeviceId* thisPtr)
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
 	{
 		return (((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_3_MPU) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_30) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_300) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_330));
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_30) ||
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_300) ||
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_330));
 	}
 	else
 	{
@@ -620,7 +607,7 @@ int XsDeviceId_isGnss(const struct XsDeviceId* thisPtr)
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
 	{
 		return (((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_700) ||
-			((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_7_MPU));
+				((thisPtr->m_deviceId & XS_DID_MK4TYPE_MASK) == XS_DID_MK4TYPE_MT_7_MPU));
 	}
 	else
 	{
@@ -629,13 +616,9 @@ int XsDeviceId_isGnss(const struct XsDeviceId* thisPtr)
 
 		int deviceFamily = atoi(&thisPtr->m_productCode[4]);
 		if (deviceFamily == 7)
-		{
 			return 1;
-		}
 		else if ((deviceFamily == 670) || (deviceFamily == 680) || (deviceFamily == 870) || (deviceFamily == 880))
-		{
 			return 1;
-		}
 		else
 		{
 			if (memcmp(thisPtr->m_productCode, "MTi-G-", 6) != 0)
@@ -653,23 +636,14 @@ int XsDeviceId_isGnss(const struct XsDeviceId* thisPtr)
 int XsDeviceId_isRtk(const struct XsDeviceId* thisPtr)
 {
 	if (XsDeviceId_isLegacyDeviceId(thisPtr))
-	{
 		return 0;
-	}
 	else
 	{
 		if (memcmp(thisPtr->m_productCode, "MTi-", 4) != 0)
 			return 0;
 
 		int deviceFamily = atoi(&thisPtr->m_productCode[4]);
-		if ((deviceFamily == 680) || (deviceFamily == 880))
-		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
+		return ((deviceFamily == 680) || (deviceFamily == 880));
 	}
 }
 
@@ -678,8 +652,7 @@ int XsDeviceId_isRtk(const struct XsDeviceId* thisPtr)
 */
 int XsDeviceId_isContainerDevice(const struct XsDeviceId* thisPtr)
 {
-	return	XsDeviceId_isBodyPack(thisPtr) ||
-		XsDeviceId_isWirelessMaster(thisPtr);
+	return XsDeviceId_isBodyPack(thisPtr) || XsDeviceId_isWirelessMaster(thisPtr);
 }
 
 /*! \brief Test if this device ID represents an MT device (any Mti, Mtig, Mtx or Mtw)
@@ -746,8 +719,12 @@ void XsDeviceId_toString(const XsDeviceId* thisPtr, XsString* str)
 	}
 	else
 	{
-		char device[17];
-		XsSize n = (XsSize) (ptrdiff_t) sprintf(device, "%010" PRINTF_INT64_MODIFIER "X", thisPtr->m_deviceId);
+		XsSize n;
+		char device[23];
+		if (thisPtr->m_subDevice)
+			n = (XsSize)(ptrdiff_t) sprintf(device, "%010" PRINTF_INT64_MODIFIER "X/%hu", thisPtr->m_deviceId, (unsigned short int) thisPtr->m_subDevice);
+		else
+			n = (XsSize)(ptrdiff_t) sprintf(device, "%010" PRINTF_INT64_MODIFIER "X", thisPtr->m_deviceId);
 		XsString_assign(str, n, device);
 	}
 }
@@ -755,19 +732,23 @@ void XsDeviceId_toString(const XsDeviceId* thisPtr, XsString* str)
 /*! \brief Read a device ID from the supplied string.
 	\param str The string to interpret
 */
-void XsDeviceId_fromString(XsDeviceId* thisPtr, const XsString *str)
+void XsDeviceId_fromString(XsDeviceId* thisPtr, const XsString* str)
 {
 	uint64_t tmp = 0;
-	int count = 0;
+	uint16_t sub = 0;
 	if (!thisPtr || !str || !str->m_data)
 		return;
 
 	if (isalpha(str->m_data[0]))
 		return;
 
-	int result = sscanf(str->m_data, "%" PRINTF_INT64_MODIFIER "x%n", &tmp, &count);
-	if (result == 1)
+	int result = sscanf(str->m_data, "%" PRINTF_INT64_MODIFIER "x/%hu", &tmp, &sub);
+	if (result >= 1)
 		thisPtr->m_deviceId = tmp;
+	if (result >= 2)
+		thisPtr->m_subDevice = sub;
+	else
+		thisPtr->m_subDevice = 0;
 }
 
 /*! \brief Get a string with a readable representation of this device ID. Either full or as a type
@@ -784,16 +765,16 @@ void XsDeviceId_toDeviceTypeString(const XsDeviceId* thisPtr, XsString* str, int
 	char device[50];
 	XsSize n;
 	if (thisPtr->m_hardwareVersion == 0)
-		n = (XsSize) (ptrdiff_t) sprintf(device, "%s%s%08X.%08X", deviceType.m_productCode, deviceType.m_productCode[0] ? "_" : "", (uint32_t)deviceType.m_deviceId, thisPtr->m_productVariant);
+		n = (XsSize)(ptrdiff_t) sprintf(device, "%s%s%08X.%08X", deviceType.m_productCode, deviceType.m_productCode[0] ? "_" : "", (uint32_t)deviceType.m_deviceId, thisPtr->m_productVariant);
 	else
-		n = (XsSize) (ptrdiff_t) sprintf(device, "%s%s%08X.%08X.%d_%d", deviceType.m_productCode, deviceType.m_productCode[0] ? "_" : "", (uint32_t)deviceType.m_deviceId, thisPtr->m_productVariant, (uint8_t)((thisPtr->m_hardwareVersion & 0xFF00) >> 8), (uint8_t)(thisPtr->m_hardwareVersion & 0xFF));
+		n = (XsSize)(ptrdiff_t) sprintf(device, "%s%s%08X.%08X.%d_%d", deviceType.m_productCode, deviceType.m_productCode[0] ? "_" : "", (uint32_t)deviceType.m_deviceId, thisPtr->m_productVariant, (uint8_t)((thisPtr->m_hardwareVersion & 0xFF00) >> 8), (uint8_t)(thisPtr->m_hardwareVersion & 0xFF));
 	XsString_assign(str, n, device);
 }
 
 /*! \brief Read a device ID from the supplied string.
 	\param str The string to interpret
 */
-void XsDeviceId_fromDeviceTypeString(XsDeviceId* thisPtr, const XsString *str)
+void XsDeviceId_fromDeviceTypeString(XsDeviceId* thisPtr, const XsString* str)
 {
 	uint32_t id = 0;
 	int hwRevH = 0, hwRevL = 0;
@@ -944,7 +925,7 @@ void XsDeviceId_typeName(XsDeviceId const* thisPtr, XsString* str)
 		XsString_assignCharArray(str, "MTi-200");
 	else if (XsDeviceId_isMtMk4_300(thisPtr))
 		XsString_assignCharArray(str, "MTi-300");
-	else if ( XsDeviceId_isMtMk4_400(thisPtr))
+	else if (XsDeviceId_isMtMk4_400(thisPtr))
 		XsString_assignCharArray(str, "MTi-400");
 	else if (XsDeviceId_isMtMk4_500(thisPtr))
 		XsString_assignCharArray(str, "MTi-500");
@@ -956,6 +937,8 @@ void XsDeviceId_typeName(XsDeviceId const* thisPtr, XsString* str)
 		XsString_assignCharArray(str, "MTi-G-800");
 	else if (XsDeviceId_isMtMk4_900(thisPtr))
 		XsString_assignCharArray(str, "MTi-G-900");
+	else if (XsDeviceId_isGlove(thisPtr))
+		XsString_assignCharArray(str, "Glove");
 	else
 		XsString_assignCharArray(str, "Unknown");
 }
@@ -1044,9 +1027,9 @@ void XsDeviceId_deviceTypeMask(struct XsDeviceId const* thisPtr, int detailed, s
 		else if (XsDeviceId_isMtMk4(thisPtr))
 			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK | XS_DID_TYPEL_MK5) : 0));
 		else if (XsDeviceId_isAwindaX(thisPtr))
-			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK | XS_DID_TYPEL_MASK) : 0));
+			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK) : 0));
 		else if (XsDeviceId_isSyncStationX(thisPtr))
-			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK | XS_DID_TYPEL_MASK) : 0));
+			type->m_deviceId = (XS_DID_TYPEH_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK) : 0));
 		else if (XsDeviceId_isMtw(thisPtr) || XsDeviceId_isMtx(thisPtr))
 			type->m_deviceId = (XS_DID_TYPE_MASK | (detailed ? (XS_DID_GPH_MASK | XS_DID_GPL_MASK) : 0));
 		else if (thisPtr->m_deviceId == XS_DID_ABMCLOCKMASTER)
@@ -1071,8 +1054,8 @@ void XsDeviceId_deviceTypeMask(struct XsDeviceId const* thisPtr, int detailed, s
 int XsDeviceId_isMtMk4(const struct XsDeviceId* thisPtr)
 {
 	return (XsDeviceId_isMtMk4_X(thisPtr) ||
-		XsDeviceId_isMtMk4_X0(thisPtr) ||
-		XsDeviceId_isMtMk4_X00(thisPtr));
+			XsDeviceId_isMtMk4_X0(thisPtr) ||
+			XsDeviceId_isMtMk4_X00(thisPtr));
 }
 
 /*! \brief Test if this device ID represents an MTMk4 1 series.

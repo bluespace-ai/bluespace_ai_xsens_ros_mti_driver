@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,9 +66,9 @@
 #include "xsstring.h"
 
 #ifdef __GNUC__
-#include <dlfcn.h>
+	#include <dlfcn.h>
 #elif defined(_MSC_VER)
-#include <Windows.h>
+	#include <Windows.h>
 #endif
 
 /*! \brief Dynamically load a library
@@ -85,7 +85,7 @@ int XsLibraryLoader_load(XsLibraryLoader* thisp, const XsString* libraryName)
 		return 0;
 	thisp->m_handle = dlopen(libraryName->m_data, RTLD_LAZY);
 #elif defined(_MSC_VER)
-	wchar_t *libraryNameW;
+	wchar_t* libraryNameW;
 	XsSize required;
 	if (XsLibraryLoader_isLoaded(thisp))
 		return 0;
@@ -126,7 +126,7 @@ void* XsLibraryLoader_resolve(const XsLibraryLoader* thisp, const char* function
 */
 int XsLibraryLoader_unload(XsLibraryLoader* thisp)
 {
-	void *handle = thisp->m_handle;
+	void* handle = thisp->m_handle;
 	thisp->m_handle = NULL;
 	if (handle)
 	{
@@ -159,14 +159,14 @@ void XsLibraryLoader_getErrorString(XsString* error)
 #elif defined(_MSC_VER)
 	LPTSTR errorText = NULL;
 	(void)FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM
-			|FORMAT_MESSAGE_ALLOCATE_BUFFER
-			|FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			GetLastError(),
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR)&errorText,
-			0,
-			NULL);
+		| FORMAT_MESSAGE_ALLOCATE_BUFFER
+		| FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		GetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&errorText,
+		0,
+		NULL);
 
 	XsString_assignWCharArray(error, errorText);
 	LocalFree(errorText);

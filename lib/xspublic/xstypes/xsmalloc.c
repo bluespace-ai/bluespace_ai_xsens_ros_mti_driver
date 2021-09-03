@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,32 +68,32 @@
 
 #include "xsmalloc.h"
 #if !(defined __ICCARM__) && !(defined _ADI_COMPILER) && !defined(__APPLE__) && !defined(__CRCC__) && !(defined(__arm__) && defined(__ARMCC_VERSION))
-#include <malloc.h>
+	#include <malloc.h>
 #endif
 #include <stdlib.h>
 
 #ifdef XSENS_ASSERT_MALLOC
-#include <assert.h>
-#undef XSENS_ASSERT_MALLOC
-#define XSENS_ASSERT_MALLOC(x) assert(x)
+	#include <assert.h>
+	#undef XSENS_ASSERT_MALLOC
+	#define XSENS_ASSERT_MALLOC(x) assert(x)
 #else
-#define XSENS_ASSERT_MALLOC(x)
+	#define XSENS_ASSERT_MALLOC(x)
 #endif
 
 #if !(defined __ICCARM__) && !(defined _ADI_COMPILER) && defined(XSENS_DEBUG)
-//#define TRACK_ALLOCS	32
+	//#define TRACK_ALLOCS	32
 #endif
 
 #ifdef TRACK_ALLOCS
-int lastAllocIdx = -1;
-void* lastAllocs[TRACK_ALLOCS];
-int lastFreeIdx = -1;
-void* lastFrees[TRACK_ALLOCS];
+	int lastAllocIdx = -1;
+	void* lastAllocs[TRACK_ALLOCS];
+	int lastFreeIdx = -1;
+	void* lastFrees[TRACK_ALLOCS];
 
-int lastAlignedAllocIdx = -1;
-void* lastAlignedAllocs[TRACK_ALLOCS];
-int lastAlignedFreeIdx = -1;
-void* lastAlignedFrees[TRACK_ALLOCS];
+	int lastAlignedAllocIdx = -1;
+	void* lastAlignedAllocs[TRACK_ALLOCS];
+	int lastAlignedFreeIdx = -1;
+	void* lastAlignedFrees[TRACK_ALLOCS];
 #endif
 
 #ifndef _MSC_VER
@@ -126,7 +126,7 @@ void* xsMalloc(size_t sz)
 #ifdef TRACK_ALLOCS
 	void* ptr = malloc(sz);
 	XSENS_ASSERT_MALLOC(ptr);
-	lastAllocIdx = (lastAllocIdx + 1) & (TRACK_ALLOCS-1);
+	lastAllocIdx = (lastAllocIdx + 1) & (TRACK_ALLOCS - 1);
 	lastAllocs[lastAllocIdx] = ptr;
 	return ptr;
 #else
@@ -140,12 +140,12 @@ void* xsMalloc(size_t sz)
 void* xsRealloc(void* ptr, size_t sz)
 {
 #ifdef TRACK_ALLOCS
-	lastFreeIdx = (lastFreeIdx + 1) & (TRACK_ALLOCS-1);
+	lastFreeIdx = (lastFreeIdx + 1) & (TRACK_ALLOCS - 1);
 	lastFrees[lastFreeIdx] = ptr;
 
 	ptr = realloc(ptr, sz);
 	XSENS_ASSERT_MALLOC(ptr);
-	lastAllocIdx = (lastAllocIdx + 1) & (TRACK_ALLOCS-1);
+	lastAllocIdx = (lastAllocIdx + 1) & (TRACK_ALLOCS - 1);
 	lastAllocs[lastAllocIdx] = ptr;
 	return ptr;
 #else
@@ -159,7 +159,7 @@ void* xsRealloc(void* ptr, size_t sz)
 void  xsFree(void* ptr)
 {
 #ifdef TRACK_ALLOCS
-	lastFreeIdx = (lastFreeIdx + 1) & (TRACK_ALLOCS-1);
+	lastFreeIdx = (lastFreeIdx + 1) & (TRACK_ALLOCS - 1);
 	lastFrees[lastFreeIdx] = ptr;
 #endif
 	free(ptr);
@@ -171,7 +171,7 @@ void* xsAlignedMalloc(size_t sz)
 #ifdef TRACK_ALLOCS
 	void* ptr = _aligned_malloc(sz, 16);
 	XSENS_ASSERT_MALLOC(ptr);
-	lastAlignedAllocIdx = (lastAlignedAllocIdx + 1) & (TRACK_ALLOCS-1);
+	lastAlignedAllocIdx = (lastAlignedAllocIdx + 1) & (TRACK_ALLOCS - 1);
 	lastAlignedAllocs[lastAlignedAllocIdx] = ptr;
 	return ptr;
 #else
@@ -185,12 +185,12 @@ void* xsAlignedMalloc(size_t sz)
 void* xsAlignedRealloc(void* ptr, size_t sz)
 {
 #ifdef TRACK_ALLOCS
-	lastFreeIdx = (lastAlignedFreeIdx + 1) & (TRACK_ALLOCS-1);
+	lastFreeIdx = (lastAlignedFreeIdx + 1) & (TRACK_ALLOCS - 1);
 	lastAlignedFrees[lastAlignedFreeIdx] = ptr;
 
 	ptr = _aligned_realloc(ptr, sz, 16);
 	XSENS_ASSERT_MALLOC(ptr);
-	lastAlignedAllocIdx = (lastAlignedAllocIdx + 1) & (TRACK_ALLOCS-1);
+	lastAlignedAllocIdx = (lastAlignedAllocIdx + 1) & (TRACK_ALLOCS - 1);
 	lastAlignedAllocs[lastAlignedAllocIdx] = ptr;
 	return ptr;
 #else
@@ -204,7 +204,7 @@ void* xsAlignedRealloc(void* ptr, size_t sz)
 void  xsAlignedFree(void* ptr)
 {
 #ifdef TRACK_ALLOCS
-	lastAlignedFreeIdx = (lastAlignedFreeIdx + 1) & (TRACK_ALLOCS-1);
+	lastAlignedFreeIdx = (lastAlignedFreeIdx + 1) & (TRACK_ALLOCS - 1);
 	lastAlignedFrees[lastAlignedFreeIdx] = ptr;
 #endif
 	_aligned_free(ptr);

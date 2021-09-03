@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -101,30 +101,30 @@ inline static void checkStateRx(char* state, int length, XsByteArray const& data
 	{
 		// find preamble
 		int idx = 0;
-		while (idx < length-4)
+		while (idx < length - 4)
 		{
-			if (data[idx] == 0xFA && (data[idx+1] == 0xFF || data[idx+1] == 0) && data[idx+3] == 0)
+			if (data[idx] == 0xFA && (data[idx + 1] == 0xFF || data[idx + 1] == 0) && data[idx + 3] == 0)
 			{
-				switch (data[idx+2])
+				switch (data[idx + 2])
 				{
-				case XMID_GotoConfigAck:
-					strcpy(state, "_Config");
-					break;
-				case XMID_GotoMeasurementAck:
-					strcpy(state, "_Measurement");
-					break;
-				case XMID_GotoOperationalAck:
-					strcpy(state, "_Operational");
-					break;
-				case XMID_StartRecordingAck:
-					strcpy(state, "_Recording");
-					break;
-				case XMID_StopRecordingAck:
-					strcpy(state, "_Flushing");
-					break;
-				default:
-					++idx;
-					continue;
+					case XMID_GotoConfigAck:
+						strcpy(state, "_Config");
+						break;
+					case XMID_GotoMeasurementAck:
+						strcpy(state, "_Measurement");
+						break;
+					case XMID_GotoOperationalAck:
+						strcpy(state, "_Operational");
+						break;
+					case XMID_StartRecordingAck:
+						strcpy(state, "_Recording");
+						break;
+					case XMID_StopRecordingAck:
+						strcpy(state, "_Flushing");
+						break;
+					default:
+						++idx;
+						continue;
 				}
 				break;
 			}
@@ -154,30 +154,30 @@ inline static void checkStateTx(char* state, int length, XsByteArray const& data
 	{
 		// find preamble
 		int idx = 0;
-		while (idx < length-4)
+		while (idx < length - 4)
 		{
-			if (data[idx] == 0xFA && (data[idx+1] == 0xFF || data[idx+1] == 0) && data[idx+3] == 0)
+			if (data[idx] == 0xFA && (data[idx + 1] == 0xFF || data[idx + 1] == 0) && data[idx + 3] == 0)
 			{
-				switch (data[idx+2])
+				switch (data[idx + 2])
 				{
-				case XMID_GotoConfig:
-					strcpy(state, "_Config");
-					break;
-				case XMID_GotoMeasurement:
-					strcpy(state, "_Measurement");
-					break;
-				case XMID_GotoOperational:
-					strcpy(state, "_Operational");
-					break;
-				case XMID_StartRecording:
-					strcpy(state, "_Recording");
-					break;
-				case XMID_StopRecording:
-					strcpy(state, "_Flushing");
-					break;
-				default:
-					++idx;
-					continue;
+					case XMID_GotoConfig:
+						strcpy(state, "_Config");
+						break;
+					case XMID_GotoMeasurement:
+						strcpy(state, "_Measurement");
+						break;
+					case XMID_GotoOperational:
+						strcpy(state, "_Operational");
+						break;
+					case XMID_StartRecording:
+						strcpy(state, "_Recording");
+						break;
+					case XMID_StopRecording:
+						strcpy(state, "_Flushing");
+						break;
+					default:
+						++idx;
+						continue;
 				}
 				break;
 			}
@@ -200,9 +200,9 @@ inline static void checkStateTx(char* state, int length, void const* data, XsFil
 	checkStateTx(state, (int) (length), (data), (logfile))
 
 #else
-	static const char state[1] = "";
-	#define CHECK_STATE_RX(...)	((void)0)
-	#define CHECK_STATE_TX(...)	((void)0)
+static const char state[1] = "";
+#define CHECK_STATE_RX(...)	((void)0)
+#define CHECK_STATE_TX(...)	((void)0)
 #endif
 
 #endif

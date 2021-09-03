@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -148,7 +148,7 @@ int32_t PacketErrorRateEstimator::innerFunction(void)
 				packetDeliveryRate = 100.0f;
 
 			m_packetErrorRate = (uint8_t)(100 - (int)floor(packetDeliveryRate));
-			JLDEBUGG("Received " << m_receivedPacketCount << " packets in " << msSinceLastUpdate << " ms. Delivery rate: " << (int) (packetDeliveryRate) << "%. Error rate: " << (int)m_packetErrorRate << "%.");
+			JLDEBUGG("Received " << m_receivedPacketCount << " packets in " << msSinceLastUpdate << " ms. Delivery rate: " << (int)(packetDeliveryRate) << "%. Error rate: " << (int)m_packetErrorRate << "%.");
 		}
 		else
 		{

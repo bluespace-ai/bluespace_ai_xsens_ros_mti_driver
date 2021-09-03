@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -126,6 +126,13 @@ inline const char* toString(XsDataFlags s)
 	return XsDataFlags_toString(s);
 }
 #endif
+#ifdef SWIG
+	// note that there is no XSDEPRECATED_END, deprecated definitions are expected to be the last definitions in a list
+	#define XSDEPRECATED_START	private: /* deprecated start */
+#else
+	// note that there is no XSDEPRECATED_END, deprecated definitions are expected to be the last definitions in a list
+	#define XSDEPRECATED_START	/* deprecated start */
+#endif
 #ifndef __cplusplus
 	// define BOOL, TRUE and FALSE
 	#ifndef BOOL
@@ -139,21 +146,70 @@ inline const char* toString(XsDataFlags s)
 	#ifndef FALSE
 		#define FALSE (0)
 	#endif
-	#define XSFALLTHROUGH
-	#define XSNORETURN
+	#define XSFALLTHROUGH	/* fallthrough */
+	#define XSNORETURN		/* noreturn */
+	#define XSDEPRECATED	/* deprecated */
 #else
 	#if __cplusplus >= 201703L
-		#define XSFALLTHROUGH	[[fallthrough]]
-		#define XSNORETURN		[[noreturn]]
-	#elif defined(__GNUC__)
-		#define XSFALLTHROUGH [[fallthrough]]
-		#define XSNORETURN		[[noreturn]]
+		#define XSFALLTHROUGH	[[fallthrough]] /* FALLTHRU fallthrough */
+		#define XSNORETURN		[[noreturn]] /* noreturn */
+		#define XSDEPRECATED	[[deprecated]] /* deprecated */
 	#else
-		#define XSFALLTHROUGH	// FALLTHRU
-		#define XSNORETURN
+		#if defined(__GNUC__)
+			#define XSFALLTHROUGH	[[fallthrough]] /* FALLTHRU fallthrough */
+			#define XSNORETURN		[[noreturn]] /* noreturn */
+		#else
+			#define XSFALLTHROUGH	/* FALLTHRU fallthrough */
+			#define XSNORETURN		/* noreturn */
+		#endif
+		#if __cplusplus >= 201402L
+			#define XSDEPRECATED	[[deprecated]] /* deprecated */
+		#else
+			#define XSDEPRECATED	/* deprecated */
+		#endif
 	#endif
 #endif // __cplusplus
 
 #define XS_ENUM_TO_STR_CASE(value) case value: return #value
+
+// different alignment commands for gcc / MSVS for structures that need to be 1-byte aligned.
+#if defined (SWIG)
+	#define XS_PACKED_STRUCT_START
+	#define XS_PACKED_STRUCT_END
+#elif defined (_MSC_VER)
+	#define XS_PACKED_STRUCT_START __pragma(pack(push, 1));
+	#define XS_PACKED_STRUCT_END __pragma(pack(pop));
+#elif defined (__ICCARM__)
+	#define XS_PACKED_STRUCT_START _Pragma("pack(push, 1)");
+	#define XS_PACKED_STRUCT_END _Pragma("pack(pop)");
+#elif defined (__ICC8051__)
+	#define XS_PACKED_STRUCT_START
+	#define XS_PACKED_STRUCT_END
+#elif defined (__GNUC__)
+	#define XS_PACKED_STRUCT_START
+	#define XS_PACKED_STRUCT_END
+#elif (defined(__arm__) && defined(__ARMCC_VERSION))
+	#define XS_PACKED_STRUCT_START
+	#define XS_PACKED_STRUCT_END
+#elif (defined(__ADSP21000__))
+	#define XS_PACKED_STRUCT_START
+	#define XS_PACKED_STRUCT_END
+#else
+	#error "Structure packing macros not defined for this compiler"
+	#define XS_PACKED_STRUCT_START
+	#define XS_PACKED_STRUCT_END
+#endif
+
+#ifdef __GNUC__
+	#define XS_PACKED_STRUCT __attribute__((__packed__))
+#else
+	#define XS_PACKED_STRUCT
+#endif
+
+#if defined (__ICCARM__)
+	#define XS_PACKED_POINTER __packed
+#else
+	#define XS_PACKED_POINTER
+#endif
 
 #endif

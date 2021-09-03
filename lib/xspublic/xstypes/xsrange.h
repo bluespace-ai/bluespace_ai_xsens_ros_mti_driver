@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -86,7 +86,8 @@ XSTYPES_DLL_API int XsRange_empty(const struct XsRange* thisPtr);
 } // extern "C"
 #endif
 
-struct XsRange {
+struct XsRange
+{
 #ifdef __cplusplus
 	//! \brief Constructs a range starting at \a f and ending at \a l. Default values are 0 and -1 respectively.
 	inline explicit XsRange(int f = 0, int l = -1)

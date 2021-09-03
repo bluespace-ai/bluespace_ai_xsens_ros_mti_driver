@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -139,24 +139,39 @@ MtiBaseDevice::BaseFrequencyResult MtigDevice::getBaseFrequencyInternal(XsDataId
 
 		switch (dataType & XDI_TypeMask)
 		{
-		case XDI_None:					return 2000;
-		case XDI_TimestampGroup:		return XDI_MAX_FREQUENCY_VAL;
+			case XDI_None:
+				return 2000;
+			case XDI_TimestampGroup:
+				return XDI_MAX_FREQUENCY_VAL;
 
-		case XDI_RawSensorGroup:		return 2000;
-		case XDI_AnalogInGroup:			return 2000;
-		case XDI_StatusGroup:			return 2000;
+			case XDI_RawSensorGroup:
+				return 2000;
+			case XDI_AnalogInGroup:
+				return 2000;
+			case XDI_StatusGroup:
+				return 2000;
 
-		case XDI_TemperatureGroup:		return 400;
-		case XDI_PositionGroup:			return 400;
-		case XDI_VelocityGroup:			return 400;
-		case XDI_OrientationGroup:		return 400;
-		case XDI_AccelerationGroup:		return 400;
-		case XDI_AngularVelocityGroup:	return 400;
-		case XDI_MagneticGroup:			return 100;
-		case XDI_PressureGroup:			return 50;
+			case XDI_TemperatureGroup:
+				return 400;
+			case XDI_PositionGroup:
+				return 400;
+			case XDI_VelocityGroup:
+				return 400;
+			case XDI_OrientationGroup:
+				return 400;
+			case XDI_AccelerationGroup:
+				return 400;
+			case XDI_AngularVelocityGroup:
+				return 400;
+			case XDI_MagneticGroup:
+				return 100;
+			case XDI_PressureGroup:
+				return 50;
 
-		case XDI_GnssGroup:				return isLegacyFirmware ? 0 : 4;
-		default:						return 0;
+			case XDI_GnssGroup:
+				return isLegacyFirmware ? 0 : 4;
+			default:
+				return 0;
 		}
 	};
 
@@ -170,28 +185,28 @@ MtiBaseDevice::BaseFrequencyResult MtigDevice::getBaseFrequencyInternal(XsDataId
 
 uint32_t MtigDevice::supportedStatusFlags() const
 {
-	return (uint32_t) (
-		//|XSF_SelfTestOk
-		 XSF_OrientationValid
-		|XSF_GpsValid
-		|XSF_NoRotationMask
-		|XSF_RepresentativeMotion
-		|XSF_ExternalClockSynced
-		|XSF_ClipAccX
-		|XSF_ClipAccY
-		|XSF_ClipAccZ
-		|XSF_ClipGyrX
-		|XSF_ClipGyrY
-		|XSF_ClipGyrZ
-		|XSF_ClipMagX
-		|XSF_ClipMagY
-		|XSF_ClipMagZ
-		//|XSF_Retransmitted
-		|XSF_ClippingDetected
-		//|XSF_Interpolated
-		|XSF_SyncIn
-		|XSF_SyncOut
-		|XSF_FilterMode
-		|XSF_HaveGnssTimePulse
+	return (uint32_t)(
+			//|XSF_SelfTestOk
+			XSF_OrientationValid
+			| XSF_GpsValid
+			| XSF_NoRotationMask
+			| XSF_RepresentativeMotion
+			| XSF_ExternalClockSynced
+			| XSF_ClipAccX
+			| XSF_ClipAccY
+			| XSF_ClipAccZ
+			| XSF_ClipGyrX
+			| XSF_ClipGyrY
+			| XSF_ClipGyrZ
+			| XSF_ClipMagX
+			| XSF_ClipMagY
+			| XSF_ClipMagZ
+			//|XSF_Retransmitted
+			| XSF_ClippingDetected
+			//|XSF_Interpolated
+			| XSF_SyncIn
+			| XSF_SyncOut
+			| XSF_FilterMode
+			| XSF_HaveGnssTimePulse
 		);
 }

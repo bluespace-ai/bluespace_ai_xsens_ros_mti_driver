@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -79,66 +79,36 @@ XsSyncSettingArray supportedSyncSettings(XsDeviceId const& deviceId)
 {
 	if (deviceId.isAwindaXDongle() ||
 		deviceId.isBodyPack())
-	{
 		return XsSyncSettingArray();
-	}
 
 	if (deviceId.isAwindaX())
-	{
 		return supportedSyncSettingsForAwindaBaseStation();
-	}
 	else if (deviceId.isSyncStationX())
-	{
 		return supportedSyncSettingsForAwindaBaseStation();
-	}
 	else if (deviceId.isMtMark5() && deviceId.isMtigX10())
-	{
 		return supportedSyncSettingsForMark5MtigX10Device();
-	}
 	else if (deviceId.isMtig())
-	{
 		return supportedSyncSettingsForMtigDevice();
-	}
 	else if (deviceId.isMtiX() && deviceId.isGnss())
-	{
 		return supportedSyncSettingsForMti7Device();
-	}
-	else if (deviceId.isMti6X0() && deviceId.isRtk())
-	{
-		return supportedSyncSettingsForMti680Device();
-	}
+	else if (deviceId.isMti6X0() && deviceId.isGnss() && deviceId.hasInternalGnss())
+		return supportedSyncSettingsForMt6x0IntGnssDevice();
 	else if (deviceId.isMti6X0() && deviceId.isGnss())
-	{
-		return supportedSyncSettingsForMti670Device();
-	}
+		return supportedSyncSettingsForMt6x0GnssDevice();
 	else if (deviceId.isMti6X0())
-	{
 		return supportedSyncSettingsForMt6x0Device();
-	}
 	else if (deviceId.isMtiX() || deviceId.isMti3X0())
-	{
 		return supportedSyncSettingsForMtiXDevice();
-	}
 	else if (deviceId.isMti() || deviceId.isMtig())
-	{
 		return supportedSyncSettingsForMtiDevice();
-	}
 	else if (deviceId.isGnss())
-	{
 		return supportedSyncSettingsForGnssDevice();
-	}
 	else if (deviceId.isMtx2())
-	{
 		return supportedSyncSettingsForMtx2Device();
-	}
 	else if (deviceId.isMtw2())
-	{
 		return supportedSyncSettingsForMtx2Device();
-	}
 	else
-	{
 		return XsSyncSettingArray();
-	}
 }
 
 /*! \returns true if the specified device id supports sync settings, false otherwise
@@ -153,7 +123,7 @@ bool supportsSyncSettings(XsDeviceId const& deviceId)
 
 /*! \brief Return true if \a setting1 is compatible with \a setting2 for a device with \a deviceId
 */
-bool isCompatibleSyncSetting(XsDeviceId const& deviceId, XsSyncSetting const & setting1, XsSyncSetting const & setting2)
+bool isCompatibleSyncSetting(XsDeviceId const& deviceId, XsSyncSetting const& setting1, XsSyncSetting const& setting2)
 {
 	if (deviceId.isAwindaX())
 		return isAwindaSettingCompatible(setting1, setting2);
@@ -334,8 +304,8 @@ XsSyncSettingArray supportedSyncSettingsForMt6x0Device()
 	return settings;
 }
 
-/*! \brief get list of supported synchronizations settings for an Mti670Device */
-XsSyncSettingArray supportedSyncSettingsForMti670Device()
+/*! \brief get list of supported synchronizations settings for any MTi-6x0, non-rugged devices with external GNSS support, such as the 670 */
+XsSyncSettingArray supportedSyncSettingsForMt6x0GnssDevice()
 {
 	XsSyncSettingArray settings = supportedSyncSettingsForMt6x0Device();
 
@@ -356,8 +326,8 @@ XsSyncSettingArray supportedSyncSettingsForMti670Device()
 	return settings;
 }
 
-/*! \brief get list of supported synchronizations settings for an Mti680Device */
-XsSyncSettingArray supportedSyncSettingsForMti680Device()
+/*! \brief get list of supported synchronizations settings for any MTi-6x0G, rugged devices with internal GNSS, such as the 680G */
+XsSyncSettingArray supportedSyncSettingsForMt6x0IntGnssDevice()
 {
 	XsSyncSetting s;
 	XsSyncSettingArray settings;
@@ -406,13 +376,6 @@ XsSyncSettingArray supportedSyncSettingsForMti680Device()
 	settings.push_back(s);
 	s.m_skipFirst = 0;
 	s.m_triggerOnce = 0;
-
-	s.m_function = XSF_ClockBiasEstimation;
-	s.m_offset = 0;
-	s.m_pulseWidth = 0;
-	s.m_clockPeriod = 1;
-	s.m_line = XSL_In3;
-	settings.push_back(s);
 
 	s.m_function = XSF_StartSampling;
 	s.m_skipFactor = 0;
@@ -463,7 +426,7 @@ XsSyncSettingArray supportedSyncSettingsForMtigDevice()
 	for (auto it = settings.begin(); it != settings.end(); ++it)
 	{
 		//insert a copy of existing XSF_ClockBiasEstimation with gps line setting
-		if(it->m_function == XSF_ClockBiasEstimation)
+		if (it->m_function == XSF_ClockBiasEstimation)
 		{
 			XsSyncSetting s = *it;
 			s.m_line = xsl4ToXsl(XSL4_GnssClockIn);
@@ -622,7 +585,7 @@ XsSyncSettingArray supportedSyncSettingsForAwindaBaseStation()
 	inputSyncFunctions.insert(XSF_ResetTimer);
 	inputSyncFunctions.insert(XSF_TriggerIndication);
 
-	for (XsSyncFunction const & syncFunction : inputSyncFunctions)
+	for (XsSyncFunction const& syncFunction : inputSyncFunctions)
 	{
 		s.m_line = XSL_In1;
 		s.m_polarity = XSP_RisingEdge;
@@ -656,7 +619,7 @@ XsSyncSettingArray supportedSyncSettingsForAwindaBaseStation()
 	outputSyncFunctions.insert(XSF_GotoOperational);
 	outputSyncFunctions.insert(XSF_IntervalTransitionMeasurement);
 	outputSyncFunctions.insert(XSF_IntervalTransitionRecording);
-	for (XsSyncFunction const & syncFunction : outputSyncFunctions)
+	for (XsSyncFunction const& syncFunction : outputSyncFunctions)
 	{
 		s.m_line = XSL_Out1;
 		s.m_polarity = XSP_RisingEdge;
@@ -691,7 +654,7 @@ XsSyncSettingArray supportedSyncSettingsForAwindaBaseStation()
 	Basically this checks that if a specific function is configured for In1 and In2 (or Out1 and Out2), then the other settings of both should match.
 	This is because this get combined into one function with the line: both setting
 */
-bool isAwindaSettingCompatible(XsSyncSetting const & setting1, XsSyncSetting const & setting2)
+bool isAwindaSettingCompatible(XsSyncSetting const& setting1, XsSyncSetting const& setting2)
 {
 	bool isCompatible = true;
 	if (setting1.m_function == setting2.m_function)
@@ -709,9 +672,7 @@ bool isAwindaSettingCompatible(XsSyncSetting const & setting1, XsSyncSetting con
 					setting1.m_skipFactor != setting2.m_skipFactor ||
 					setting1.m_clockPeriod != setting2.m_clockPeriod ||
 					setting1.m_triggerOnce != setting2.m_triggerOnce)
-				{
 					isCompatible = false;
-				}
 			}
 		}
 	}
@@ -722,7 +683,7 @@ bool isAwindaSettingCompatible(XsSyncSetting const & setting1, XsSyncSetting con
 	\note This *very* specific for a sync station
 	\sa isAwindaSettingCompatible
 */
-bool isSyncStationSettingCompatible(XsSyncSetting const & setting1, XsSyncSetting const & setting2)
+bool isSyncStationSettingCompatible(XsSyncSetting const& setting1, XsSyncSetting const& setting2)
 {
 	return isAwindaSettingCompatible(setting1, setting2);
 }

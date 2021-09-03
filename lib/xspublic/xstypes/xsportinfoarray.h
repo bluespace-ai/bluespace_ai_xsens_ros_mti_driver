@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -87,16 +87,17 @@ XSTYPES_DLL_API void XsPortInfoArray_construct(XsPortInfoArray* thisPtr, XsSize 
 #ifdef __cplusplus
 } // extern "C"
 
-struct XsPortInfoArray : public XsArrayImpl<XsPortInfo, g_xsPortInfoArrayDescriptor, XsPortInfoArray> {
+struct XsPortInfoArray : public XsArrayImpl<XsPortInfo, g_xsPortInfoArrayDescriptor, XsPortInfoArray>
+{
 	//! \brief Constructs an XsPortInfoArray
 	inline explicit XsPortInfoArray(XsSize sz = 0, XsPortInfo const* src = 0)
-		 : ArrayImpl(sz, src)
+		: ArrayImpl(sz, src)
 	{
 	}
 
 	//! \brief Constructs an XsPortInfoArray as a copy of \a other
 	inline XsPortInfoArray(XsPortInfoArray const& other)
-		 : ArrayImpl(other)
+		: ArrayImpl(other)
 	{
 	}
 

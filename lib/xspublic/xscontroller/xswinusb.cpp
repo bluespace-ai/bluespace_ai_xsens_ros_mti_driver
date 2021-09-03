@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -171,7 +171,7 @@ BOOL XsWinUsb::Free(WINUSB_INTERFACE_HANDLE InterfaceHandle)
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::GetAssociatedInterface(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR AssociatedInterfaceIndex, PWINUSB_INTERFACE_HANDLE AssociatedInterfaceHandle)
+BOOL XsWinUsb::GetAssociatedInterface(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR AssociatedInterfaceIndex, PWINUSB_INTERFACE_HANDLE AssociatedInterfaceHandle)
 {
 	if (m_winUsb.GetAssociatedInterface)
 		return m_winUsb.GetAssociatedInterface(InterfaceHandle, AssociatedInterfaceIndex, AssociatedInterfaceHandle);
@@ -190,7 +190,7 @@ BOOL XsWinUsb::GetAssociatedInterface(WINUSB_INTERFACE_HANDLE InterfaceHandle,UC
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::GetDescriptor(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR DescriptorType, UCHAR Index,USHORT LanguageID,PUCHAR Buffer,ULONG BufferLength,PULONG LengthTransferred)
+BOOL XsWinUsb::GetDescriptor(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR DescriptorType, UCHAR Index, USHORT LanguageID, PUCHAR Buffer, ULONG BufferLength, PULONG LengthTransferred)
 {
 	if (m_winUsb.GetDescriptor)
 		return m_winUsb.GetDescriptor(InterfaceHandle, DescriptorType, Index, LanguageID, Buffer, BufferLength, LengthTransferred);
@@ -210,7 +210,7 @@ BOOL XsWinUsb::GetDescriptor(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR Descr
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::QueryInterfaceSettings(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR AlternateInterfaceNumber,PUSB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor)
+BOOL XsWinUsb::QueryInterfaceSettings(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR AlternateInterfaceNumber, PUSB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor)
 {
 	if (m_winUsb.QueryInterfaceSettings)
 		return m_winUsb.QueryInterfaceSettings(InterfaceHandle, AlternateInterfaceNumber, UsbAltInterfaceDescriptor);
@@ -228,7 +228,7 @@ BOOL XsWinUsb::QueryInterfaceSettings(WINUSB_INTERFACE_HANDLE InterfaceHandle,UC
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::QueryDeviceInformation(WINUSB_INTERFACE_HANDLE InterfaceHandle,ULONG InformationType,PULONG BufferLength,PVOID Buffer)
+BOOL XsWinUsb::QueryDeviceInformation(WINUSB_INTERFACE_HANDLE InterfaceHandle, ULONG InformationType, PULONG BufferLength, PVOID Buffer)
 {
 	if (m_winUsb.QueryDeviceInformation)
 		return m_winUsb.QueryDeviceInformation(InterfaceHandle, InformationType, BufferLength, Buffer);
@@ -246,7 +246,7 @@ BOOL XsWinUsb::QueryDeviceInformation(WINUSB_INTERFACE_HANDLE InterfaceHandle,UL
 
 	\sa QueryInterfaceSettings
 */
-BOOL XsWinUsb::SetCurrentAlternateSetting(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR SettingNumber)
+BOOL XsWinUsb::SetCurrentAlternateSetting(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR SettingNumber)
 {
 	if (m_winUsb.SetCurrentAlternateSetting)
 		return m_winUsb.SetCurrentAlternateSetting(InterfaceHandle, SettingNumber);
@@ -262,7 +262,7 @@ BOOL XsWinUsb::SetCurrentAlternateSetting(WINUSB_INTERFACE_HANDLE InterfaceHandl
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::GetCurrentAlternateSetting(WINUSB_INTERFACE_HANDLE InterfaceHandle,PUCHAR SettingNumber)
+BOOL XsWinUsb::GetCurrentAlternateSetting(WINUSB_INTERFACE_HANDLE InterfaceHandle, PUCHAR SettingNumber)
 {
 	if (m_winUsb.GetCurrentAlternateSetting)
 		return m_winUsb.GetCurrentAlternateSetting(InterfaceHandle, SettingNumber);
@@ -288,7 +288,7 @@ BOOL XsWinUsb::GetCurrentAlternateSetting(WINUSB_INTERFACE_HANDLE InterfaceHandl
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::QueryPipe(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR AlternateInterfaceNumber,UCHAR PipeIndex,PWINUSB_PIPE_INFORMATION PipeInformation)
+BOOL XsWinUsb::QueryPipe(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR AlternateInterfaceNumber, UCHAR PipeIndex, PWINUSB_PIPE_INFORMATION PipeInformation)
 {
 	if (m_winUsb.QueryPipe)
 		return m_winUsb.QueryPipe(InterfaceHandle, AlternateInterfaceNumber, PipeIndex, PipeInformation);
@@ -354,7 +354,7 @@ BOOL XsWinUsb::QueryPipe(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR Alternate
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::SetPipePolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR PipeID,ULONG PolicyType,ULONG ValueLength,PVOID Value)
+BOOL XsWinUsb::SetPipePolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR PipeID, ULONG PolicyType, ULONG ValueLength, PVOID Value)
 {
 	if (m_winUsb.SetPipePolicy)
 		return m_winUsb.SetPipePolicy(InterfaceHandle, PipeID, PolicyType, ValueLength, Value);
@@ -371,7 +371,7 @@ BOOL XsWinUsb::SetPipePolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR PipeI
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::GetPipePolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR PipeID,ULONG PolicyType,PULONG ValueLength,PVOID Value)
+BOOL XsWinUsb::GetPipePolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR PipeID, ULONG PolicyType, PULONG ValueLength, PVOID Value)
 {
 	if (m_winUsb.GetPipePolicy)
 		return m_winUsb.GetPipePolicy(InterfaceHandle, PipeID, PolicyType, ValueLength, Value);
@@ -390,7 +390,7 @@ BOOL XsWinUsb::GetPipePolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle,UCHAR PipeI
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::ReadPipe(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR PipeID, PUCHAR Buffer, ULONG BufferLength, PULONG LengthTransferred,LPOVERLAPPED Overlapped)
+BOOL XsWinUsb::ReadPipe(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR PipeID, PUCHAR Buffer, ULONG BufferLength, PULONG LengthTransferred, LPOVERLAPPED Overlapped)
 {
 	if (m_winUsb.ReadPipe)
 		return m_winUsb.ReadPipe(InterfaceHandle, PipeID, Buffer, BufferLength, LengthTransferred, Overlapped);
@@ -409,7 +409,7 @@ BOOL XsWinUsb::ReadPipe(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR PipeID, P
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::WritePipe(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR PipeID, PUCHAR Buffer, ULONG BufferLength, PULONG LengthTransferred,LPOVERLAPPED Overlapped)
+BOOL XsWinUsb::WritePipe(WINUSB_INTERFACE_HANDLE InterfaceHandle, UCHAR PipeID, PUCHAR Buffer, ULONG BufferLength, PULONG LengthTransferred, LPOVERLAPPED Overlapped)
 {
 	if (m_winUsb.WritePipe)
 		return m_winUsb.WritePipe(InterfaceHandle, PipeID, Buffer, BufferLength, LengthTransferred, Overlapped);
@@ -535,7 +535,7 @@ BOOL XsWinUsb::SetPowerPolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle, ULONG Pol
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::GetPowerPolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle,ULONG PolicyType,PULONG ValueLength,PVOID Value)
+BOOL XsWinUsb::GetPowerPolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle, ULONG PolicyType, PULONG ValueLength, PVOID Value)
 {
 	if (m_winUsb.GetPowerPolicy)
 		return m_winUsb.GetPowerPolicy(InterfaceHandle, PolicyType, ValueLength, Value);
@@ -559,7 +559,7 @@ BOOL XsWinUsb::GetPowerPolicy(WINUSB_INTERFACE_HANDLE InterfaceHandle,ULONG Poli
 
 	\returns On success, TRUE. Otherwise FALSE. Use GetLastError() to get extended error information.
 */
-BOOL XsWinUsb::GetOverlappedResult(WINUSB_INTERFACE_HANDLE InterfaceHandle,LPOVERLAPPED lpOverlapped,LPDWORD lpNumberOfBytesTransferred,BOOL bWait)
+BOOL XsWinUsb::GetOverlappedResult(WINUSB_INTERFACE_HANDLE InterfaceHandle, LPOVERLAPPED lpOverlapped, LPDWORD lpNumberOfBytesTransferred, BOOL bWait)
 {
 	if (m_winUsb.GetOverlappedResult)
 		return m_winUsb.GetOverlappedResult(InterfaceHandle, lpOverlapped, lpNumberOfBytesTransferred, bWait);

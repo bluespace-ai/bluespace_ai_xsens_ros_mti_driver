@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,7 +66,6 @@
 #include "iointerfacefile.h"
 #include "protocolhandler.h"
 
-
 /*! \class MtbDataLogger
 	\brief A class for logging the mtb data
 */
@@ -84,7 +83,7 @@ MtbDataLogger::~MtbDataLogger()
 	{
 		close(false);
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -96,7 +95,7 @@ MtbDataLogger::~MtbDataLogger()
 	\returns True if successful
 	\see close
 */
-bool MtbDataLogger::create(const XsString &filename)
+bool MtbDataLogger::create(const XsString& filename)
 {
 	if (m_ioInterfaceFile)
 	{
@@ -120,7 +119,7 @@ bool MtbDataLogger::create(const XsString &filename)
 
 	m_lastResult = m_ioInterfaceFile->writeData(test, nullptr);
 	if (m_lastResult == XRV_OK)
-		m_lastResult = m_ioInterfaceFile->deleteData(0,5);
+		m_lastResult = m_ioInterfaceFile->deleteData(0, 5);
 	if (m_lastResult != XRV_OK)
 	{
 		m_ioInterfaceFile->close();
@@ -154,7 +153,7 @@ void MtbDataLogger::close(bool deleteFile)
 
 /*! \brief Overloadable function to allow easier testing
 */
-bool MtbDataLogger::writeMessage(const XsMessage &message)
+bool MtbDataLogger::writeMessage(const XsMessage& message)
 {
 	if (!m_ioInterfaceFile)
 	{
@@ -168,6 +167,19 @@ bool MtbDataLogger::writeMessage(const XsMessage &message)
 	else
 		m_lastResult = XRV_DATACORRUPT;
 
+	return m_lastResult == XRV_OK;
+}
+
+/*! \brief Write precomposed raw data to the file stream */
+bool MtbDataLogger::writeRaw(const XsByteArray& raw)
+{
+	if (!m_ioInterfaceFile)
+	{
+		m_lastResult = XRV_NOFILEOPEN;
+		return false;
+	}
+
+	m_lastResult = m_ioInterfaceFile->writeData(raw, nullptr);
 	return m_lastResult == XRV_OK;
 }
 

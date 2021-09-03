@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -123,138 +123,152 @@ void XsScanner_enumerateSerialPorts_int(XsPortInfoArray* ports, int ignoreNonXse
 
 extern "C" {
 
-/*!	\brief Set a callback function for scan log progress and problem reporting
-	\details When set, any scan will use the provided callback function to report progress and failures.
-	Normal operation is not affected, so all return values for the scan functions remain valid.
-	\param cb The callback function to use. When set to NULL, no callbacks will be generated.
-*/
-void XsScanner_setScanLogCallback(XsScanLogCallbackFunc cb)
-{
-	Scanner::setScanLogCallback(cb);
-}
-
-/*!	\relates XsScanner
-	\brief Scan all ports for Xsens devices.
-	\param[out] ports The list of detected ports.
-	\param[in] baudrate The baudrate to scan at. When set to XBR_Invalid, all known baudrates are scanned.
-	\param[in] singleScanTimeout The timeout of a scan of a single port at a single baud rate in ms.
-	\param[in] ignoreNonXsensDevices When non-zero (the default), only Xsens devices are returned. Otherwise other devices that comply with the Xsens message protocol will also be returned.
-	\param[in] detectRs485 Enable more extended scan to detect rs485 devices
-*/
-void XsScanner_scanPorts(XsPortInfoArray* ports, XsBaudRate baudrate, int singleScanTimeout, int ignoreNonXsensDevices, int detectRs485)
-{
-	LOGXSSCAN(__FUNCTION__ << " baudrate " << baudrate << " singleScanTimeout " << singleScanTimeout << " ignoreNonXsensDevices " << ignoreNonXsensDevices << " detectRs485 " << detectRs485);
-	XsScanner_scanPorts_int(ports, baudrate, singleScanTimeout, ignoreNonXsensDevices, detectRs485);
-}
-
-/*!	\relates XsScanner
-	\brief Scan a single port for Xsens devices.
-	\param[in,out] port The name of the port to scan should be in this parameter, the other contents will be filled by the function.
-	\param[in] baudrate The baudrate to scan at. When set to XBR_Invalid, all known baudrates are scanned.
-	\param[in] singleScanTimeout The timeout of a scan at a single baud rate in ms.
-	\param[in] detectRs485 Enable more extended scan to detect rs485 devices
-	\returns true if a device was found, false otherwise
-*/
-int XsScanner_scanPort(XsPortInfo* port, XsBaudRate baudrate, int singleScanTimeout, int detectRs485)
-{
-	LOGXSSCAN(__FUNCTION__ << " baudrate " << baudrate << " singleScanTimeout " << singleScanTimeout << " detectRs485 " << detectRs485);
-	return XsScanner_scanPort_int(port, baudrate, singleScanTimeout, detectRs485);
-}
-
-/*! \copydoc XsScanner_enumerateSerialPorts_int */
-void XsScanner_enumerateSerialPorts(XsPortInfoArray* ports, int ignoreNonXsensDevices)
-{
-	LOGXSSCAN(__FUNCTION__ << " ignoreNonXsensDevices " << ignoreNonXsensDevices);
-	XsScanner_enumerateSerialPorts_int(ports, ignoreNonXsensDevices);
-}
-
-/*!	\relates XsScanner
-	\brief Scan the supplied ports for Xsens devices.
-	\param[in,out] ports The list of ports to scan. Unresponsive devices will be removed from the list.
-	\param[in] baudrate The baudrate to scan at. When set to XBR_Invalid, all known baudrates are scanned.
-	\param[in] singleScanTimeout The timeout of a scan of a single port at a single baud rate in ms.
-	\param[in] detectRs485 Enable more extended scan to detect rs485 devices
-*/
-void XsScanner_filterResponsiveDevices(XsPortInfoArray* ports, XsBaudRate baudrate, int singleScanTimeout, int detectRs485)
-{
-	LOGXSSCAN(__FUNCTION__ << " baudrate " << baudrate << " singleScanTimeout " << singleScanTimeout << " detectRs485 " << detectRs485);
-	assert(ports != nullptr);
-	if (!ports)
-		return;
-
-	XsPortInfoArray tmp;
-	for (XsSize i = 0; i < ports->size(); ++i)
-		tmp.push_back(ports->at(i));
-	Scanner::Accessor accessor;
-	if (accessor.scanner().xsFilterResponsiveDevices(tmp, baudrate, (uint32_t) singleScanTimeout, detectRs485 != 0))
+	/*!	\brief Set a callback function for scan log progress and problem reporting
+		\details When set, any scan will use the provided callback function to report progress and failures.
+		Normal operation is not affected, so all return values for the scan functions remain valid.
+		\param cb The callback function to use. When set to NULL, no callbacks will be generated.
+	*/
+	void XsScanner_setScanLogCallback(XsScanLogCallbackFunc cb)
 	{
-		if (tmp.size())
-		{
-			ports->assign(tmp.size(), &tmp[0]);
-			return;
-		}
+		Scanner::setScanLogCallback(cb);
 	}
-	ports->clear();
-}
 
-/*!	\relates XsScanner
-	\brief List all compatible USB ports without scanning.
-	\param[out] ports The list of detected ports.
-*/
-void XsScanner_enumerateUsbDevices(XsPortInfoArray* ports)
-{
-	LOGXSSCAN(__FUNCTION__);
+	/*!	\relates XsScanner
+		\brief Scan all ports for Xsens devices.
+		\param[out] ports The list of detected ports.
+		\param[in] baudrate The baudrate to scan at. When set to XBR_Invalid, all known baudrates are scanned.
+		\param[in] singleScanTimeout The timeout of a scan of a single port at a single baud rate in ms.
+		\param[in] ignoreNonXsensDevices When non-zero (the default), only Xsens devices are returned. Otherwise other devices that comply with the Xsens message protocol will also be returned.
+		\param[in] detectRs485 Enable more extended scan to detect rs485 devices
+	*/
+	void XsScanner_scanPorts(XsPortInfoArray* ports, XsBaudRate baudrate, int singleScanTimeout, int ignoreNonXsensDevices, int detectRs485)
+	{
+		LOGXSSCAN(__FUNCTION__ << " baudrate " << baudrate << " singleScanTimeout " << singleScanTimeout << " ignoreNonXsensDevices " << ignoreNonXsensDevices << " detectRs485 " << detectRs485);
+		XsScanner_scanPorts_int(ports, baudrate, singleScanTimeout, ignoreNonXsensDevices, detectRs485);
+	}
 
-	assert(ports != nullptr);
-	if (!ports)
-		return;
+	/*!	\relates XsScanner
+		\brief Scan a single port for Xsens devices.
+		\param[in,out] port The name of the port to scan should be in this parameter, the other contents will be filled by the function.
+		\param[in] baudrate The baudrate to scan at. When set to XBR_Invalid, all known baudrates are scanned.
+		\param[in] singleScanTimeout The timeout of a scan at a single baud rate in ms.
+		\param[in] detectRs485 Enable more extended scan to detect rs485 devices
+		\returns true if a device was found, false otherwise
+	*/
+	int XsScanner_scanPort(XsPortInfo* port, XsBaudRate baudrate, int singleScanTimeout, int detectRs485)
+	{
+		LOGXSSCAN(__FUNCTION__ << " baudrate " << baudrate << " singleScanTimeout " << singleScanTimeout << " detectRs485 " << detectRs485);
+		return XsScanner_scanPort_int(port, baudrate, singleScanTimeout, detectRs485);
+	}
 
-	XsPortInfoArray tmp;
-	xsEnumerateUsbDevices(tmp);
-	if (tmp.size())
-		ports->assign(tmp.size(), &tmp[0]);
-	else
+	/*! \copydoc XsScanner_enumerateSerialPorts_int */
+	void XsScanner_enumerateSerialPorts(XsPortInfoArray* ports, int ignoreNonXsensDevices)
+	{
+		LOGXSSCAN(__FUNCTION__ << " ignoreNonXsensDevices " << ignoreNonXsensDevices);
+		XsScanner_enumerateSerialPorts_int(ports, ignoreNonXsensDevices);
+	}
+
+	/*!	\relates XsScanner
+		\brief Scan the supplied ports for Xsens devices.
+		\param[in,out] ports The list of ports to scan. Unresponsive devices will be removed from the list.
+		\param[in] baudrate The baudrate to scan at. When set to XBR_Invalid, all known baudrates are scanned.
+		\param[in] singleScanTimeout The timeout of a scan of a single port at a single baud rate in ms.
+		\param[in] detectRs485 Enable more extended scan to detect rs485 devices
+	*/
+	void XsScanner_filterResponsiveDevices(XsPortInfoArray* ports, XsBaudRate baudrate, int singleScanTimeout, int detectRs485)
+	{
+		LOGXSSCAN(__FUNCTION__ << " baudrate " << baudrate << " singleScanTimeout " << singleScanTimeout << " detectRs485 " << detectRs485);
+		assert(ports != nullptr);
+		if (!ports)
+			return;
+
+		XsPortInfoArray tmp;
+		for (XsSize i = 0; i < ports->size(); ++i)
+			tmp.push_back(ports->at(i));
+		Scanner::Accessor accessor;
+		if (accessor.scanner().xsFilterResponsiveDevices(tmp, baudrate, (uint32_t) singleScanTimeout, detectRs485 != 0))
+		{
+			if (tmp.size())
+			{
+				ports->assign(tmp.size(), &tmp[0]);
+				return;
+			}
+		}
 		ports->clear();
-}
+	}
 
-/*!	\relates XsScanner
-	\brief Determine the USB hub that \a port is attached to
-	\param[out] hub The identifier of the hub that \a port is attached to.
-	\param[in] port The port for which to determine the USB hub.
-*/
-void XsScanner_scanUsbHub(XsUsbHubInfo* hub, const XsPortInfo* port)
-{
-	LOGXSSCAN(__FUNCTION__);
+	/*!	\relates XsScanner
+		\brief List all compatible USB ports without scanning.
+		\param[out] ports The list of detected ports.
+	*/
+	void XsScanner_enumerateUsbDevices(XsPortInfoArray* ports)
+	{
+		LOGXSSCAN(__FUNCTION__);
 
-	assert(hub != nullptr && port != nullptr);
-	if (!hub || !port)
-		return;
+		assert(ports != nullptr);
+		if (!ports)
+			return;
 
-	Scanner::Accessor accessor;
-	*hub = accessor.scanner().xsScanUsbHub(*port);
-}
+		XsPortInfoArray tmp;
+		xsEnumerateUsbDevices(tmp);
+		if (tmp.size())
+			ports->assign(tmp.size(), &tmp[0]);
+		else
+			ports->clear();
+	}
 
-void XsScanner_enumerateNetworkDevices(XsPortInfoArray* ports)
-{
-	LOGXSSCAN(__FUNCTION__);
-	assert(ports != nullptr);
-	if (!ports)
-		return;
+	/*!	\relates XsScanner
+		\brief Determine the USB hub that \a port is attached to
+		\param[out] hub The identifier of the hub that \a port is attached to.
+		\param[in] port The port for which to determine the USB hub.
+	*/
+	void XsScanner_scanUsbHub(XsUsbHubInfo* hub, const XsPortInfo* port)
+	{
+		LOGXSSCAN(__FUNCTION__);
 
-	XsPortInfoArray tmp;
+		assert(hub != nullptr && port != nullptr);
+		if (!hub || !port)
+			return;
 
-	Scanner::Accessor accessor;
-	accessor.scanner().xsEnumerateNetworkDevices(tmp);
-	ports->swap(tmp);
-}
+		Scanner::Accessor accessor;
+		*hub = accessor.scanner().xsScanUsbHub(*port);
+	}
 
-/*!	\relates XsScanner
-	\brief Abort the currently running port scan(s)
-*/
-void XsScanner_abortScan(void)
-{
-	LOGXSSCAN(__FUNCTION__);
-	XsScannerNamespace::abortPortScan = true;
-}
+	void XsScanner_enumerateNetworkDevices(XsPortInfoArray* ports)
+	{
+		LOGXSSCAN(__FUNCTION__);
+		assert(ports != nullptr);
+		if (!ports)
+			return;
+
+		XsPortInfoArray tmp;
+
+		Scanner::Accessor accessor;
+		accessor.scanner().xsEnumerateNetworkDevices(tmp);
+		ports->swap(tmp);
+	}
+
+	void XsScanner_enumerateBluetoothDevices(XsPortInfoArray* ports)
+	{
+		LOGXSSCAN(__FUNCTION__);
+		assert(ports != nullptr);
+		if (!ports)
+			return;
+
+		XsPortInfoArray tmp;
+
+		Scanner::Accessor accessor;
+		accessor.scanner().xsEnumerateBluetoothDevices(tmp);
+		ports->swap(tmp);
+	}
+
+	/*!	\relates XsScanner
+		\brief Abort the currently running port scan(s)
+	*/
+	void XsScanner_abortScan(void)
+	{
+		LOGXSSCAN(__FUNCTION__);
+		XsScannerNamespace::abortPortScan = true;
+	}
 
 }	// extern "C"

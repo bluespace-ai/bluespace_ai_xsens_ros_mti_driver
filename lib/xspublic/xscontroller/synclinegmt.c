@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -73,20 +73,30 @@ XsSyncLine xslgmtToXsl(SyncLineGmt mk4Line)
 {
 	switch (mk4Line)
 	{
-	case XSLGMT_ClockIn:		return XSL_ClockIn;
-	case XSLGMT_GnssClockIn:	return XSL_GnssClockIn;
-	case XSLGMT_ReqData:		return XSL_ReqData;
-	case XSLGMT_In1:			return XSL_In1;
-	case XSLGMT_Out:			return XSL_Out1;
-	case XSLGMT_BiIn:			return XSL_Bi1In;
-	case XSLGMT_BiOut:			return XSL_Bi1Out;
-	case XSLGMT_Gnss1Pps:		return XSL_Gnss1Pps;
-	case XSLGMT_In2:			return XSL_In2;
-	case XSLGMT_In3:			return XSL_In3;
+		case XSLGMT_ClockIn:
+			return XSL_ClockIn;
+		case XSLGMT_GnssClockIn:
+			return XSL_GnssClockIn;
+		case XSLGMT_ReqData:
+			return XSL_ReqData;
+		case XSLGMT_In1:
+			return XSL_In1;
+		case XSLGMT_Out:
+			return XSL_Out1;
+		case XSLGMT_BiIn:
+			return XSL_Bi1In;
+		case XSLGMT_BiOut:
+			return XSL_Bi1Out;
+		case XSLGMT_Gnss1Pps:
+			return XSL_Gnss1Pps;
+		case XSLGMT_In2:
+			return XSL_In2;
+		case XSLGMT_In3:
+			return XSL_In3;
 
-	case XSLGMT_Invalid:
-	default:
-		return XSL_Invalid;
+		case XSLGMT_Invalid:
+		default:
+			return XSL_Invalid;
 	}
 }
 
@@ -95,24 +105,34 @@ SyncLineGmt xslToXslgmt(XsSyncLine line)
 {
 	switch (line)
 	{
-	case XSL_ClockIn:			return XSLGMT_ClockIn;
-	case XSL_GnssClockIn:		return XSLGMT_GnssClockIn;
-	case XSL_In1:				return XSLGMT_In1;
-	case XSL_Out1:				return XSLGMT_Out;
-	case XSL_ReqData:			return XSLGMT_ReqData;
-	case XSL_Bi1In:				return XSLGMT_BiIn;
-	case XSL_Bi1Out:			return XSLGMT_BiOut;
-	case XSL_Gnss1Pps:			return XSLGMT_Gnss1Pps;
-	case XSL_In2:				return XSLGMT_In2;
-	case XSL_In3:				return XSLGMT_In3;
+		case XSL_ClockIn:
+			return XSLGMT_ClockIn;
+		case XSL_GnssClockIn:
+			return XSLGMT_GnssClockIn;
+		case XSL_In1:
+			return XSLGMT_In1;
+		case XSL_Out1:
+			return XSLGMT_Out;
+		case XSL_ReqData:
+			return XSLGMT_ReqData;
+		case XSL_Bi1In:
+			return XSLGMT_BiIn;
+		case XSL_Bi1Out:
+			return XSLGMT_BiOut;
+		case XSL_Gnss1Pps:
+			return XSLGMT_Gnss1Pps;
+		case XSL_In2:
+			return XSLGMT_In2;
+		case XSL_In3:
+			return XSLGMT_In3;
 
-	case XSL_CtsIn:
-	case XSL_Invalid:
-	case XSL_ExtTimepulseIn:
-	case XSL_Out2:
-	case XSL_RtsOut:
-	default:
-		return XSLGMT_Invalid;
+		case XSL_CtsIn:
+		case XSL_Invalid:
+		case XSL_ExtTimepulseIn:
+		case XSL_Out2:
+		case XSL_RtsOut:
+		default:
+			return XSLGMT_Invalid;
 	}
 }
 

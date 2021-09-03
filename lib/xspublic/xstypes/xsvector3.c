@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -78,14 +78,13 @@ void XsVector3_construct(XsVector3* thisPtr, const XsReal* src)
 {
 	XsVector_ref(&thisPtr->m_vector, 3, (XsReal*) thisPtr->m_fixedData, XSDF_FixedSize);
 	if (src)
-		memcpy((XsReal*) thisPtr->m_fixedData, src, 3*sizeof(XsReal));
+		memcpy((XsReal*) thisPtr->m_fixedData, src, 3 * sizeof(XsReal));
 }
 
 /*! \relates XsVector3 \brief Init the %XsVector3 and copy the data from \a src into the vector if \a src is not null */
 void XsVector3_assign(XsVector3* thisPtr, const XsReal* src)
 {
-	if (src)
-		memcpy((XsReal*) thisPtr->m_fixedData, (XsReal*) src, 3*sizeof(XsReal));
+	XsVector_assign(&thisPtr->m_vector, 3, src);
 }
 
 /*! \relates XsVector3 \brief Frees the XsVector3 */

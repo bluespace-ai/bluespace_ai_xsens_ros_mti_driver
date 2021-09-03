@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,10 +68,10 @@
 /*! Used to enable or disable some data processing options
 	\sa XsDevice::setInitialBiasUpdateEnabled
 */
-enum XsProcessingFlag {
+enum XsProcessingFlag
+{
 	XPF_EnableInitialGyroBiasUpdate = 0x0001,
 	XPF_FixedGravity = 0x0002
 };
-
 
 #endif

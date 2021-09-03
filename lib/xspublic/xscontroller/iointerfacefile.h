@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -74,17 +74,17 @@
 class IoInterfaceFile : public IoInterface
 {
 protected:
-		//! The file handle, also indicates if the file is open or not.
+	//! The file handle, also indicates if the file is open or not.
 	XsFile* m_handle;
-		//! Contains the size of the file
+	//! Contains the size of the file
 	XsFilePos m_fileSize;
-		//! The last read position in the file
+	//! The last read position in the file
 	XsFilePos m_readPos;
-		//! The last write position in the file
+	//! The last write position in the file
 	XsFilePos m_writePos;
-		//! The last result of an operation
+	//! The last result of an operation
 	mutable XsResultValue m_lastResult;
-		//! Contains the name of the file that was last successfully opened.
+	//! Contains the name of the file that was last successfully opened.
 	XsString m_filename;
 	/*! \brief Indicates whether the last operation was a read or write operation.
 
@@ -92,7 +92,7 @@ protected:
 		requested read or write operation.
 	*/
 	bool m_reading;
-		//! Indicates if the file was opened in read-only mode
+	//! Indicates if the file was opened in read-only mode
 	bool m_readOnly;
 
 	void gotoRead();
@@ -107,7 +107,7 @@ public:
 	XsResultValue flushData() override;
 	bool isOpen() const override;
 	XsResultValue getLastResult() const override;
-	XsResultValue writeData(const XsByteArray& data, XsFilePos *written = nullptr) override;
+	XsResultValue writeData(const XsByteArray& data, XsFilePos* written = nullptr) override;
 	XsResultValue readData(XsFilePos maxLength, XsByteArray& data) override;
 	XsResultValue readDataBlocks(XsFilePos blockCount, XsByteArray& data);
 	XsResultValue readTerminatedData(XsFilePos maxLength, unsigned char terminator, XsByteArray& bdata);
@@ -135,7 +135,7 @@ public:
 	//! \brief The default file block size
 	static const XsFilePos m_fileBlockSize = 4096;
 
-XSENS_DISABLE_COPY(IoInterfaceFile);
+	XSENS_DISABLE_COPY(IoInterfaceFile);
 };
 
 #endif

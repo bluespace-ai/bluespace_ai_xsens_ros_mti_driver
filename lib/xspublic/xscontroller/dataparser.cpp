@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -84,7 +84,7 @@ DataParser::~DataParser()
 	{
 		terminate();
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -92,7 +92,7 @@ DataParser::~DataParser()
 /*! \brief Adds the raw data to an array
 	\param arr The reference to a byte array to which the data will be added
 */
-void DataParser::addRawData(const XsByteArray &arr)
+void DataParser::addRawData(const XsByteArray& arr)
 {
 	xsens::Lock locky(&m_incomingMutex);
 	m_incoming.push(arr);

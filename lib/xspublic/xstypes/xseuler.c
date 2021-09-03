@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -114,9 +114,9 @@ void XsEuler_fromQuaternion(XsEuler* thisPtr, const XsQuaternion* quat)
 	dphi = XsMath_two * (sqw + quat->m_z * quat->m_z) - XsMath_one;
 	dpsi = XsMath_two * (sqw + quat->m_x * quat->m_x) - XsMath_one;
 
-	thisPtr->m_x =  XsMath_rad2deg(atan2(XsMath_two*(quat->m_y*quat->m_z + quat->m_w*quat->m_x), dphi));
-	thisPtr->m_y = -XsMath_rad2deg(XsMath_asinClamped(XsMath_two*(quat->m_x*quat->m_z - quat->m_w*quat->m_y)));
-	thisPtr->m_z =  XsMath_rad2deg(atan2(XsMath_two*(quat->m_x*quat->m_y + quat->m_w*quat->m_z), dpsi));
+	thisPtr->m_x =  XsMath_rad2deg(atan2(XsMath_two * (quat->m_y * quat->m_z + quat->m_w * quat->m_x), dphi));
+	thisPtr->m_y = -XsMath_rad2deg(XsMath_asinClamped(XsMath_two * (quat->m_x * quat->m_z - quat->m_w * quat->m_y)));
+	thisPtr->m_z =  XsMath_rad2deg(atan2(XsMath_two * (quat->m_x * quat->m_y + quat->m_w * quat->m_z), dpsi));
 }
 
 /*! @} */

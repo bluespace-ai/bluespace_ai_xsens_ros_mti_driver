@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -76,11 +76,20 @@ void copyPortInfo(XsPortInfo* dest, XsPortInfo const* src)
 
 int comparePortInfo(XsPortInfo const* a, XsPortInfo const* b)
 {
-	return memcmp(a, b, sizeof(XsPortInfo));
+	if ((memcmp(&a->m_deviceId, &b->m_deviceId, sizeof(XsDeviceId)) == 0) &&
+		(memcmp(&a->m_portName, &b->m_portName, sizeof(a->m_portName)) == 0) && //lint !e545 Taking this address is no problem here
+		(a->m_baudrate == b->m_baudrate) &&
+		(a->m_linesOptions == b->m_linesOptions) &&
+		(a->m_vid == b->m_vid) &&
+		(a->m_pid == b->m_pid))
+		return 0;
+	else
+		return -1;
 }
 
 //! \brief Descriptor for XsPortInfoArray
-XsArrayDescriptor const g_xsPortInfoArrayDescriptor = {
+XsArrayDescriptor const g_xsPortInfoArrayDescriptor =
+{
 	sizeof(XsPortInfo),
 	XSEXPCASTITEMSWAP XsPortInfo_swap,	// swap
 	XSEXPCASTITEMMAKE XsPortInfo_clear,	// construct

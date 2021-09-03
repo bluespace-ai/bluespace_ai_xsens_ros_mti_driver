@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -120,109 +120,275 @@ public:
 	*/
 	virtual ~XsCallback() {}
 
-// Swig needs these functions to be protected, not private, otherwise they are ignored.
+	// Swig needs these functions to be protected, not private, otherwise they are ignored.
 protected:
-/*! \protectedsection
-	\addtogroup Callbacks
-	@{
-*/
+	/*! \protectedsection
+		\addtogroup Callbacks
+		@{
+	*/
 	//! \copybrief m_onDeviceStateChanged
 	virtual void onDeviceStateChanged(XsDevice* dev, XsDeviceState newState, XsDeviceState oldState)
-	{ (void) dev; (void) newState; (void) oldState; m_onDeviceStateChanged = 0; }
+	{
+		(void) dev;
+		(void) newState;
+		(void) oldState;
+		m_onDeviceStateChanged = 0;
+	}
 	//! \copybrief m_onLiveDataAvailable
 	virtual void onLiveDataAvailable(XsDevice* dev, const XsDataPacket* packet)
-	{ (void) dev; (void) packet; m_onLiveDataAvailable = 0; }
+	{
+		(void) dev;
+		(void) packet;
+		m_onLiveDataAvailable = 0;
+	}
 	//! \copybrief m_onMissedPackets
 	virtual void onMissedPackets(XsDevice* dev, int count, int first, int last)
-	{ (void) dev; (void)count; (void) first; (void) last; m_onMissedPackets = 0; }
+	{
+		(void) dev;
+		(void)count;
+		(void) first;
+		(void) last;
+		m_onMissedPackets = 0;
+	}
 	//! \copybrief m_onWakeupReceived
 	virtual void onWakeupReceived(XsDevice* dev)
-	{ (void) dev; m_onWakeupReceived = 0; }
+	{
+		(void) dev;
+		m_onWakeupReceived = 0;
+	}
 	//! \copybrief m_onProgressUpdated
 	virtual void onProgressUpdated(XsDevice* dev, int current, int total, const XsString* identifier)
-	{ (void) dev; (void) current; (void) total; (void)identifier; m_onProgressUpdated = 0; }
+	{
+		(void) dev;
+		(void) current;
+		(void) total;
+		(void)identifier;
+		m_onProgressUpdated = 0;
+	}
 	//! \copydoc m_onWriteMessageToLogFile
 	virtual int  onWriteMessageToLogFile(XsDevice* dev, const XsMessage* message)
-	{ (void) dev; (void) message; m_onWriteMessageToLogFile = 0; return 1; }
+	{
+		(void) dev;
+		(void) message;
+		m_onWriteMessageToLogFile = 0;
+		return 1;
+	}
 	//! \copydoc m_onBufferedDataAvailable
 	virtual void onBufferedDataAvailable(XsDevice* dev, const XsDataPacket* packet)
-	{ (void)dev; (void)packet; m_onBufferedDataAvailable = 0; }
+	{
+		(void)dev;
+		(void)packet;
+		m_onBufferedDataAvailable = 0;
+	}
 	//! \copydoc m_onConnectivityChanged
 	virtual void onConnectivityChanged(XsDevice* dev, XsConnectivityState newState)
-	{ (void) dev; (void) newState; m_onConnectivityChanged = 0; }
+	{
+		(void) dev;
+		(void) newState;
+		m_onConnectivityChanged = 0;
+	}
 	//! \copydoc m_onInfoResponse
 	virtual void onInfoResponse(XsDevice* dev, XsInfoRequest request)
-	{ (void) dev; (void) request; m_onInfoResponse = 0; }
+	{
+		(void) dev;
+		(void) request;
+		m_onInfoResponse = 0;
+	}
 	//! \copydoc m_onError
 	virtual void onError(XsDevice* dev, XsResultValue error)
-	{ (void) dev; (void) error; m_onError = 0; }
+	{
+		(void) dev;
+		(void) error;
+		m_onError = 0;
+	}
 	//! \copydoc m_onNonDataMessage
-	virtual void onNonDataMessage(XsDevice* dev, XsMessage const * message)
-	{ (void) dev; (void) message; m_onNonDataMessage = 0; }
+	virtual void onNonDataMessage(XsDevice* dev, XsMessage const* message)
+	{
+		(void) dev;
+		(void) message;
+		m_onNonDataMessage = 0;
+	}
 	//! \copydoc m_onMessageDetected
-	virtual void onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const * rawMessage)
-	{ (void)dev; (void)type;  (void)rawMessage; m_onMessageDetected = 0; }
+	virtual void onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const* rawMessage)
+	{
+		(void)dev;
+		(void)type;
+		(void)rawMessage;
+		m_onMessageDetected = 0;
+	}
 	//! \copydoc m_onMessageReceivedFromDevice
-	virtual void onMessageReceivedFromDevice(XsDevice* dev, XsMessage const * message)
-	{ (void) dev; (void) message; m_onMessageReceivedFromDevice = 0; }
+	virtual void onMessageReceivedFromDevice(XsDevice* dev, XsMessage const* message)
+	{
+		(void) dev;
+		(void) message;
+		m_onMessageReceivedFromDevice = 0;
+	}
 	//! \copydoc m_onMessageSentToDevice
-	virtual void onMessageSentToDevice(XsDevice* dev, XsMessage const * message)
-	{ (void) dev; (void) message; m_onMessageSentToDevice = 0; }
+	virtual void onMessageSentToDevice(XsDevice* dev, XsMessage const* message)
+	{
+		(void) dev;
+		(void) message;
+		m_onMessageSentToDevice = 0;
+	}
 	//! \copydoc m_onAllLiveDataAvailable
 	virtual void onAllLiveDataAvailable(XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
-	{ (void) devs; (void) packets; m_onAllLiveDataAvailable = 0; }
+	{
+		(void) devs;
+		(void) packets;
+		m_onAllLiveDataAvailable = 0;
+	}
 	//! \copydoc m_onAllBufferedDataAvailable
 	virtual void onAllBufferedDataAvailable(XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
-	{ (void)devs; (void)packets; m_onAllBufferedDataAvailable = 0; }
+	{
+		(void)devs;
+		(void)packets;
+		m_onAllBufferedDataAvailable = 0;
+	}
 	//! \copybrief m_onDataUnavailable
 	virtual void onDataUnavailable(XsDevice* dev, int64_t packetId)
-	{ (void) dev; (void)packetId; m_onMissedPackets = 0; }
+	{
+		(void) dev;
+		(void)packetId;
+		m_onMissedPackets = 0;
+	}
 	//! \copydoc m_onDataAvailable
 	virtual void onDataAvailable(XsDevice* dev, const XsDataPacket* packet)
-	{ (void) dev; (void) packet; m_onDataAvailable = 0; }
+	{
+		(void) dev;
+		(void) packet;
+		m_onDataAvailable = 0;
+	}
 	//! \copydoc m_onAllDataAvailable
 	virtual void onAllDataAvailable(XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
-	{ (void) devs; (void) packets; m_onAllDataAvailable = 0; }
+	{
+		(void) devs;
+		(void) packets;
+		m_onAllDataAvailable = 0;
+	}
 	//! \copydoc m_onRecordedDataAvailable
 	virtual void onRecordedDataAvailable(XsDevice* dev, const XsDataPacket* packet)
-	{ (void) dev; (void) packet; m_onRecordedDataAvailable = 0; }
+	{
+		(void) dev;
+		(void) packet;
+		m_onRecordedDataAvailable = 0;
+	}
 	//! \copydoc m_onAllRecordedDataAvailable
 	virtual void onAllRecordedDataAvailable(XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
-	{ (void) devs; (void) packets; m_onAllRecordedDataAvailable = 0; }
+	{
+		(void) devs;
+		(void) packets;
+		m_onAllRecordedDataAvailable = 0;
+	}
 	//! \copydoc m_onTransmissionRequest
 	virtual void onTransmissionRequest(int channelId, const XsByteArray* data)
-	{ (void) channelId; (void)data; }
+	{
+		(void) channelId;
+		(void)data;
+	}
 	//! \copydoc m_onRestoreCommunication
 	virtual void onRestoreCommunication(const XsString* portName, XsResultValue result)
-	{ (void)portName; (void)result; m_onRestoreCommunication = 0; }
+	{
+		(void)portName;
+		(void)result;
+		m_onRestoreCommunication = 0;
+	}
 
-//! @}
+	//! @}
 
 private:
-/*! \privatesection */
-	static void sonDeviceStateChanged(XsCallbackPlainC* cb, XsDevice* dev, XsDeviceState newState, XsDeviceState oldState) { ((XsCallback*)cb)->onDeviceStateChanged(dev, newState, oldState); }
-	static void sonLiveDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet) { ((XsCallback*)cb)->onLiveDataAvailable(dev, packet); }
-	static void sonMissedPackets(XsCallbackPlainC* cb, XsDevice* dev, int count, int first, int last) { ((XsCallback*)cb)->onMissedPackets(dev, count, first, last); }
-	static void sonWakeupReceived(XsCallbackPlainC* cb, XsDevice* dev) { ((XsCallback*)cb)->onWakeupReceived(dev); }
-	static void sonProgressUpdated(XsCallbackPlainC* cb, XsDevice* dev, int current, int total, const XsString* identifier) { ((XsCallback*)cb)->onProgressUpdated(dev, current, total, identifier); }
-	static int  sonWriteMessageToLogFile(XsCallbackPlainC* cb, XsDevice* dev, const XsMessage* message) { return ((XsCallback*)cb)->onWriteMessageToLogFile(dev, message); }
-	static void sonBufferedDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet) { ((XsCallback*)cb)->onBufferedDataAvailable(dev, packet); }
-	static void sonConnectivityChanged(XsCallbackPlainC* cb, XsDevice* dev, XsConnectivityState newState) { ((XsCallback*)cb)->onConnectivityChanged(dev, newState); }
-	static void sonInfoResponse(XsCallbackPlainC* cb, XsDevice* dev, XsInfoRequest request) { ((XsCallback*)cb)->onInfoResponse(dev, request); }
-	static void sonError(XsCallbackPlainC* cb, XsDevice* dev, XsResultValue error) { ((XsCallback*)cb)->onError(dev, error); }
-	static void sonNonDataMessage(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const * message) { ((XsCallback*)cb)->onNonDataMessage(dev, message); }
-	static void sonMessageDetected(XsCallbackPlainC* cb, XsDevice* dev, XsProtocolType type, XsByteArray const * rawMessage) { ((XsCallback*)cb)->onMessageDetected(dev, type, rawMessage); }
-	static void sonMessageReceivedFromDevice(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const * message) { ((XsCallback*)cb)->onMessageReceivedFromDevice(dev, message); }
-	static void sonMessageSentToDevice(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const * message) { ((XsCallback*)cb)->onMessageSentToDevice(dev, message); }
-	static void sonAllLiveDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets) { ((XsCallback*)cb)->onAllLiveDataAvailable(devs, packets); }
-	static void sonAllBufferedDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets) { ((XsCallback*)cb)->onAllBufferedDataAvailable(devs, packets); }
-	static void sonDataUnavailable(XsCallbackPlainC* cb, XsDevice* dev, int64_t packetId) { ((XsCallback*)cb)->onDataUnavailable(dev, packetId); }
-	static void sonDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet) { ((XsCallback*)cb)->onDataAvailable(dev, packet); }
-	static void sonAllDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets) { ((XsCallback*)cb)->onAllDataAvailable(devs, packets); }
-	static void sonRecordedDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet) { ((XsCallback*)cb)->onRecordedDataAvailable(dev, packet); }
-	static void sonAllRecordedDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets) { ((XsCallback*)cb)->onAllRecordedDataAvailable(devs, packets); }
-	static void sonTransmissionRequest(XsCallbackPlainC* cb, int channelId, const XsByteArray* data) { ((XsCallback*)cb)->onTransmissionRequest(channelId, data); }
-	static void sonRestoreCommunication(XsCallbackPlainC* cb, const XsString* portName, XsResultValue result) { ((XsCallback*)cb)->onRestoreCommunication(portName, result); }
+	/*! \privatesection */
+	static void sonDeviceStateChanged(XsCallbackPlainC* cb, XsDevice* dev, XsDeviceState newState, XsDeviceState oldState)
+	{
+		((XsCallback*)cb)->onDeviceStateChanged(dev, newState, oldState);
+	}
+	static void sonLiveDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet)
+	{
+		((XsCallback*)cb)->onLiveDataAvailable(dev, packet);
+	}
+	static void sonMissedPackets(XsCallbackPlainC* cb, XsDevice* dev, int count, int first, int last)
+	{
+		((XsCallback*)cb)->onMissedPackets(dev, count, first, last);
+	}
+	static void sonWakeupReceived(XsCallbackPlainC* cb, XsDevice* dev)
+	{
+		((XsCallback*)cb)->onWakeupReceived(dev);
+	}
+	static void sonProgressUpdated(XsCallbackPlainC* cb, XsDevice* dev, int current, int total, const XsString* identifier)
+	{
+		((XsCallback*)cb)->onProgressUpdated(dev, current, total, identifier);
+	}
+	static int  sonWriteMessageToLogFile(XsCallbackPlainC* cb, XsDevice* dev, const XsMessage* message)
+	{
+		return ((XsCallback*)cb)->onWriteMessageToLogFile(dev, message);
+	}
+	static void sonBufferedDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet)
+	{
+		((XsCallback*)cb)->onBufferedDataAvailable(dev, packet);
+	}
+	static void sonConnectivityChanged(XsCallbackPlainC* cb, XsDevice* dev, XsConnectivityState newState)
+	{
+		((XsCallback*)cb)->onConnectivityChanged(dev, newState);
+	}
+	static void sonInfoResponse(XsCallbackPlainC* cb, XsDevice* dev, XsInfoRequest request)
+	{
+		((XsCallback*)cb)->onInfoResponse(dev, request);
+	}
+	static void sonError(XsCallbackPlainC* cb, XsDevice* dev, XsResultValue error)
+	{
+		((XsCallback*)cb)->onError(dev, error);
+	}
+	static void sonNonDataMessage(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const* message)
+	{
+		((XsCallback*)cb)->onNonDataMessage(dev, message);
+	}
+	static void sonMessageDetected(XsCallbackPlainC* cb, XsDevice* dev, XsProtocolType type, XsByteArray const* rawMessage)
+	{
+		((XsCallback*)cb)->onMessageDetected(dev, type, rawMessage);
+	}
+	static void sonMessageReceivedFromDevice(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const* message)
+	{
+		((XsCallback*)cb)->onMessageReceivedFromDevice(dev, message);
+	}
+	static void sonMessageSentToDevice(XsCallbackPlainC* cb, XsDevice* dev, XsMessage const* message)
+	{
+		((XsCallback*)cb)->onMessageSentToDevice(dev, message);
+	}
+	static void sonAllLiveDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
+	{
+		((XsCallback*)cb)->onAllLiveDataAvailable(devs, packets);
+	}
+	static void sonAllBufferedDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
+	{
+		((XsCallback*)cb)->onAllBufferedDataAvailable(devs, packets);
+	}
+	static void sonDataUnavailable(XsCallbackPlainC* cb, XsDevice* dev, int64_t packetId)
+	{
+		((XsCallback*)cb)->onDataUnavailable(dev, packetId);
+	}
+	static void sonDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet)
+	{
+		((XsCallback*)cb)->onDataAvailable(dev, packet);
+	}
+	static void sonAllDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
+	{
+		((XsCallback*)cb)->onAllDataAvailable(devs, packets);
+	}
+	static void sonRecordedDataAvailable(XsCallbackPlainC* cb, XsDevice* dev, const XsDataPacket* packet)
+	{
+		((XsCallback*)cb)->onRecordedDataAvailable(dev, packet);
+	}
+	static void sonAllRecordedDataAvailable(XsCallbackPlainC* cb, XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets)
+	{
+		((XsCallback*)cb)->onAllRecordedDataAvailable(devs, packets);
+	}
+	static void sonTransmissionRequest(XsCallbackPlainC* cb, int channelId, const XsByteArray* data)
+	{
+		((XsCallback*)cb)->onTransmissionRequest(channelId, data);
+	}
+	static void sonRestoreCommunication(XsCallbackPlainC* cb, const XsString* portName, XsResultValue result)
+	{
+		((XsCallback*)cb)->onRestoreCommunication(portName, result);
+	}
 };
 #endif
 

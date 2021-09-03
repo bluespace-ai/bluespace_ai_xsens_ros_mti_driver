@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,16 +68,18 @@
 #include <xstypes/xstime.h>
 
 #ifdef __GNUC__
-#include <sys/time.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#define _strdup	strdup
+	#include <sys/time.h>
+	#include <signal.h>
+	#include <fcntl.h>
+	#include <sys/stat.h>
+	#define _strdup	strdup
 #endif
 
-namespace xsens {
+namespace xsens
+{
 #ifdef __GNUC__
-pthread_t xsStartThread(void *(func)(void *), void *param, void *pid) {
+pthread_t xsStartThread(void* (func)(void*), void* param, void* pid)
+{
 	return ::xsStartThread(func, param, pid);
 }
 #endif
@@ -90,8 +92,8 @@ StandardThread::StandardThread()
 	, m_stop(false)
 	, m_yieldOnZeroSleep(true)
 #ifdef _WIN32
-	, m_stopHandle(::CreateEvent(NULL,TRUE,FALSE,NULL))
-	, m_running(::CreateEvent(NULL,TRUE,FALSE,NULL))
+	, m_stopHandle(::CreateEvent(NULL, TRUE, FALSE, NULL))
+	, m_running(::CreateEvent(NULL, TRUE, FALSE, NULL))
 	, m_threadId(0)
 #else
 	, m_running(false)
@@ -142,7 +144,7 @@ bool StandardThread::isAlive(void) volatile const noexcept
 
 #ifdef _WIN32
 	DWORD exitCode;
-	if (::GetExitCodeThread(m_thread,&exitCode))
+	if (::GetExitCodeThread(m_thread, &exitCode))
 	{
 		if (exitCode == STILL_ACTIVE)
 			return true;
@@ -160,15 +162,15 @@ bool StandardThread::isRunning(void) volatile const noexcept
 	if (!isAlive())
 		return false;
 #ifdef _WIN32
-	switch(::WaitForSingleObject(m_running,0))
+	switch (::WaitForSingleObject(m_running, 0))
 	{
-	case WAIT_ABANDONED:
-	case WAIT_TIMEOUT:
-		return false;
-	case WAIT_OBJECT_0:
-		return true;
-	default:
-		return false;
+		case WAIT_ABANDONED:
+		case WAIT_TIMEOUT:
+			return false;
+		case WAIT_OBJECT_0:
+			return true;
+		default:
+			return false;
 	}
 #else
 	return m_running;
@@ -207,60 +209,61 @@ bool StandardThread::setPriority(XsThreadPriority pri)
 	rv = pthread_getschedparam(m_thread, &policy, &param);
 	switch (rv)
 	{
-	case ESRCH:
-		/* The value specified by thread does not refer to an existing thread. */
-		return false;
-	default:
-		break;
+		case ESRCH:
+			/* The value specified by thread does not refer to an existing thread. */
+			return false;
+		default:
+			break;
 	}
 
-	switch (pri) {
-	case XS_THREAD_PRIORITY_HIGHEST:
-		param.sched_priority = sched_get_priority_max(policy);
-		break;
+	switch (pri)
+	{
+		case XS_THREAD_PRIORITY_HIGHEST:
+			param.sched_priority = sched_get_priority_max(policy);
+			break;
 
-	case XS_THREAD_PRIORITY_LOWEST:
-		param.sched_priority = sched_get_priority_max(policy);
+		case XS_THREAD_PRIORITY_LOWEST:
+			param.sched_priority = sched_get_priority_max(policy);
 		// Fallthrough.
-	default:
-		/* we need to map the priority to the values used on this system */
-		int32_t min_prio = sched_get_priority_min(policy);
-		int32_t max_prio = sched_get_priority_max(policy);
+		default:
+			/* we need to map the priority to the values used on this system */
+			int32_t min_prio = sched_get_priority_min(policy);
+			int32_t max_prio = sched_get_priority_max(policy);
 
-		if (min_prio < 0 || max_prio < 0)
-			return false;
+			if (min_prio < 0 || max_prio < 0)
+				return false;
 
-		/* divide range up in amount of priority levels */
-		float priostep = ((float)(max_prio - min_prio)) / ((int32_t)XS_THREAD_PRIORITY_HIGHEST + 1);
+			/* divide range up in amount of priority levels */
+			float priostep = ((float)(max_prio - min_prio)) / ((int32_t)XS_THREAD_PRIORITY_HIGHEST + 1);
 
-		param.sched_priority = (int32_t) (min_prio + (pri * priostep));
-		break;
+			param.sched_priority = (int32_t)(min_prio + (pri * priostep));
+			break;
 	}
 
 	rv = pthread_setschedparam(m_thread, policy, &param);
 	switch (rv)
 	{
-	case ESRCH:
+		case ESRCH:
 		/* The value specified by thread does not refer to an existing thread. */
-	case EINVAL:
-		/* The  value  specified by policy or one of the scheduling parameters
-			* associated with the scheduling policy policy is invalid.
+		case EINVAL:
+		/*  The  value  specified by policy or one of the scheduling parameters
+			 associated with the scheduling policy policy is invalid.
+		*/
+		case ENOTSUP:
+		/*  An attempt was made to set the policy or scheduling parameters to an
+			 unsupported value.
+			 An attempt was made to dynamically change the scheduling policy to
+			 SCHED_SPORADIC, and the implementation does not support this change.
+		*/
+		case EPERM:
+			/*  The caller does not have the appropriate permission to set either the
+				 scheduling parameters or the scheduling policy of the specified thread.
+				 The implementation does not allow the application to modify one of the
+				 parameters to the value specified.
 			*/
-	case ENOTSUP:
-		/* An attempt was made to set the policy or scheduling parameters to an
-			* unsupported value.
-			* An attempt was made to dynamically change the scheduling policy to
-			* SCHED_SPORADIC, and the implementation does not support this change.
-			*/
-	case EPERM:
-		/* The caller does not have the appropriate permission to set either the
-			* scheduling parameters or the scheduling policy of the specified thread.
-			* The implementation does not allow the application to modify one of the
-			* parameters to the value specified.
-			*/
-		return false;
-	default:
-		break;
+			return false;
+		default:
+			break;
 	}
 
 	return true;
@@ -291,7 +294,7 @@ bool StandardThread::startThread(const char* name)
 	m_stop = false;
 	::ResetEvent(m_stopHandle);
 	::SetEvent(m_running);
-	m_thread = xsStartThread(&threadInit,this,&m_threadId);
+	m_thread = xsStartThread(&threadInit, this, &m_threadId);
 	if (m_thread == XSENS_INVALID_THREAD)
 	{
 		::ResetEvent(m_running);
@@ -387,14 +390,14 @@ void StandardThread::stopThread(void) noexcept
 	{
 		switch (errno)
 		{
-		case EINVAL:
+			case EINVAL:
 			/* no joinable thread found */
-		case ESRCH:
+			case ESRCH:
 			/* no thread fits thread id */
-		case EDEADLK:
+			case EDEADLK:
 			/* deadlock or trying to join self */
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -415,9 +418,9 @@ XSENS_THREAD_RETURN StandardThread::threadInit(void* obj)
 
 #ifndef _WIN32
 /*! \brief Cleanup the thread by calling the exit function */
-void StandardThread::threadCleanup(void *obj)
+void StandardThread::threadCleanup(void* obj)
 {
-	((StandardThread *)obj)->exitFunction();
+	((StandardThread*)obj)->exitFunction();
 }
 #endif
 
@@ -435,7 +438,7 @@ void StandardThread::threadMain(void)
 			while (!m_stop)
 			{
 				// sleep max 100ms at a time so we can terminate the thread quickly if necessary
-				int64_t timePassed = XsTimeStamp::nowMs()-sleepStart;
+				int64_t timePassed = XsTimeStamp::nowMs() - sleepStart;
 				int32_t remaining = rv - (int32_t) timePassed;
 				if (remaining > 100)
 					XsTime::msleep(100);
@@ -458,9 +461,9 @@ void StandardThread::threadMain(void)
 WatchDogThread::WatchDogThread(WatchDogFunction func, void* param)
 	: m_thread(XSENS_INVALID_THREAD)
 #ifdef _WIN32
-	, m_stop(::CreateEvent(NULL,TRUE,FALSE,NULL))
-	, m_running(::CreateEvent(NULL,TRUE,FALSE,NULL))
-	, m_reset(::CreateEvent(NULL,TRUE,FALSE,NULL))
+	, m_stop(::CreateEvent(NULL, TRUE, FALSE, NULL))
+	, m_running(::CreateEvent(NULL, TRUE, FALSE, NULL))
+	, m_reset(::CreateEvent(NULL, TRUE, FALSE, NULL))
 #else
 	, m_running(false)
 	, m_reset(false)
@@ -500,7 +503,7 @@ bool WatchDogThread::isAlive(void) volatile const noexcept
 {
 #ifdef _WIN32
 	DWORD exitCode;
-	if (::GetExitCodeThread(m_thread,&exitCode))
+	if (::GetExitCodeThread(m_thread, &exitCode))
 		return (exitCode == STILL_ACTIVE);
 #else
 	if (m_thread == XSENS_INVALID_THREAD)
@@ -516,24 +519,24 @@ bool WatchDogThread::isRunning(void) volatile const noexcept
 	if (!isAlive())
 		return false;
 #ifdef _WIN32
-	switch(::WaitForSingleObject(m_running,0))
+	switch (::WaitForSingleObject(m_running, 0))
 	{
-	case WAIT_ABANDONED:
-	case WAIT_TIMEOUT:
-		return false;
-	case WAIT_OBJECT_0:
-		switch(::WaitForSingleObject(m_stop,0))
-		{
 		case WAIT_ABANDONED:
 		case WAIT_TIMEOUT:
-			return true;
-		case WAIT_OBJECT_0:
 			return false;
+		case WAIT_OBJECT_0:
+			switch (::WaitForSingleObject(m_stop, 0))
+			{
+				case WAIT_ABANDONED:
+				case WAIT_TIMEOUT:
+					return true;
+				case WAIT_OBJECT_0:
+					return false;
+				default:
+					return false;
+			}
 		default:
 			return false;
-		}
-	default:
-		return false;
 	}
 #else
 	return m_running;
@@ -564,7 +567,7 @@ bool WatchDogThread::startTimer(uint32_t timeout, const char* name)
 	::ResetEvent(m_stop);
 	::SetEvent(m_running);
 	::ResetEvent(m_reset);
-	m_thread = xsStartThread(&threadInit,this,&m_threadId);
+	m_thread = xsStartThread(&threadInit, this, &m_threadId);
 	if (m_thread == XSENS_INVALID_THREAD)
 	{
 		::ResetEvent(m_running);
@@ -611,10 +614,12 @@ bool WatchDogThread::stopTimer(void) noexcept
 	rv = pthread_getschedparam(m_thread, &policy, &param);
 	if (rv)
 	{
-		switch(errno)
+		switch (errno)
 		{
-		case ESRCH:	return false;
-		default:	break;
+			case ESRCH:
+				return false;
+			default:
+				break;
 		}
 	}
 	param.sched_priority = sched_get_priority_max(policy);
@@ -624,23 +629,26 @@ bool WatchDogThread::stopTimer(void) noexcept
 	{
 		switch (errno)
 		{
-		case ESRCH:
-		case EINVAL:
-		case ENOTSUP:
-		case EPERM:	return false;
-		default:	break;
+			case ESRCH:
+			case EINVAL:
+			case ENOTSUP:
+			case EPERM:
+				return false;
+			default:
+				break;
 		}
 	}
 
 	rv = pthread_join(m_thread, NULL);
 	if (rv)
 	{
-		switch(errno)
+		switch (errno)
 		{
-		case EINVAL:
-		case ESRCH:
-		case EDEADLK:
-		default:	break;
+			case EINVAL:
+			case ESRCH:
+			case EDEADLK:
+			default:
+				break;
 		}
 	}
 	m_running = false;
@@ -662,7 +670,7 @@ XSENS_THREAD_RETURN WatchDogThread::threadInit(void* obj)
 
 void WatchDogThread::threadMain(void)
 {
-	XsTimeStamp toTime((int64_t) (XsTimeStamp::now().msTime() + m_timeout));
+	XsTimeStamp toTime((int64_t)(XsTimeStamp::now().msTime() + m_timeout));
 
 #ifdef _WIN32
 	HANDLE hlist[2];
@@ -671,28 +679,28 @@ void WatchDogThread::threadMain(void)
 	while (go)
 	{
 #ifdef _WIN32
-		uint32_t timeout = (uint32_t) (toTime - XsTimeStamp::now()).msTime();
+		uint32_t timeout = (uint32_t)(toTime - XsTimeStamp::now()).msTime();
 		if (timeout > m_timeout)
 			break;
 		hlist[0] = m_reset;
 		hlist[1] = m_stop;
 
-		switch(::WaitForMultipleObjects(2,hlist,FALSE,timeout))
+		switch (::WaitForMultipleObjects(2, hlist, FALSE, timeout))
 		{
-		case WAIT_OBJECT_0:	// m_reset
-			// received an update for the timer
-			toTime = XsTimeStamp::now() + XsTimeStamp((int) m_timeout);
-			::ResetEvent(m_reset);
-			continue;
+			case WAIT_OBJECT_0:	// m_reset
+				// received an update for the timer
+				toTime = XsTimeStamp::now() + XsTimeStamp((int) m_timeout);
+				::ResetEvent(m_reset);
+				continue;
 
-		case WAIT_OBJECT_0+1:	// m_stop
-		case WAIT_ABANDONED:
-		default:
-			go = false;
-			break;
+			case WAIT_OBJECT_0+1:	// m_stop
+			case WAIT_ABANDONED:
+			default:
+				go = false;
+				break;
 
-		case WAIT_TIMEOUT:
-			break;
+			case WAIT_TIMEOUT:
+				break;
 		}
 #else
 		Lock lock(&m_mutex, true);
@@ -747,19 +755,19 @@ bool WatchDogThread::resetTimer(uint32_t timeout)
 }
 
 #ifdef _WIN32
-Semaphore::Semaphore(int32_t initVal, uint32_t nofOtherHandles, HANDLE *otherHandles)
+Semaphore::Semaphore(int32_t initVal, uint32_t nofOtherHandles, HANDLE* otherHandles)
 {
-	m_nofHandles = nofOtherHandles+1;
+	m_nofHandles = nofOtherHandles + 1;
 	m_handleList = new HANDLE[m_nofHandles];
-	for (uint32_t i=0; i<m_nofHandles-1; i++)
+	for (uint32_t i = 0; i < m_nofHandles - 1; i++)
 		m_handleList[i] = otherHandles[i];
-	m_handleList[m_nofHandles-1] = CreateSemaphore(NULL, initVal, 0x7fffffff, NULL);
+	m_handleList[m_nofHandles - 1] = CreateSemaphore(NULL, initVal, 0x7fffffff, NULL);
 }
 
 Semaphore::~Semaphore(void)
 {
 	post();
-	CloseHandle(m_handleList[m_nofHandles-1]);
+	CloseHandle(m_handleList[m_nofHandles - 1]);
 	delete[] m_handleList;
 }
 
@@ -776,7 +784,7 @@ bool Semaphore::wait1(uint32_t timeout)
 		if (r == WAIT_TIMEOUT)
 			return false;
 		if (r < WAIT_OBJECT_0 + m_nofHandles)
-			return r-WAIT_OBJECT_0 == m_nofHandles-1;
+			return r - WAIT_OBJECT_0 == m_nofHandles - 1;
 		if (r != WAIT_TIMEOUT)
 			return false;
 		xsYield();	// prevent race condition
@@ -786,13 +794,13 @@ bool Semaphore::wait1(uint32_t timeout)
 int32_t Semaphore::post(int32_t increment) noexcept
 {
 	LONG prev;
-	ReleaseSemaphore(m_handleList[m_nofHandles-1], increment, &prev);
+	ReleaseSemaphore(m_handleList[m_nofHandles - 1], increment, &prev);
 	return (int32_t) prev;
 }
 
 #else // _WIN32
 
-Semaphore::Semaphore(int32_t initVal, uint32_t, sem_t *) :
+Semaphore::Semaphore(int32_t initVal, uint32_t, sem_t*) :
 	m_semname(nullptr),
 	m_handle(SEM_FAILED)
 {
@@ -808,7 +816,7 @@ Semaphore::Semaphore(int32_t initVal, uint32_t, sem_t *) :
 	{
 		sprintf(semname, "%" PRINTF_INT64_MODIFIER "x", id);
 		m_semname = strdup(semname);
-		m_handle = sem_open(semname, O_EXCL|O_CREAT, S_IRWXU, initVal);
+		m_handle = sem_open(semname, O_EXCL | O_CREAT, S_IRWXU, initVal);
 		if (m_handle != SEM_FAILED)
 			break;
 
@@ -845,10 +853,10 @@ bool Semaphore::wait1(uint32_t ms)
 
 	clock_gettime(CLOCK_REALTIME, &ts);
 
-	int64_t s = ms/1000;
+	int64_t s = ms / 1000;
 	ts.tv_sec += s;
 
-	ms -= s*1000;
+	ms -= s * 1000;
 	int64_t ns = ts.tv_nsec + (ms * 1000000);
 
 	ts.tv_sec += ns / 1000000000L;
@@ -882,7 +890,7 @@ int32_t Semaphore::post(int32_t increment) throw()
 #else
 int32_t Semaphore::post(int32_t increment) throw()
 {
-	int prev =0;
+	int prev = 0;
 	for (int i = 0; i < increment; i++)
 		sem_post(m_handle);
 	return (int32_t)prev;
@@ -897,11 +905,11 @@ int32_t Semaphore::post(int32_t increment) throw()
 	maintaining compatibility with Linux code.
 
 	This comes straight from xstime. We should probably move thread primitives into xstypes.
-	*/
+*/
 #ifndef CLOCK_REALTIME
-#define CLOCK_REALTIME 0
+	#define CLOCK_REALTIME 0
 #endif
-static int clock_gettime(int clk_id, struct timespec *tp)
+static int clock_gettime(int clk_id, struct timespec* tp)
 {
 	(void)clk_id;
 	struct timeval now;
@@ -918,7 +926,7 @@ static int clock_gettime(int clk_id, struct timespec *tp)
 #endif
 
 /*! \brief Create a wait condition */
-WaitCondition::WaitCondition(Mutex &m) : m_mutex(m)
+WaitCondition::WaitCondition(Mutex& m) : m_mutex(m)
 {
 #ifdef _WIN32
 	InitializeConditionVariable(&m_cond);
@@ -929,10 +937,10 @@ WaitCondition::WaitCondition(Mutex &m) : m_mutex(m)
 	if (pthread_condattr_setclock(&m_condattr, m_clockId) != 0)
 		pthread_condattr_getclock(&m_condattr, &m_clockId);
 #else
-	/* we'll fall back to the wallclock, but we may be influenced by
-		* time keeping software (ntp, date), which doesn't happen with
-		* the monotonic clock
-		*/
+	/*  we'll fall back to the wallclock, but we may be influenced by
+		 time keeping software (ntp, date), which doesn't happen with
+		 the monotonic clock
+	*/
 	m_clockId = CLOCK_REALTIME;
 #endif
 	pthread_cond_init(&m_cond, &m_condattr);
@@ -976,13 +984,13 @@ void WaitCondition::broadcast()
 }
 
 /*! \brief Wait until we're signalled to continue
-	*
-	* \details Before calling this function, it is required that the mutex
-	* provided during construction is _locked_. This function unlocks the mutex
-	* internally, and returns with the mutex locked again.
-	*
-	* \return true if we were signalled, false otherwise
-	*/
+
+	 \details Before calling this function, it is required that the mutex
+	 provided during construction is _locked_. This function unlocks the mutex
+	 internally, and returns with the mutex locked again.
+
+	 \return true if we were signalled, false otherwise
+*/
 bool WaitCondition::wait()
 {
 #ifdef _WIN32
@@ -993,15 +1001,15 @@ bool WaitCondition::wait()
 }
 
 /*! \brief Wait until we're signalled to continue, or until timeout [ms] has passed
-	*
-	* \details Before calling this function, it is required that the mutex
-	* provided during construction is _locked_. This function unlocks the mutex
-	* internally, and returns with the mutex locked again.
-	*
-	* \param timeout The timeout value in ms
-	*
-	* \return true if we were signalled, false otherwise
-	*/
+
+	 \details Before calling this function, it is required that the mutex
+	 provided during construction is _locked_. This function unlocks the mutex
+	 internally, and returns with the mutex locked again.
+
+	 \param timeout The timeout value in ms
+
+	 \return true if we were signalled, false otherwise
+*/
 bool WaitCondition::wait(uint32_t timeout)
 {
 #ifdef _WIN32
@@ -1039,7 +1047,7 @@ WaitEvent::~WaitEvent()
 	{
 		terminate();
 	}
-	catch(...)
+	catch (...)
 	{}
 	assert(m_waiterCount == 0);
 	::CloseHandle(m_event);
@@ -1056,18 +1064,18 @@ bool WaitEvent::wait()
 
 	++m_waiterCount;
 
-	switch(::WaitForSingleObject(m_event, INFINITE))
+	switch (::WaitForSingleObject(m_event, INFINITE))
 	{
-	case WAIT_ABANDONED:
-	case WAIT_TIMEOUT:
-		--m_waiterCount;
-		return false;
-	case WAIT_OBJECT_0:
-		--m_waiterCount;
-		return !m_terminating;
-	default:
-		--m_waiterCount;
-		return false;
+		case WAIT_ABANDONED:
+		case WAIT_TIMEOUT:
+			--m_waiterCount;
+			return false;
+		case WAIT_OBJECT_0:
+			--m_waiterCount;
+			return !m_terminating;
+		default:
+			--m_waiterCount;
+			return false;
 	}
 }
 

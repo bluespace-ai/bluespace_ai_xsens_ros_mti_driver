@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -85,8 +85,8 @@
 */
 SerialCommunicator::SerialCommunicator()
 	: m_thread(*this, *this)
-	, m_firmwareRevision(0,0,0)
-	, m_hardwareRevision(0,0)
+	, m_firmwareRevision(0, 0, 0)
+	, m_hardwareRevision(0, 0)
 {
 	messageExtractor().clearBuffer();
 	startPollThread();
@@ -177,7 +177,7 @@ XsResultValue SerialCommunicator::gotoConfig(bool detectRs485)
 
 /*! \brief Write raw data to the open COM or USB port
 */
-XsResultValue SerialCommunicator::writeRawData(const XsByteArray &data)
+XsResultValue SerialCommunicator::writeRawData(const XsByteArray& data)
 {
 	if (!isPortOpen())
 		return XRV_NOPORTOPEN;
@@ -225,7 +225,7 @@ void SerialCommunicator::closePort()
 }
 
 /*! \returns whether the communicator has an open COM or USB port
-\*/
+    \*/
 bool SerialCommunicator::isPortOpen() const
 {
 	return m_streamInterface && m_streamInterface->isOpen();
@@ -240,7 +240,7 @@ XsPortInfo SerialCommunicator::portInfo() const
 
 /*! \brief Open a serial port and return the main device connected to it
 */
-bool SerialCommunicator::openPort(const XsPortInfo &portInfo, OpenPortStage stage, bool detectRs485)
+bool SerialCommunicator::openPort(const XsPortInfo& portInfo, OpenPortStage stage, bool detectRs485)
 {
 	JLDEBUGG("Opening " << portInfo << " stage " << stage << " configtimeout " << gotoConfigTimeout());
 	XSEXITLOGN(gJournal);
@@ -310,9 +310,7 @@ bool SerialCommunicator::openPort(const XsPortInfo &portInfo, OpenPortStage stag
 		return true;
 	}
 	else
-	{
 		return false;
-	}
 
 }
 
@@ -375,7 +373,7 @@ void SerialCommunicator::setDoGotoConfig(bool doit)
 	\param other The communicator of an other device
 	\note This is true if the USB hub matches.
 */
-bool SerialCommunicator::isDockedAt(Communicator *other) const
+bool SerialCommunicator::isDockedAt(Communicator* other) const
 {
 	XsUsbHubInfo thisHub = XsScanner::scanUsbHub(XsPortInfo(portInfo().portName()));
 	XsUsbHubInfo otherHub = XsScanner::scanUsbHub(XsPortInfo(other->portInfo().portName()));
@@ -403,17 +401,17 @@ XsResultValue SerialCommunicator::readDataToBuffer(XsByteArray& raw)
 
 	switch (res)
 	{
-	// all intended fall-throughs
-	case XRV_UNEXPECTED_DISCONNECT:
-		if (masterDevice() != nullptr)
-			masterDevice()->onConnectionLost();
+		// all intended fall-throughs
+		case XRV_UNEXPECTED_DISCONNECT:
+			if (masterDevice() != nullptr)
+				masterDevice()->onConnectionLost();
 		//lint -fallthrough
-	case XRV_NOFILEORPORTOPEN:
-		closePort();
-		break;
+		case XRV_NOFILEORPORTOPEN:
+			closePort();
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 
 	return res;
@@ -423,7 +421,7 @@ XsResultValue SerialCommunicator::readDataToBuffer(XsByteArray& raw)
 	\note Overridden here for implementation of DataParser::handleMessage
 	\param msg The XsMessage to handle
 */
-void SerialCommunicator::handleMessage(const XsMessage &msg)
+void SerialCommunicator::handleMessage(const XsMessage& msg)
 {
 	DeviceCommunicator::handleMessage(msg);
 }
@@ -434,7 +432,7 @@ void SerialCommunicator::handleMessage(const XsMessage &msg)
 	\details This function will read all present messages in the read buffer. In order for this function
 	to work, you need to call readDataToBuffer() first.
 	\returns The messages that were read.
- */
+*/
 XsResultValue SerialCommunicator::processBufferedData(const XsByteArray& rawIn, std::deque<XsMessage>& messages)
 {
 	return extractMessages(rawIn, messages);

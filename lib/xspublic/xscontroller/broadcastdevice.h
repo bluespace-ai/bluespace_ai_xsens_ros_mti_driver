@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,7 +68,8 @@
 #include "xsdevice_def.h"
 struct XsControl;
 
-class BroadcastDevice : public XsDevice {
+class BroadcastDevice : public XsDevice
+{
 public:
 	explicit BroadcastDevice(XsControl* control);
 	~BroadcastDevice() override;
@@ -86,7 +87,7 @@ public:
 
 	bool isMeasuring() const override;
 	bool isRecording() const override;
-	bool isReadingFromFile() const override;
+	bool isReadingFromFile() const override final;
 
 	bool setSerialBaudRate(XsBaudRate baudrate) override;
 	bool setSyncSettings(const XsSyncSettingArray& s) override;
@@ -103,7 +104,7 @@ public:
 	bool updateCachedDeviceInformation() override;
 	bool setHeadingOffset(double offset) override;
 	bool setLocationId(int id) override;
-	bool setObjectAlignment(const XsMatrix &matrix) override;
+	bool setObjectAlignment(const XsMatrix& matrix) override;
 	bool setGravityMagnitude(double mag) override;
 	bool setXdaFilterProfile(int profileType) override;
 	bool setXdaFilterProfile(XsString const& profileType) override;

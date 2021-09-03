@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,16 +71,17 @@
 #include "journaller.h"
 
 #ifndef XSENS_WINDOWS
-#include <signal.h>
-#include <cstring>
+	#include <signal.h>
+	#include <cstring>
 #endif
 
-class JournalException : public XsException {
+class JournalException : public XsException
+{
 public:
 	JournalException(std::string const& message);
 	~JournalException() throw() {}
 
-	const char *msg() const;
+	const char* msg() const;
 	const std::string& stack() const;
 
 protected:
@@ -99,64 +100,64 @@ extern bool gOnExceptionGotoDebugger;
 #endif
 
 #if JLDEF_BUILD > JLL_FATAL
-	#define JOURNALCRASHES_SIGNAL_FUNCTIONS
-	#define JOURNALCRASHES_BEGIN(journal)
-	#define JOURNALCRASHES_END(journal)
+#define JOURNALCRASHES_SIGNAL_FUNCTIONS
+#define JOURNALCRASHES_BEGIN(journal)
+#define JOURNALCRASHES_END(journal)
 #else
-	#ifdef XSENS_WINDOWS
-		#define JOURNALCRASHES_SIGNAL_FUNCTIONS
-		#define JOURNALCRASHES_BEGIN(journal) \
-			__try {
+#ifdef XSENS_WINDOWS
+#define JOURNALCRASHES_SIGNAL_FUNCTIONS
+#define JOURNALCRASHES_BEGIN(journal) \
+	__try {
 
-		#define JOURNALCRASHES_END(journal) \
-			} __except (journallerExceptionFilter(GetExceptionInformation(), journal)) {}
+#define JOURNALCRASHES_END(journal) \
+	} __except (journallerExceptionFilter(GetExceptionInformation(), journal)) {}
 
-	#else
-		#define JOURNALCRASHES_SIGNAL_FUNCTIONS \
-			Journaller *gSCJ = 0;\
-			extern "C" void signal_handler(int signal, siginfo_t *, void *)\
-			{\
-				if (gSCJ)\
-				{\
-					JLFATAL_NODEC(gSCJ, strsignal(signal));\
-					gSCJ->writeCallstack(JLL_Fatal);\
-				}\
-				_exit(-1);\
-			}
+#else
+#define JOURNALCRASHES_SIGNAL_FUNCTIONS \
+	Journaller *gSCJ = 0;\
+	extern "C" void signal_handler(int signal, siginfo_t *, void *)\
+	{\
+		if (gSCJ)\
+		{\
+			JLFATAL_NODEC(gSCJ, strsignal(signal));\
+			gSCJ->writeCallstack(JLL_Fatal);\
+		}\
+		_exit(-1);\
+	}
 
-		#define JOURNALCRASHES_BEGIN(journal) \
-			do { \
-				gSCJ = journal;\
-				struct sigaction act;\
-				memset(&act, 0, sizeof(act));\
-				act.sa_flags = SA_SIGINFO;\
-				act.sa_sigaction = &signal_handler;\
-				sigaction(SIGSEGV, &act, NULL);\
-				sigaction(SIGILL, &act, NULL);\
-				sigaction(SIGABRT, &act, NULL);\
-				sigaction(SIGFPE, &act, NULL);\
-			} while (0);
-		#define JOURNALCRASHES_END(journal)
-	#endif
+#define JOURNALCRASHES_BEGIN(journal) \
+	do { \
+		gSCJ = journal;\
+		struct sigaction act;\
+		memset(&act, 0, sizeof(act));\
+		act.sa_flags = SA_SIGINFO;\
+		act.sa_sigaction = &signal_handler;\
+		sigaction(SIGSEGV, &act, NULL);\
+		sigaction(SIGILL, &act, NULL);\
+		sigaction(SIGABRT, &act, NULL);\
+		sigaction(SIGFPE, &act, NULL);\
+	} while (0);
+#define JOURNALCRASHES_END(journal)
+#endif
 #endif
 
 #if JLDEF_BUILD > JLL_ERROR
-	#define JOURNALEXCEPTIONS_BEGIN(journal)		try {
-	#define JOURNALEXCEPTIONS_END_NOTHROW(journal)	} catch(...) { }
-	#define JOURNALEXCEPTIONS_END_RETHROW(journal)	} catch(...) { throw; }
+#define JOURNALEXCEPTIONS_BEGIN(journal)		try {
+#define JOURNALEXCEPTIONS_END_NOTHROW(journal)	} catch(...) { }
+#define JOURNALEXCEPTIONS_END_RETHROW(journal)	} catch(...) { throw; }
 #else
-	#define JOURNALEXCEPTIONS_BEGIN(journal) \
-		try {
+#define JOURNALEXCEPTIONS_BEGIN(journal) \
+	try {
 
-	#define JOURNALEXCEPTIONS_END_NOTHROW(journal) \
-		} catch (JournalException& e) { JLERROR(journal, e.msg()); JLERROR_NODEC(journal, e.stack()); }\
-		catch (XsException& e) { JLERROR(journal, e.what()); }\
-		catch (std::exception& e) { JLERROR(journal, e.what()); }
+#define JOURNALEXCEPTIONS_END_NOTHROW(journal) \
+	} catch (JournalException& e) { JLERROR(journal, e.msg()); JLERROR_NODEC(journal, e.stack()); }\
+	catch (XsException& e) { JLERROR(journal, e.what()); }\
+	catch (std::exception& e) { JLERROR(journal, e.what()); }
 
-	#define JOURNALEXCEPTIONS_END_RETHROW(journal) \
-		} catch (JournalException& e) { JLERROR(journal, e.msg()); JLERROR_NODEC(journal, e.stack()); throw; }\
-		catch (XsException& e) { JLERROR(journal, e.what()); throw; }\
-		catch (std::exception& e) { JLERROR(journal, e.what()); throw; }
+#define JOURNALEXCEPTIONS_END_RETHROW(journal) \
+	} catch (JournalException& e) { JLERROR(journal, e.msg()); JLERROR_NODEC(journal, e.stack()); throw; }\
+	catch (XsException& e) { JLERROR(journal, e.what()); throw; }\
+	catch (std::exception& e) { JLERROR(journal, e.what()); throw; }
 #endif
 
 #endif

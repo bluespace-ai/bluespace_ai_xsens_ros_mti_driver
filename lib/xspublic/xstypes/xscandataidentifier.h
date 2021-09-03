@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -92,7 +92,7 @@ enum XsCanDataIdentifier
 	XCDI_UtcTime			= 0x07,
 
 	/* Group Status Messages */
-	XCDI_StatusWord 		= 0x11,
+	XCDI_StatusWord		= 0x11,
 
 	/* Group Quaternion Messages */
 	XCDI_Quaternion			= 0x21,
@@ -126,7 +126,8 @@ enum XsCanDataIdentifier
 	XCDI_Velocity			= 0x76,
 	XCDI_Latitude			= 0x77,
 	XCDI_Longitude			= 0x78,
-	XCDI_GnssSatInfo 		= 0x79,
+	XCDI_GnssReceiverStatus	= 0x79,
+	XCDI_GnssReceiverDop	= 0x7A,
 
 	XCDI_EndOfGroup, //Keep this entry second to last.
 	XCDI_HighestIdentifier, //Keep this entry last. Don't assign IDs with a higher value than this.

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -139,7 +139,6 @@ using namespace XsMath;
 */
 XsControl::XsControl()
 	: m_useFakeMessages(true)
-	, m_synchronousDataReport(false)
 	, m_lastHwError(XRV_OK)
 	, m_lastHwErrorDeviceId(0)
 	, m_recording(false)
@@ -165,11 +164,13 @@ XsControl::XsControl()
 */
 XsControl::~XsControl()
 {
-	try {
+	try
+	{
 		close();
 		delete m_broadcaster;
 		delete m_restoreCommunication;
-	} catch(...)
+	}
+	catch (...)
 	{}
 
 	delete m_deviceFactory;
@@ -196,9 +197,7 @@ void XsControl::close()
 	XSEXITLOGD(gJournal);
 
 	if (!m_broadcaster->isReadingFromFile())
-	{
 		m_broadcaster->gotoConfig();
-	}
 
 	std::vector<XsDevice*> localList = m_deviceList;
 	for (std::vector<XsDevice*>::iterator it = localList.begin(); it != localList.end(); ++it)
@@ -237,12 +236,12 @@ void XsControl::closePort(int portNr)
 	\param device the XsDevice obtained with the device() function
 	\sa device()
 */
-void XsControl::closePort(XsDevice *device)
+void XsControl::closePort(XsDevice* device)
 {
 	JLDEBUGG(device);
 	XSEXITLOGD(gJournal);
 
-	for (uint16_t i = 0;i < m_deviceList.size();++i)
+	for (uint16_t i = 0; i < m_deviceList.size(); ++i)
 	{
 		if (device == m_deviceList[i])
 		{
@@ -267,7 +266,7 @@ void XsControl::closePort(const XsString& portname)
 	LockReadWrite portLock(&m_portMutex);
 	portLock.lock(true);
 
-	for (uint16_t i = 0;i < m_deviceList.size();++i)
+	for (uint16_t i = 0; i < m_deviceList.size(); ++i)
 	{
 		if (portname == m_deviceList[i]->portName())
 			closePort(m_deviceList[i]);
@@ -307,7 +306,7 @@ void XsControl::flushInputBuffers()
 
 	for (uint32_t i = 0; i < m_deviceList.size(); i++) // loop over all devices,
 	{
-		XsDevice *dev = m_deviceList[i];
+		XsDevice* dev = m_deviceList[i];
 		dev->flushInputBuffers(); // flush data buffer of each device.
 	}
 }
@@ -320,7 +319,7 @@ int XsControl::deviceCount() const
 	int count = 0;
 	for (uint32_t i = 0; i < m_deviceList.size(); i++)
 	{
-		XsDevice *dev = m_deviceList[i];
+		XsDevice* dev = m_deviceList[i];
 		count += 1 + (int) dev->childCount();
 	}
 	m_lastResult = XRV_OK;
@@ -366,7 +365,7 @@ XsDevice* XsControl::getDeviceFromLocationId(uint16_t locationId) const
 	XSEXITLOGD(gJournal);
 	for (uint16_t i = 0; i < m_deviceList.size(); ++i)
 	{
-		XsDevice *d = m_deviceList[i]->getDeviceFromLocationId(locationId);
+		XsDevice* d = m_deviceList[i]->getDeviceFromLocationId(locationId);
 		if (!d)
 			continue;
 		m_lastResult = XRV_OK;
@@ -432,7 +431,7 @@ XsString XsControl::lastResultText() const
 */
 int XsControl::mainDeviceCount() const
 {
-//	m_lastResult = XRV_OK;
+	//	m_lastResult = XRV_OK;
 	return (int) m_deviceList.size();
 }
 
@@ -449,7 +448,7 @@ int XsControl::mtCount() const
 	int count = 0;
 	for (uint32_t i = 0; i < m_deviceList.size(); i++)
 	{
-		XsDevice *dev = m_deviceList[i];
+		XsDevice* dev = m_deviceList[i];
 		if (dev->isMotionTracker())
 			count++;
 	}
@@ -491,9 +490,9 @@ std::vector<XsDeviceId> XsControl::mtDeviceIds() const
 	portLock.lock(false);
 
 	std::vector<XsDeviceId> result;
-	for (uint32_t i = 0;i < m_deviceList.size();++i)
+	for (uint32_t i = 0; i < m_deviceList.size(); ++i)
 	{
-		XsDevice const *main = m_deviceList.at(i);
+		XsDevice const* main = m_deviceList.at(i);
 		if (main->isMotionTracker())
 			result.push_back(main->deviceId());
 	}
@@ -502,11 +501,11 @@ std::vector<XsDeviceId> XsControl::mtDeviceIds() const
 
 /*! \brief Place all sensors connected through a serial port into Configuration Mode.
 
-  This function is called before close() in the destructor of the class.
-  /sa close()
+    This function is called before close() in the destructor of the class.
+    /sa close()
 
-  \internal
-  The function places the sensors in configuration mode in the appropriate order as they are sorted by sortBySync.
+    \internal
+    The function places the sensors in configuration mode in the appropriate order as they are sorted by sortBySync.
 */
 void XsControl::gotoConfig(void)
 {
@@ -536,7 +535,7 @@ void XsControl::gotoMeasurement()
 	\param portName the name of port to which device is connected.
 	\returns XRV_OK if restore communication procedure was successful.
 */
-XsResultValue XsControl::startRestoreCommunication(const XsString & portName)
+XsResultValue XsControl::startRestoreCommunication(const XsString& portName)
 {
 	return m_restoreCommunication->start(portName);
 }
@@ -599,13 +598,13 @@ XsDevice* XsControl::addMasterDevice(Communicator* communicator)
 /*! \endcond */
 
 /*!	\brief Open the log file with the given \a filename.
-  \returns True is the file was opened successfully. False if an error was encountered.
+    \returns True is the file was opened successfully. False if an error was encountered.
 
 	\param filename the name of the file to open
 
 	\returns true on success, false on failure
 
-  \sa lastResult(), loadLogFile(), logFileName()
+    \sa lastResult(), loadLogFile(), logFileName()
 */
 bool XsControl::openLogFile(const XsString& filename)
 {
@@ -629,7 +628,10 @@ bool XsControl::openLogFile(const XsString& filename)
 	// note that addMasterDevice ALWAYS takes ownership of communicator
 	XsDevice* dev = addMasterDevice(object.release());
 	if (!dev)
+	{
+		m_lastResult = XRV_DEVICEERROR;
 		return false;
+	}
 
 	dev->resetLogFileReadPosition();	// this will and should call reinitializeProcessors();
 
@@ -679,7 +681,7 @@ bool XsControl::openPort(int portNr, XsBaudRate baudrate, uint32_t timeout, bool
 
 	\sa openPort(int, XsBaudRate, uint32_t, bool)
 */
-bool XsControl::openPort(const XsString &portname, XsBaudRate baudrate, uint32_t timeout, bool detectRs485)
+bool XsControl::openPort(const XsString& portname, XsBaudRate baudrate, uint32_t timeout, bool detectRs485)
 {
 	XsPortInfo localPortInfo = XsPortInfo(portname, baudrate);
 	uint16_t vid = vidFromString(portname.toStdString());
@@ -691,9 +693,9 @@ bool XsControl::openPort(const XsString &portname, XsBaudRate baudrate, uint32_t
 /*! \cond XS_INTERNAL */
 /*! \brief Finalize opening the port
 
-  Takes ownership of the passed Communicator.
+    Takes ownership of the passed Communicator.
 */
-bool XsControl::finalizeOpenPort(Communicator *communicator, XsPortInfo &portinfo, uint32_t timeout, bool detectRs485)
+bool XsControl::finalizeOpenPort(Communicator* communicator, XsPortInfo& portinfo, uint32_t timeout, bool detectRs485)
 {
 	XSEXITLOGD(gJournal);
 	if (!communicator)
@@ -739,7 +741,7 @@ bool XsControl::openPort(XsPortInfo& portinfo, uint32_t timeout, bool detectRs48
 	JLDEBUGG("port " << portinfo << " timeout " << timeout << " detectRs485 " << (int32_t)detectRs485);
 	XSEXITLOGD(gJournal);
 
-	Communicator *xs3info = findXbusInterface(portinfo);
+	Communicator* xs3info = findXbusInterface(portinfo);
 	if (xs3info)
 	{
 		if (xs3info->masterDeviceId().isValid() && !portinfo.deviceId().isValid())
@@ -765,7 +767,7 @@ bool XsControl::openPortWithCredentials(XsPortInfo& portinfo, XsString const& id
 	JLDEBUGG("port " << portinfo << " id " << id << " key " << key << " timeout " << timeout);
 	XSEXITLOGD(gJournal);
 
-	Communicator *xs3info = findXbusInterface(portinfo);
+	Communicator* xs3info = findXbusInterface(portinfo);
 	if (xs3info)
 	{
 		if (xs3info->masterDeviceId().isValid())
@@ -875,7 +877,7 @@ void XsControl::transmissionReceived(int channelId, const XsByteArray& data)
 
 	\sa openPort(int, XsBaudRate, bool)
 */
-bool XsControl::openImarPort_internal(const XsString &, XsBaudRate , int , uint32_t )
+bool XsControl::openImarPort_internal(const XsString&, XsBaudRate, int, uint32_t)
 {
 	return false;
 }
@@ -904,8 +906,9 @@ XsDeviceId XsControl::dockDeviceId(const XsDeviceId& deviceId) const
 	if (!deviceId.isMtw())
 		return XsDeviceId();
 
-	XsDevice *dev = findDevice(deviceId);
-	if (!dev) {
+	XsDevice* dev = findDevice(deviceId);
+	if (!dev)
+	{
 		m_lastResult = XRV_INVALIDID;
 		return XsDeviceId();
 	}
@@ -962,7 +965,7 @@ XsDevicePtrArray XsControl::mainDevices() const
 	they support it)
 	\returns An XsDevice pointer representing the broadcast device
 */
- XsDevice* XsControl::broadcast() const
+XsDevice* XsControl::broadcast() const
 {
 	return m_broadcaster;
 }
@@ -1000,7 +1003,7 @@ XsDevice* XsControl::findDevice(const XsDeviceId& deviceId) const
 
 	for (size_t i = 0; i < m_deviceList.size(); i++)
 	{
-		XsDevice *dev = m_deviceList[i];
+		XsDevice* dev = m_deviceList[i];
 
 		if (!dev)
 			break;
@@ -1020,9 +1023,9 @@ XsDevice* XsControl::findDevice(const XsDeviceId& deviceId) const
 /*! \brief Close an existing device. Because it was detected somewhere else.
 	\param deviceId the device ID to look for
 */
-void XsControl::removeExistingDevice(XsDeviceId const & deviceId)
+void XsControl::removeExistingDevice(XsDeviceId const& deviceId)
 {
-	XsDevice *dev  = findDevice(deviceId);
+	XsDevice* dev  = findDevice(deviceId);
 	if (!dev)
 		return;
 
@@ -1034,9 +1037,9 @@ void XsControl::removeExistingDevice(XsDeviceId const & deviceId)
 	\param deviceId The ID of device object to search in
 	\returns The found communication interface
 */
-Communicator* XsControl::findXbusInterface(const XsDeviceId &deviceId) const
+Communicator* XsControl::findXbusInterface(const XsDeviceId& deviceId) const
 {
-	XsDevice *dev = findDevice(deviceId);
+	XsDevice* dev = findDevice(deviceId);
 	if (!dev)
 		return NULL;
 
@@ -1047,7 +1050,7 @@ Communicator* XsControl::findXbusInterface(const XsDeviceId &deviceId) const
 	\param portInfo The port information object to search in
 	\returns The found communication interface
 */
-Communicator* XsControl::findXbusInterface(const XsPortInfo &portInfo) const
+Communicator* XsControl::findXbusInterface(const XsPortInfo& portInfo) const
 {
 	return findXbusInterface(portInfo.portName());
 }
@@ -1056,7 +1059,7 @@ Communicator* XsControl::findXbusInterface(const XsPortInfo &portInfo) const
 	\param portName The name of port to search in
 	\returns The found communication interface
 */
-Communicator* XsControl::findXbusInterface(const XsString &portName) const
+Communicator* XsControl::findXbusInterface(const XsString& portName) const
 {
 	for (size_t i = 0; i < m_deviceList.size(); ++i)
 	{
@@ -1080,7 +1083,7 @@ Communicator* XsControl::findXbusInterface(const XsString &portName) const
 
 	\returns true on success, false on failure
 */
-bool XsControl::loadFilterProfiles(const XsString& )
+bool XsControl::loadFilterProfiles(const XsString&)
 {
 	return false;
 }
@@ -1092,9 +1095,9 @@ bool XsControl::loadFilterProfiles(const XsString& )
 void XsControl::closePortByIndex(uint32_t i)
 {
 	JLDEBUGG(i);
-//	XSEXITLOGD(gJournal);
+	//	XSEXITLOGD(gJournal);
 
-	XsDevice *dev = m_deviceList[i];
+	XsDevice* dev = m_deviceList[i];
 	closePort(dev);
 }
 /*! \endcond */
@@ -1154,7 +1157,7 @@ void XsControl::setOptions(XsOption enable, XsOption disable)
 void XsControl::setOptionsForce(XsOption enabled)
 {
 	m_optionsEnable = XsOption_purify(enabled);
-	m_optionsDisable = ((~m_optionsEnable) & XSO_All);
+	m_optionsDisable = (XsOption)((~m_optionsEnable) & XSO_All);
 	m_broadcaster->setOptions(m_optionsEnable, m_optionsDisable);
 }
 
@@ -1173,12 +1176,11 @@ void XsControl::setPersistentSettings(XsDevice* dev)
 /*! \endcond */
 
 #ifndef XDA_PRIVATE_BUILD
-#include "xscontrol_public.h"
+	#include "xscontrol_public.h"
 #else
-#include "xscontrolex.h"
+	#include "xscontrolex.h"
 #endif
 XsControl* XsControl::construct()
 {
 	return new XsControlEx;
 }
-#include "xscontrol_def.h"

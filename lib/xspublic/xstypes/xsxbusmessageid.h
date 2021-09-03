@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,7 +70,8 @@
 */
 /*! \brief Xsens Xbus Message Identifiers
 */
-enum XsXbusMessageId {
+enum XsXbusMessageId
+{
 	XMID_InvalidMessage             = 0x00,
 
 	// Config state messages
@@ -141,10 +142,10 @@ enum XsXbusMessageId {
 	XMID_SetOutputTrigger           = 0x28,
 	XMID_SetOutputTriggerAck        = 0x29,
 
-	XMID_SetSyncStationMode         = 0x2A,		//!< Request the current sync station mode
-	XMID_SetSyncStationModeAck      = 0x2B,		//!< Message contains the current sync station mode
-	XMID_ReqSyncStationMode         = 0x2A,		//!< Set the current sync station mode
-	XMID_ReqSyncStationModeAck      = 0x2B,		//!< Acknowledge of setting the current sync station mode
+	XMID_SetSyncStationMode         = 0x2A,        //!< Request the current sync station mode
+	XMID_SetSyncStationModeAck      = 0x2B,        //!< Message contains the current sync station mode
+	XMID_ReqSyncStationMode         = 0x2A,        //!< Set the current sync station mode
+	XMID_ReqSyncStationModeAck      = 0x2B,        //!< Acknowledge of setting the current sync station mode
 
 	XMID_SetSyncConfiguration       = 0x2C,
 	XMID_SetSyncConfigurationAck    = 0x2D,
@@ -191,6 +192,7 @@ enum XsXbusMessageId {
 
 	// Wireless
 	XMID_MasterIndication           = 0x46,
+	XMID_XsbData                    = 0x47,	// optional meta-data
 
 	XMID_ReqOptionFlags             = 0x48,
 	XMID_ReqOptionFlagsAck          = 0x49,
@@ -238,13 +240,13 @@ enum XsXbusMessageId {
 	XMID_FactoryTestSensorTiming        = 0x60,
 	XMID_FactoryTestSensorTimingResults = 0x61,
 
-	XMID_ReqAvailableFilterProfiles = 0x62,		//!< Request the available filter profiles
-	XMID_AvailableFilterProfiles    = 0x63,		//!< Message contains the available filter profiles
+	XMID_ReqAvailableFilterProfiles = 0x62,        //!< Request the available filter profiles
+	XMID_AvailableFilterProfiles    = 0x63,        //!< Message contains the available filter profiles
 
-	XMID_ReqFilterProfile           = 0x64,		//!< Request the current filter profile
-	XMID_ReqFilterProfileAck        = 0x65,		//!< Message contains the current filter profile
-	XMID_SetFilterProfile           = 0x64,		//!< Set the current filter profile
-	XMID_SetFilterProfileAck        = 0x65,		//!< Acknowledge of setting the current filter profile
+	XMID_ReqFilterProfile           = 0x64,        //!< Request the current filter profile
+	XMID_ReqFilterProfileAck        = 0x65,        //!< Message contains the current filter profile
+	XMID_SetFilterProfile           = 0x64,        //!< Set the current filter profile
+	XMID_SetFilterProfileAck        = 0x65,        //!< Acknowledge of setting the current filter profile
 
 	XMID_ReqGravityMagnitude        = 0x66,
 	XMID_ReqGravityMagnitudeAck     = 0x67,
@@ -338,20 +340,20 @@ enum XsXbusMessageId {
 	XMID_StoreFilterState           = 0x8A,
 	XMID_StoreFilterStateAck        = 0x8B,
 
-	XMID_ReqPortConfig				= 0x8C,
-	XMID_SetPortConfig				= 0x8C,
-	XMID_PortConfig					= 0x8D,
-	XMID_SetPortConfigAck			= 0x8D,
+	XMID_ReqPortConfig              = 0x8C,
+	XMID_SetPortConfig              = 0x8C,
+	XMID_PortConfig                 = 0x8D,
+	XMID_SetPortConfigAck           = 0x8D,
 
 	XMID_ReqStringOutputType        = 0x8E,
 	XMID_ReqStringOutputTypeAck     = 0x8F,
 	XMID_SetStringOutputType        = 0x8E,
 	XMID_SetStringOutputTypeAck     = 0x8F,
 
-	XMID_ReqStringOutputConfig		= 0x8E,
-	XMID_ReqStringOutputConfigAck	= 0x8F,
-	XMID_SetStringOutputConfig		= 0x8E,
-	XMID_SetStringOutputConfigAck	= 0x8F,
+	XMID_ReqStringOutputConfig      = 0x8E,
+	XMID_ReqStringOutputConfigAck   = 0x8F,
+	XMID_SetStringOutputConfig      = 0x8E,
+	XMID_SetStringOutputConfigAck   = 0x8F,
 
 	XMID_ReqEmts                    = 0x90,
 	XMID_EmtsData                   = 0x91,
@@ -363,8 +365,11 @@ enum XsXbusMessageId {
 	XMID_StoreEmts                  = 0x96,
 	XMID_StoreEmtsAck               = 0x97,
 
-	XMID_ClockSyncCommand			= 0x9A,
-	XMID_ClockSyncCommandAck		= 0x9B,
+	XMID_UnlockMaintenanceMode      = 0x98,
+	XMID_UnlockMaintenanceModeAck   = 0x99,
+
+	XMID_ClockSyncCommand           = 0x9A,
+	XMID_ClockSyncCommandAck        = 0x9B,
 
 	XMID_ReqActiveClockCorrection      = 0x9C,
 	XMID_ActiveClockCorrection         = 0x9D,
@@ -388,15 +393,15 @@ enum XsXbusMessageId {
 	XMID_AdjustUtcTime              = 0xA8,
 	XMID_AdjustUtcTimeAck           = 0xA9,
 
-	XMID_ReqManufacturerId          = 0xAA,
-	XMID_SetManufacturerId          = 0xAA,
-	XMID_ManufacturerId             = 0xAB,
-	XMID_SetManufacturerIdAck       = 0xAB,
+	XMID_ReqAssemblyId              = 0xAA,
+	XMID_SetAssemblyId              = 0xAA,
+	XMID_AssemblyId                 = 0xAB,
+	XMID_SetAssemblyIdAck           = 0xAB,
 
-	XMID_ReqGnssReceiverSettings	= 0xAC,
-	XMID_ReqGnssReceiverSettingsAck	= 0xAD,
-	XMID_SetGnssReceiverSettings	= 0xAC,
-	XMID_SetGnssReceiverSettingsAck	= 0xAD,
+	XMID_ReqGnssReceiverSettings    = 0xAC,
+	XMID_ReqGnssReceiverSettingsAck = 0xAD,
+	XMID_SetGnssReceiverSettings    = 0xAC,
+	XMID_SetGnssReceiverSettingsAck = 0xAD,
 
 	XMID_ReqAccessControlList       = 0xAE,
 	XMID_AccessControlList          = 0xAF,
@@ -452,7 +457,7 @@ enum XsXbusMessageId {
 	XMID_ReqOutputConfiguration     = 0xC0,
 	XMID_ReqOutputConfigurationAck  = 0xC1,
 	XMID_SetOutputConfiguration     = 0xC0,
-	XMID_SetOutputConfigurationAck	= 0xC1,
+	XMID_SetOutputConfigurationAck  = 0xC1,
 
 	XMID_ReqOutputMode              = 0xD0,
 	XMID_ReqOutputModeAck           = 0xD1,
@@ -469,8 +474,8 @@ enum XsXbusMessageId {
 	XMID_SetOutputSkipFactor        = 0xD4,
 	XMID_SetOutputSkipFactorAck     = 0xD5,
 
-	XMID_SetInitialHeading			= 0xD6,
-	XMID_SetInitialHeadingAck		= 0xD7,
+	XMID_SetInitialHeading          = 0xD6,
+	XMID_SetInitialHeadingAck       = 0xD7,
 
 	XMID_ReqErrorMode               = 0xDA,
 	XMID_ReqErrorModeAck            = 0xDB,
@@ -490,17 +495,17 @@ enum XsXbusMessageId {
 	XMID_SetObjectAlignment         = 0xE0,
 	XMID_SetObjectAlignmentAck      = 0xE1,
 
-	XMID_ForwardGnssData			= 0xE2,
-	XMID_ForwardGnssDataAck			= 0xE3,
+	XMID_ForwardGnssData            = 0xE2,
+	XMID_ForwardGnssDataAck         = 0xE3,
 
-	XMID_ReqCanConfig				= 0xE6,
-	XMID_SetCanConfig				= 0xE6,
-	XMID_CanConfig					= 0xE7,
-	XMID_SetCanConfigAck			= 0xE7,
-	XMID_ReqCanOutputConfig			= 0xE8,
-	XMID_SetCanOutputConfig			= 0xE8,
-	XMID_CanOutputConfig			= 0xE9,
-	XMID_SetCanOutputConfigAck		= 0xE9,
+	XMID_ReqCanConfig               = 0xE6,
+	XMID_SetCanConfig               = 0xE6,
+	XMID_CanConfig                  = 0xE7,
+	XMID_SetCanConfigAck            = 0xE7,
+	XMID_ReqCanOutputConfig         = 0xE8,
+	XMID_SetCanOutputConfig         = 0xE8,
+	XMID_CanOutputConfig            = 0xE9,
+	XMID_SetCanOutputConfigAck      = 0xE9,
 
 	XMID_ReqAlignmentRotation       = 0xEC,
 	XMID_ReqAlignmentRotationAck    = 0xED,

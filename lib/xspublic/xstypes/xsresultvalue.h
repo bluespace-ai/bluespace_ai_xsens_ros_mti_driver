@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -79,7 +79,8 @@ extern "C" {
 	\details These values are used to signal success or specific failures of functions
 	\sa XsResultValue_toString
 */
-enum XsResultValue {
+enum XsResultValue
+{
 	// general OK
 	XRV_OK						= 0,	//!< 0: Operation was performed successfully
 
@@ -119,6 +120,7 @@ enum XsResultValue {
 	XRV_ACCESSDENIED			= 51,	//!< 51: Request for control of the device was denied
 	XRV_FILEERROR				= 52,	//!< 52: Failure reading, writing, opening or closing a file
 	XRV_OUTPUTCONFIGERROR		= 53,	//!< 53: Erroneous output configuration, device can not go to measurement
+	XRV_FILE_SYSTEM_CORRUPT		= 54,	//!< 54: The internal file system of the device has become corrupt
 
 	// CMT / XDA / XME / etc
 	XRV_ERROR					= 256,	//!< 256: A generic error occurred
@@ -225,7 +227,7 @@ typedef enum XsDeviceErrorType XsDeviceErrorType;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-/* \brief Retrieve a string corresponding to the given result code.
+/*! \brief Retrieve a string corresponding to the given result code.
 
 	This function uses the XsResultText list to return a string with the relevant result
 	code in a textual format. If the supplied result code is invalid the

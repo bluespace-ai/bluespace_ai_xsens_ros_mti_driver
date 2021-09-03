@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -113,7 +113,7 @@ struct XsSnapshot
 			m_baro != other.m_baro ||
 			m_status != other.m_status ||
 			m_accClippingCounter != other.m_accClippingCounter ||
-			m_gyrClippingCounter != other.m_gyrClippingCounter||
+			m_gyrClippingCounter != other.m_gyrClippingCounter ||
 			m_type != other.m_type)
 			return false;
 
@@ -126,7 +126,7 @@ struct XsSnapshot
 		}
 		if (m_type == ST_Full)
 		{
-			if (m_iQ[3] != other.m_iQ[3] || m_timestamp != other.m_timestamp  )
+			if (m_iQ[3] != other.m_iQ[3] || m_timestamp != other.m_timestamp)
 				return false;
 		}
 		return true;

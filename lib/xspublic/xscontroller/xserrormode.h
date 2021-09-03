@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,12 +71,13 @@
 /*! \brief Error modes for use in XsDevice::setErrorMode
 	\sa XsDevice::setErrorMode \sa XsDevice::errorMode
 */
-enum XsErrorMode {
-	 XEM_Ignore = 0x0000					//!< Ignore all errors without warning
-	,XEM_IncreasePacketCounter = 0x0001		//!< Increase packet counter when an error occurs, resulting in gaps in the packet counter
-	,XEM_IncreasePacketCounterAndSendError = 0x0002	//!< Increase packet counter when an error occurs, resulting in gaps in the packet counter and send an explicit error message
-	,XEM_SendErrorAndGoToConfig = 0x0003	//!< Abort measuring and send an error message
-	,XEM_Invalid							//!< No error mode available
+enum XsErrorMode
+{
+	XEM_Ignore = 0x0000					//!< Ignore all errors without warning
+	, XEM_IncreasePacketCounter = 0x0001		//!< Increase packet counter when an error occurs, resulting in gaps in the packet counter
+	, XEM_IncreasePacketCounterAndSendError = 0x0002	//!< Increase packet counter when an error occurs, resulting in gaps in the packet counter and send an explicit error message
+	, XEM_SendErrorAndGoToConfig = 0x0003	//!< Abort measuring and send an error message
+	, XEM_Invalid							//!< No error mode available
 };
 /*! @} */
 typedef enum XsErrorMode XsErrorMode;

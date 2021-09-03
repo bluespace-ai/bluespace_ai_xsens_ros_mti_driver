@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -100,9 +100,9 @@ void XSTYPES_DLL_API xsNameThisThread(const char* threadName)
 
 	__try
 	{
-		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
 	}
-	__except(EXCEPTION_EXECUTE_HANDLER)
+	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 	}
 }
@@ -112,16 +112,16 @@ void XSTYPES_DLL_API xsNameThisThread(const char* threadName)
 #else
 #include <string.h>
 #ifdef __APPLE__
-inline static int pthread_setname_np2 (pthread_t __target_thread, const char *__name)
+inline static int pthread_setname_np2(pthread_t __target_thread, const char* __name)
 {
 	(void) __target_thread;
 	return pthread_setname_np(__name);
 }
 #else
 /* Set thread name visible in the kernel and its interfaces.  */
-extern int pthread_setname_np (pthread_t __target_thread, const char *__name);
+extern int pthread_setname_np(pthread_t __target_thread, const char* __name);
 
-inline static int pthread_setname_np2 (pthread_t __target_thread, const char *__name)
+inline static int pthread_setname_np2(pthread_t __target_thread, const char* __name)
 {
 	return pthread_setname_np(__target_thread, __name);
 }
@@ -145,7 +145,7 @@ void XSTYPES_DLL_API xsNameThisThread(const char* threadName)
 	{
 		char dup[16];
 		strncpy(dup, threadName, 11);
-		strncpy(dup+11, threadName + strlen(threadName)-4, 4);
+		strncpy(dup + 11, threadName + strlen(threadName) - 4, 4);
 		dup[15] = 0;
 		pthread_setname_np2(xsGetCurrentThreadId(), dup);
 	}
@@ -153,7 +153,7 @@ void XSTYPES_DLL_API xsNameThisThread(const char* threadName)
 
 /*! @} */
 
-pthread_t XSTYPES_DLL_API xsStartThread(void *(func)(void *), void *param, void *pid)
+pthread_t XSTYPES_DLL_API xsStartThread(void* (func)(void*), void* param, void* pid)
 {
 	(void)pid;
 	pthread_t thread;

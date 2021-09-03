@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -86,7 +86,8 @@ XSTYPES_DLL_API int XsTriggerIndicationData_valid(const struct XsTriggerIndicati
 
 
 /*! \brief Data for a trigger indication message */
-struct XsTriggerIndicationData {
+struct XsTriggerIndicationData
+{
 	uint8_t m_line;			//!< The line number
 	uint8_t m_polarity;		//!< The polarity
 	uint32_t m_timestamp;	//!< The timestamp
@@ -100,7 +101,7 @@ struct XsTriggerIndicationData {
 		\param[in] frameNumber Frame number
 	*/
 	explicit XsTriggerIndicationData(uint8_t line = 0, uint8_t polarity = 0, uint32_t timestamp = 0, uint16_t frameNumber = 0)
-	  : m_line(line), m_polarity(polarity), m_timestamp(timestamp), m_frameNumber(frameNumber)
+		: m_line(line), m_polarity(polarity), m_timestamp(timestamp), m_frameNumber(frameNumber)
 	{}
 
 	/*! \brief \copybrief XsTriggerIndicationData_destruct */
@@ -119,9 +120,9 @@ struct XsTriggerIndicationData {
 	inline bool operator == (XsTriggerIndicationData const& other) const
 	{
 		return m_line == other.m_line &&
-				m_polarity == other.m_polarity &&
-				m_timestamp == other.m_timestamp &&
-				m_frameNumber == other.m_frameNumber;
+			m_polarity == other.m_polarity &&
+			m_timestamp == other.m_timestamp &&
+			m_frameNumber == other.m_frameNumber;
 	}
 #endif
 };

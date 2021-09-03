@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,14 +69,15 @@
 #include <string>
 #include "journalloglevel.h"
 #if JOURNALLER_WITH_THREAD_SUPPORT
-#include <map>
-#include "xsens_mutex.h"
+	#include <map>
+	#include "xsens_mutex.h"
 #endif
 
 class FileInfo;
 class JournalFile;
 
-class JournalThreader {
+class JournalThreader
+{
 public:
 	JournalThreader();
 	~JournalThreader();
@@ -91,7 +92,8 @@ public:
 private:
 	/*! \brief Storage for logging queue of a specific thread
 	*/
-	class ThreadLine {
+	class ThreadLine
+	{
 	public:
 		std::string m_line;			//!< The contained text for this log line
 		JournalLogLevel m_level;	//!< The level of this log line

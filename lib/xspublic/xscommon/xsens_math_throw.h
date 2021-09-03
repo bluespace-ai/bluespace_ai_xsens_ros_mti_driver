@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -67,11 +67,9 @@
 
 #include <xstypes/xstypesconfig.h>
 
-#ifndef XSENS_NO_EXCEPTIONS
-	#include <xstypes/xsexception.h>
-#endif
-
 #ifdef XSENS_NO_EXCEPTIONS
+	#define	XSNOEXCEPT
+	#define	XSNOEXCEPT_ARG(a)
 	// support for exceptions is disabled, just do whatever assert(0) does
 	#ifdef XSENS_DEBUG
 		#include <assert.h>
@@ -82,7 +80,17 @@
 		#define XM_THROW_DEFINED	0
 	#endif
 #else
+	#include <xstypes/xsexception.h>
 	#define XM_THROW_DEFINED	1
+
+	#if __cplusplus >= 201103L
+		#define	XSNOEXCEPT			noexcept
+		#define	XSNOEXCEPT_ARG(a)	noexcept(#a)
+	#else
+		#define	XSNOEXCEPT
+		#define	XSNOEXCEPT_ARG(a)
+	#endif
+
 	#ifdef XSEXCEPTION_H
 		#ifdef _MSC_VER
 			#define XETHROW(a)	throw XsException(XRV_ERROR, XsString(__FUNCTION__ " ") << XsString(a))
@@ -104,12 +112,12 @@
 
 namespace xsens
 {
-	namespace DebugTools
-	{
-		void mathThrowBreakFunc();
-		void enableFloatingPointExceptions();
-		void disableFloatingPointExceptions();
-	} // namespace DebugTools
+namespace DebugTools
+{
+void mathThrowBreakFunc();
+void enableFloatingPointExceptions();
+void disableFloatingPointExceptions();
+} // namespace DebugTools
 } // namespace xsens
 
 #endif

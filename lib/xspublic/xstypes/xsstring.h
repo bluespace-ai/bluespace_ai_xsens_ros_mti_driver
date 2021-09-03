@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,7 +68,7 @@
 #include "xstypesconfig.h"
 #include "xsarray.h"
 #ifndef XSENS_NO_WCHAR
-#include <wchar.h>
+	#include <wchar.h>
 #endif // XSENS_NO_WCHAR
 #include <string.h>
 
@@ -99,16 +99,17 @@ XSTYPES_DLL_API void XsString_resize(XsString* thisPtr, XsSize count);
 XSTYPES_DLL_API void XsString_append(XsString* thisPtr, XsString const* other);
 XSTYPES_DLL_API void XsString_erase(XsString* thisPtr, XsSize index, XsSize count);
 XSTYPES_DLL_API void XsString_push_back(XsString* thisPtr, char c);
-XSTYPES_DLL_API XsSize XsString_utf8Len(XsString const * thisPtr);
-XSTYPES_DLL_API int XsString_endsWith(XsString const * thisPtr, XsString const* other, int caseSensitive);
-XSTYPES_DLL_API int XsString_startsWith(XsString const * thisPtr, XsString const* other, int caseSensitive);
-XSTYPES_DLL_API int XsString_contains(XsString const * thisPtr, XsString const* other, int caseSensitive, XsSize* offset);
-XSTYPES_DLL_API int XsString_empty(XsString const * thisPtr);
+XSTYPES_DLL_API XsSize XsString_utf8Len(XsString const* thisPtr);
+XSTYPES_DLL_API int XsString_endsWith(XsString const* thisPtr, XsString const* other, int caseSensitive);
+XSTYPES_DLL_API int XsString_startsWith(XsString const* thisPtr, XsString const* other, int caseSensitive);
+XSTYPES_DLL_API int XsString_contains(XsString const* thisPtr, XsString const* other, int caseSensitive, XsSize* offset);
+XSTYPES_DLL_API int XsString_empty(XsString const* thisPtr);
 XSTYPES_DLL_API void XsString_sort(XsString* thisPtr);
 XSTYPES_DLL_API void XsString_reverse(XsString* thisPtr);
-XSTYPES_DLL_API int XsString_findSubStr(XsString const* thisPtr, XsString const* needle);
+XSTYPES_DLL_API ptrdiff_t XsString_findSubStr(XsString const* thisPtr, XsString const* needle);
 XSTYPES_DLL_API void XsString_mid(XsString* thisPtr, XsString const* source, XsSize start, XsSize count);
 XSTYPES_DLL_API void XsString_replaceAll(XsString* thisPtr, XsString const* src, XsString const* dst);
+XSTYPES_DLL_API void XsString_trimmed(XsString* thisPtr, XsString const* source);
 
 #ifndef XSENS_NO_WCHAR
 XSTYPES_DLL_API XsSize XsString_copyToWCharArray(const XsString* thisPtr, wchar_t* dest, XsSize size);
@@ -127,7 +128,7 @@ XSTYPES_DLL_API void XsString_push_backWChar(XsString* thisPtr, wchar_t c);
 #endif
 
 #ifdef __cplusplus
-/* We need some special template implementations for strings to keep them 0-terminated
+/*  We need some special template implementations for strings to keep them 0-terminated
 */
 // this typedef is not _always_ interpreted correctly by doxygen, hence the occasional function where we're NOT using it.
 typedef XsArrayImpl<char, g_xsStringDescriptor, XsString> XsStringType;
@@ -137,16 +138,16 @@ typedef XsArrayImpl<char, g_xsStringDescriptor, XsString> XsStringType;
 	\returns The number of items currently in the array
 	\sa reserved \sa setSize \sa resize \sa utf8Len
 */
-template<> inline XsSize XsStringType::size() const
+template<> inline XsSize XsStringType::size() const noexcept
 {
-	return m_size?m_size-1:0;
+	return m_size ? m_size - 1 : 0;
 }
 
 //! \copydoc XsArray_reserve
 template<> inline void XsStringType::reserve(XsSize count)
 {
 	if (count)
-		XsArray_reserve(this, count+1);
+		XsArray_reserve(this, count + 1);
 	else
 		XsArray_reserve(this, 0);
 }
@@ -154,14 +155,7 @@ template<> inline void XsStringType::reserve(XsSize count)
 //! \brief Returns the reserved space in number of items
 template<> inline XsSize XsStringType::reserved() const
 {
-	return m_reserved?m_reserved-1:0;
-}
-
-/*! \brief indexed data access operator */
-template<> inline char& XsStringType::operator[] (XsSize index)
-{
-	assert(index < size());
-	return *ptrAt(m_data, (ptrdiff_t) index);
+	return m_reserved ? m_reserved - 1 : 0;
 }
 
 /*! \brief Removes \a count items from the array starting at \a index. \param index The index of the first item to remove. \param count The number of items to remove. */
@@ -227,10 +221,11 @@ template<> inline void XsArrayImpl<char, g_xsStringDescriptor, XsString>::append
 	XsString_append((XsString*) this, (XsString const*) &other);
 }
 
-struct XsString : public XsStringType {
+struct XsString : public XsStringType
+{
 	//! \brief Constructs an XsString
 	inline explicit XsString(XsSize sz = 0, char const* src = 0)
-		 : XsStringType()
+		: XsStringType()
 	{
 		if (sz || src)
 			XsString_assign(this, sz, src);
@@ -239,7 +234,7 @@ struct XsString : public XsStringType {
 #ifndef SWIG
 	//! \brief Constructs an XsString as a copy of \a other
 	inline XsString(const XsStringType& other)
-		 : XsStringType(other)
+		: XsStringType(other)
 	{
 	}
 #else
@@ -251,7 +246,7 @@ struct XsString : public XsStringType {
 
 	//! \brief Constructs an XsInt64Array that references the data supplied in \a ref
 	inline explicit XsString(char* ref, XsSize sz, XsDataFlags flags /* = XSDF_None */)
-		: XsStringType(ref, sz+1, flags)
+		: XsStringType(ref, sz + 1, flags)
 	{
 	}
 #ifndef XSENS_NOITERATOR
@@ -287,7 +282,7 @@ struct XsString : public XsStringType {
 		: XsStringType()
 	{
 		if (!src.empty())
-			XsString_assign(this, (XsSize)src.size()+1, src.c_str());
+			XsString_assign(this, (XsSize)src.size() + 1, src.c_str());
 	}
 
 	//! \brief Construct an XsString from a std::wstring
@@ -310,7 +305,7 @@ struct XsString : public XsStringType {
 		{
 			return begin().operator ->();
 		}
-		catch(...)
+		catch (...)
 		{
 			return const_cast<char*>(&nullChar);
 		}
@@ -330,7 +325,7 @@ struct XsString : public XsStringType {
 		{
 			return begin().operator ->();
 		}
-		catch(...)
+		catch (...)
 		{
 			return &nullChar;
 		}
@@ -341,7 +336,7 @@ struct XsString : public XsStringType {
 
 #ifndef XSENS_NO_STL
 	//! \brief Return the string as a std::string
-	std::string toStdString() const
+	inline std::string toStdString() const
 	{
 		if (empty())
 			return std::string();
@@ -353,7 +348,7 @@ struct XsString : public XsStringType {
 	XsString operator + (XsString const& other) const
 	{
 		XsString tmp;
-		tmp.reserve(size()+other.size());
+		tmp.reserve(size() + other.size());
 		tmp.append(*this);
 		tmp.append(other);
 		return tmp;
@@ -367,7 +362,7 @@ struct XsString : public XsStringType {
 			return std::wstring();
 		size_t s = XsString_copyToWCharArray(this, NULL, 0);
 		std::wstring w;
-		w.resize(s-1);
+		w.resize(s - 1);
 		(void) XsString_copyToWCharArray(this, &w[0], (XsSize)s);
 		return w;
 	}
@@ -382,14 +377,27 @@ struct XsString : public XsStringType {
 	/*! \endcond */
 
 	//! \brief Return true if the contents of \a str are identical to this string
-	bool operator == (char const* str) const
+	inline bool operator == (char const* str) const
 	{
-		if (!str) return empty();
+		if (!str)
+			return empty();
 		return !strcmp(c_str(), str);
+	}
+
+	//! \brief Return true if the contents of \a str are identical to this string
+	inline bool operator == (XsString const& str) const
+	{
+		return XsStringType::operator ==(str);
 	}
 
 	//! \brief Return true if the contents of \a str differ from this string
 	inline bool operator != (char const* str) const
+	{
+		return !(*this == str);
+	}
+
+	//! \brief Return true if the contents of \a str differ from this string
+	inline bool operator != (XsString const& str) const
 	{
 		return !(*this == str);
 	}
@@ -409,7 +417,8 @@ struct XsString : public XsStringType {
 	inline XsString& operator << (int i)
 	{
 		char buffer[32];
-		append(XsString(buffer, (XsSize) (ptrdiff_t) std::sprintf(buffer, "%d", i), XSDF_None));
+		XSENS_MSC_WARNING_SUPPRESS(4996)
+		append(XsString(buffer, (XsSize)(ptrdiff_t) std::sprintf(buffer, "%d", i), XSDF_None));
 		return *this;
 	}
 
@@ -421,7 +430,7 @@ struct XsString : public XsStringType {
 	}
 
 	//! \brief Return true if the contents if \a str are greater then this string
-	inline bool operator < (const XsString &str) const
+	inline bool operator < (const XsString& str) const
 	{
 #ifdef XSENS_NO_STL
 		return (strcmp(c_str(), str.c_str()) < 0);
@@ -431,7 +440,7 @@ struct XsString : public XsStringType {
 	}
 
 	//! \brief Return true if the contents if \a str are less then this string
-	inline bool operator > (const XsString &str) const
+	inline bool operator > (const XsString& str) const
 	{
 #ifdef XSENS_NO_STL
 		return (strcmp(c_str(), str.c_str()) > 0);
@@ -442,7 +451,7 @@ struct XsString : public XsStringType {
 
 #ifndef SWIG
 	/*! \brief Swap the contents the \a first and \a second array */
-	friend void swap(XsString& first, XsString& second)
+	friend inline void swap(XsString& first, XsString& second)
 	{
 		first.swap(second);
 	}
@@ -505,7 +514,7 @@ struct XsString : public XsStringType {
 	*/
 	inline bool endsWith(XsString const& other, bool caseSensitive = false) const
 	{
-		return 0 != XsString_endsWith(this, &other, caseSensitive?1:0);
+		return 0 != XsString_endsWith(this, &other, caseSensitive ? 1 : 0);
 	}
 
 	/*! \brief Returns whether this string starts with \a other (case-insensitive!)
@@ -515,7 +524,7 @@ struct XsString : public XsStringType {
 	*/
 	inline bool startsWith(XsString const& other, bool caseSensitive = false) const
 	{
-		return 0 != XsString_startsWith(this, &other, caseSensitive?1:0);
+		return 0 != XsString_startsWith(this, &other, caseSensitive ? 1 : 0);
 	}
 
 	/*! \brief Returns whether this string contains \a other (case-insensitive!)
@@ -526,7 +535,7 @@ struct XsString : public XsStringType {
 	*/
 	inline bool contains(XsString const& other, bool caseSensitive = false, XsSize* offset = 0) const
 	{
-		return 0 != XsString_contains(this, &other, caseSensitive?1:0, offset);
+		return 0 != XsString_contains(this, &other, caseSensitive ? 1 : 0, offset);
 	}
 
 #ifndef XSENS_NO_WCHAR
@@ -566,7 +575,7 @@ struct XsString : public XsStringType {
 		\param needle The string to find
 		\return The offset of \a needle or -1 if it was not found
 	*/
-	int findSubStr(XsString const& needle) const
+	inline ptrdiff_t findSubStr(XsString const& needle) const
 	{
 		return XsString_findSubStr(this, &needle);
 	}
@@ -577,7 +586,7 @@ struct XsString : public XsStringType {
 		\param count The maximum number of characters to copy
 		\return The requested substring
 	*/
-	XsString mid(XsSize start, XsSize count) const
+	inline XsString mid(XsSize start, XsSize count) const
 	{
 		XsString rv;
 		XsString_mid(&rv, this, start, count);
@@ -588,7 +597,7 @@ struct XsString : public XsStringType {
 		\param src Substring to search for
 		\param dst Substring to use as replacement
 	*/
-	void replaceAll(XsString const& src, XsString const& dst)
+	inline void replaceAll(XsString const& src, XsString const& dst)
 	{
 		XsString_replaceAll(this, &src, &dst);
 	}
@@ -597,25 +606,51 @@ struct XsString : public XsStringType {
 		\param src Substring to search for
 		\param dst Substring to use as replacement
 	*/
-	XsString replacedAll(XsString const& src, XsString const& dst) const
+	inline XsString replacedAll(XsString const& src, XsString const& dst) const
 	{
 		XsString rv(*this);
 		XsString_replaceAll(&rv, &src, &dst);
 		return rv;
 	}
+
+	/*! \brief Remove all whitespace from start and end of the string
+	*/
+	inline void trim()
+	{
+		XsString rv;
+		XsString_trimmed(&rv, this);
+		swap(rv);
+	}
+
+	/*! \brief Returns an XsString based on this with all whitespace at start and end of the string removed
+	*/
+	inline XsString trimmed() const
+	{
+		XsString rv;
+		XsString_trimmed(&rv, this);
+		return rv;
+	}
+
+	/*! \brief Returns the last character in the XsString or \0 if the string is empty */
+	inline char last() const
+	{
+		if (size())
+			return at(size() - 1);
+		return 0;
+	}
+
 };
 
 #ifndef XSENS_NO_STL
 namespace std
 {
-	template<typename _CharT, typename _Traits>
-	basic_ostream<_CharT, _Traits>& operator<<(basic_ostream<_CharT, _Traits>& o, XsString const& xs)
-	{
-		return (o << xs.toStdString());
-	}
+template<typename _CharT, typename _Traits>
+basic_ostream<_CharT, _Traits>& operator<<(basic_ostream<_CharT, _Traits>& o, XsString const& xs)
+{
+	return (o << xs.toStdString());
+}
 }
 #endif
 
 #endif
-
 #endif

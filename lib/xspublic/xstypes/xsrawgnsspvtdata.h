@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -78,10 +78,56 @@
 	#include <cstring>
 #endif
 
-// The valid flag from the PVT package has the following fields, x is the valid flag.
+// The valid flag from the PVT package has the following fields, x is the valid flag:
 #define GNSS_PVT_VALID_DATE(x)		(0x01 & x)	// UTC date is valid
 #define GNSS_PVT_VALID_TIME(x)		(0x02 & x)	// UTC time of day is valid
 #define GNSS_PVT_VALID_RESOLVE(x)	(0x04 & x)	// UTC time of day has been fully resolved
+
+// The flag from the PVT package has the following fields, x is the valid flag:
+#define GNSS_PVT_FLAGS_GNSS_FIX(x)				((0x03 << 0) & x)
+#define GNSS_PVT_FLAGS_POWER_SAVE_MODE_STATE(x)	((0x07 << 2) & x)
+#define GNSS_PVT_FLAGS_HEADING_VEHICLE_VALID(x)	((0x01 << 5) & x)
+#define GNSS_PVT_FLAGS_CARRIER_SOLUTION(x)		((0x03 << 6) & x)
+
+#define GNSS_PVT_FLAGS_GNSS_FIX_NONE			(0x00)
+#define GNSS_PVT_FLAGS_GNSS_FIX_SINGLE			(0x01)
+#define GNSS_PVT_FLAGS_GNSS_FIX_DIFFERENTIAL	(0x03)
+
+#define GNSS_PVT_FLAGS_CARRIER_SOLUTION_NONE		(0x00 << 6)
+#define GNSS_PVT_FLAGS_CARRIER_SOLUTION_FLOATING	(0x01 << 6)
+#define GNSS_PVT_FLAGS_CARRIER_SOLUTION_FIXED		(0x02 << 6)
+
+// Default accuracy deviation when not provided by GNSS receiver
+#define GNSS_ACCURACY_DEFAULT_DEVIATION			(10000000)
+
+/*!	\addtogroup enums Global enumerations
+	@{
+*/
+
+/*! \enum XsPvtDataUtcFlags
+ *  \brief Define the validity flags for the UTC time
+*/
+enum XsPvtDataUtcFlags
+{
+	XPDUF_ValidDate     = 0x01,
+	XPDUF_ValidTime     = 0x02,
+	XPDUF_FullyResolved = 0x04,
+	XPDUF_ValidMag      = 0x08
+};
+
+/*! \enum XsPvtDataQualityIndicator
+ *  \brief Defines the quality indicator flags of the GNSS Fix type
+*/
+enum XsPvtDataQualityIndicator
+{
+	XPDQI_NoFix             = 0,
+	XPDQI_DeadReckiningOnly = 1,
+	XPDQI_2DFix             = 2,
+	XPDQI_3DFix             = 3,
+	XPDQI_GnssAndDeadReck   = 4,
+	XPDQI_TimeOnlyFix       = 5
+};
+/*! @} */
 
 /*! \brief A container for GNSS Position Velocity and Time data
 */
@@ -113,8 +159,9 @@ struct XsRawGnssPvtData
 	uint8_t		m_flags;	/*!< Fix Status Flags
 								bit(0) = Set if there is a valid fix (i.e. within DOP & accuracy masks)
 								bit(1) = Set if differential corrections were applied
-								bit(2..4) = Reserved (Ignore)
+								bit(4..2) = Power save mode state
 								bit(5) = Set if heading of vehicle is valid
+								bit(7..6) = Carrier phase range solution status: 0 = none, 1 = floating, 2 = fixed
 */
 
 	uint8_t		m_numSv;	//!< Number of satellites used in Nav Solution
