@@ -4,7 +4,7 @@ Documentation:
     You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section. The SDK can be downloaded from https://www.xsens.com/software-downloads. Please note, this is a 3rd Party driver built from MTSDK2021.2 with no official support. Check the compatibility section for the compatible devices. For official support on Xsens MTi products, please refer to Xsens knowledge base: https://base.xsens.com
 
 Prerequisites:
-    - ROS 2.0 Foxy
+    - ROS 2.0 Galactic/Foxy
     - C/C++ Compiler: GCC 5.4.0 or MSVC 14.0
     - C++14
 
