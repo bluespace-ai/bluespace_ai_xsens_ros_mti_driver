@@ -84,6 +84,7 @@
 #include "messagepublishers/velocityincrementpublisher.h"
 #include "messagepublishers/positionllapublisher.h"
 #include "messagepublishers/velocitypublisher.h"
+#include "messagepublishers/statuspublisher.h"
 
 XdaInterface::XdaInterface(const std::string &node_name, const rclcpp::NodeOptions &options)
 	: Node(node_name, options)
@@ -184,6 +185,10 @@ void XdaInterface::registerPublishers()
 	if (get_parameter("pub_velocity", should_publish) && should_publish)
 	{
 		registerCallback(new VelocityPublisher(node));
+	}
+	if (get_parameter("pub_status", should_publish) && should_publish)
+	{
+		registerCallback(new StatusPublisher(node));
 	}
 }
 
@@ -365,6 +370,7 @@ void XdaInterface::declareCommonParameters()
 	declare_parameter("pub_transform", should_publish);
 	declare_parameter("pub_positionLLA", should_publish);
 	declare_parameter("pub_velocity", should_publish);
+	declare_parameter("pub_status", should_publish);
 
 	declare_parameter("scan_for_devices", true);
 	declare_parameter("device_id", "");
