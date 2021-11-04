@@ -60,10 +60,14 @@
 //  
 
 #include "xdainterface.h"
+#include "xdautils.h"
+
+#include <vector>
 
 #include <xscontroller/xsscanner.h>
 #include <xscontroller/xscontrol_def.h>
 #include <xscontroller/xsdevice_def.h>
+#include <xstypes/xsfilterprofilearray.h>
 
 #include "messagepublishers/packetcallback.h"
 #include "messagepublishers/accelerationpublisher.h"
@@ -267,12 +271,99 @@ bool XdaInterface::connectDevice()
 	return true;
 }
 
+bool XdaInterface::configureDevice()
+{
+	auto profiles = m_device->availableOnboardFilterProfiles();
+	RCLCPP_INFO(get_logger(), "Supported device profiles:");
+	for ( auto profile : profiles ) {
+		RCLCPP_INFO(get_logger(), "Profile: %s", profile.toString().c_str());
+	}
+
+	auto current_profile = m_device->onboardFilterProfile();
+	RCLCPP_INFO(get_logger(), "Profile in use: %s", current_profile.toString().c_str());
+
+	// 197.1 VRU
+	// Nice to have:
+	std::string selected_profile;
+	if (get_parameter("onboard_filter_profile", selected_profile) && !selected_profile.empty()) {
+		// select filter profile.
+		if (current_profile.label() == selected_profile)
+		{
+			RCLCPP_INFO(get_logger(), "Onboard filter profile already setup to correctly");
+		}
+		else
+		{
+			RCLCPP_INFO(get_logger(), "Selecting onboard filter profile: %s", selected_profile.c_str());
+			if (!m_device->setOnboardFilterProfile(selected_profile)) {
+				return handleError("Could not set onboard filter profile");
+			}
+		}
+	} else {
+		RCLCPP_INFO(get_logger(), "Not configuring onboard filter profile");
+	}
+
+	auto current_output_configuration = m_device->outputConfiguration();
+	RCLCPP_INFO(get_logger(), "Currently configured output configuration:");
+	for ( auto cfg : current_output_configuration) {
+		auto output_name = get_xs_data_identifier_name(cfg.m_dataIdentifier);
+		RCLCPP_INFO(get_logger(), " - : %s = %d", output_name.c_str(), cfg.m_frequency);
+	}
+
+	std::vector<std::string> output_configuration;
+	if (get_parameter("output_configuration", output_configuration) && !output_configuration.empty()) {
+		XsOutputConfigurationArray newConfigArray;
+		for (std::string cfg : output_configuration) {
+			RCLCPP_INFO(get_logger(), "CFG: %s", cfg.c_str());
+			std::string output_name;
+			int output_frequency;
+			if (!parseConfigLine(cfg, output_name, output_frequency))
+			{
+				return handleError("Could not parse line" + cfg);
+			}
+
+			XsDataIdentifier data_identifier;
+			if (!get_xs_data_identifier_by_name(output_name, data_identifier))
+			{
+				return handleError("Invalid data identifier: " + output_name);
+			}
+
+			newConfigArray.push_back(XsOutputConfiguration(data_identifier, output_frequency));
+		}
+
+		// configArray.push_back(XsOutputConfiguration(XDI_PacketCounter, 0));
+		// configArray.push_back(XsOutputConfiguration(XDI_SampleTimeFine, 0));
+		// configArray.push_back(XsOutputConfiguration(XDI_Quaternion, 200));
+		// configArray.push_back(XsOutputConfiguration(XDI_Acceleration, 200));
+		// configArray.push_back(XsOutputConfiguration(XDI_FreeAcceleration, 200));
+		// configArray.push_back(XsOutputConfiguration(XDI_RateOfTurn, 200));
+
+		if (newConfigArray == current_output_configuration)
+		{
+			RCLCPP_INFO(get_logger(), "Output configuration already configured correctly.");
+		}
+		else
+		{
+			RCLCPP_INFO(get_logger(), "Setting output configuration");
+			if (!m_device->setOutputConfiguration(newConfigArray)) {
+				return handleError("Could not set output configuration");
+			}
+		}
+	} else {
+		RCLCPP_INFO(get_logger(), "Not configuring output configuration");
+	}
+
+	return true;
+}
+
 bool XdaInterface::prepare()
 {
 	assert(m_device != 0);
 
 	if (!m_device->gotoConfig())
 		return handleError("Could not go to config");
+
+	if (!configureDevice())
+		return false;
 
 	// read EMTS and device config stored in .mtb file header.
 	if (!m_device->readEmtsAndDeviceConfiguration())
@@ -357,6 +448,9 @@ void XdaInterface::declareCommonParameters()
 	declare_parameter("device_id", "");
 	declare_parameter("port", "");
 	declare_parameter("baudrate", XsBaud::rateToNumeric(XBR_Invalid));
+
+	declare_parameter<std::string>("onboard_filter_profile", "");
+	declare_parameter<std::vector<std::string>>("output_configuration", std::vector<std::string>());
 
 	declare_parameter("enable_logging", false);
 	declare_parameter("log_file", "log.mtb");
