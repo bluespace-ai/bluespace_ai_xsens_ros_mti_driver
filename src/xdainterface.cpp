@@ -273,20 +273,21 @@ bool XdaInterface::connectDevice()
 
 bool XdaInterface::configureDevice()
 {
-	auto profiles = m_device->availableOnboardFilterProfiles();
+	const auto profiles = m_device->availableOnboardFilterProfiles();
 	RCLCPP_INFO(get_logger(), "Supported device profiles:");
-	for ( auto profile : profiles ) {
-		RCLCPP_INFO(get_logger(), "Profile: %s", profile.toString().c_str());
+	for (const auto& profile : profiles)
+	{
+		RCLCPP_INFO(get_logger(), " - %s", profile.label());
 	}
 
-	auto current_profile = m_device->onboardFilterProfile();
-	RCLCPP_INFO(get_logger(), "Profile in use: %s", current_profile.toString().c_str());
+	const auto current_profile = m_device->onboardFilterProfile();
+	RCLCPP_INFO(get_logger(), "Profile in use: %s", current_profile.label());
 
-	// 197.1 VRU
-	// Nice to have:
 	std::string selected_profile;
-	if (get_parameter("onboard_filter_profile", selected_profile) && !selected_profile.empty()) {
-		// select filter profile.
+	if (get_parameter("onboard_filter_profile", selected_profile) && !selected_profile.empty())
+	{
+		RCLCPP_INFO(get_logger(), "Found filter profile parameter: %s", selected_profile.c_str());
+
 		if (current_profile.label() == selected_profile)
 		{
 			RCLCPP_INFO(get_logger(), "Onboard filter profile already setup to correctly");
@@ -294,32 +295,35 @@ bool XdaInterface::configureDevice()
 		else
 		{
 			RCLCPP_INFO(get_logger(), "Selecting onboard filter profile: %s", selected_profile.c_str());
-			if (!m_device->setOnboardFilterProfile(selected_profile)) {
+			if (!m_device->setOnboardFilterProfile(selected_profile))
+			{
 				return handleError("Could not set onboard filter profile");
 			}
 		}
-	} else {
-		RCLCPP_INFO(get_logger(), "Not configuring onboard filter profile");
 	}
 
-	auto current_output_configuration = m_device->outputConfiguration();
+	const auto current_output_configuration = m_device->outputConfiguration();
 	RCLCPP_INFO(get_logger(), "Currently configured output configuration:");
-	for ( auto cfg : current_output_configuration) {
-		auto output_name = get_xs_data_identifier_name(cfg.m_dataIdentifier);
-		RCLCPP_INFO(get_logger(), " - : %s = %d", output_name.c_str(), cfg.m_frequency);
+	for (const auto& cfg : current_output_configuration) {
+		const auto output_name = get_xs_data_identifier_name(cfg.m_dataIdentifier);
+		RCLCPP_INFO(get_logger(), " - %s = %d", output_name.c_str(), cfg.m_frequency);
 	}
 
 	std::vector<std::string> output_configuration;
-	if (get_parameter("output_configuration", output_configuration) && !output_configuration.empty()) {
+	if (get_parameter("output_configuration", output_configuration) && !output_configuration.empty())
+	{
+		RCLCPP_INFO(get_logger(), "Found output configuration parameter(s):");
+
 		XsOutputConfigurationArray newConfigArray;
-		for (std::string cfg : output_configuration) {
-			RCLCPP_INFO(get_logger(), "CFG: %s", cfg.c_str());
+		for (const auto& cfg : output_configuration)
+		{
 			std::string output_name;
 			int output_frequency;
 			if (!parseConfigLine(cfg, output_name, output_frequency))
 			{
 				return handleError("Could not parse line" + cfg);
 			}
+			RCLCPP_INFO(get_logger(), " - %s = %d", output_name.c_str(), output_frequency);
 
 			XsDataIdentifier data_identifier;
 			if (!get_xs_data_identifier_by_name(output_name, data_identifier))
@@ -330,26 +334,18 @@ bool XdaInterface::configureDevice()
 			newConfigArray.push_back(XsOutputConfiguration(data_identifier, output_frequency));
 		}
 
-		// configArray.push_back(XsOutputConfiguration(XDI_PacketCounter, 0));
-		// configArray.push_back(XsOutputConfiguration(XDI_SampleTimeFine, 0));
-		// configArray.push_back(XsOutputConfiguration(XDI_Quaternion, 200));
-		// configArray.push_back(XsOutputConfiguration(XDI_Acceleration, 200));
-		// configArray.push_back(XsOutputConfiguration(XDI_FreeAcceleration, 200));
-		// configArray.push_back(XsOutputConfiguration(XDI_RateOfTurn, 200));
-
 		if (newConfigArray == current_output_configuration)
 		{
-			RCLCPP_INFO(get_logger(), "Output configuration already configured correctly.");
+			RCLCPP_INFO(get_logger(), "Output configuration already configured correctly");
 		}
 		else
 		{
 			RCLCPP_INFO(get_logger(), "Setting output configuration");
-			if (!m_device->setOutputConfiguration(newConfigArray)) {
+			if (!m_device->setOutputConfiguration(newConfigArray))
+			{
 				return handleError("Could not set output configuration");
 			}
 		}
-	} else {
-		RCLCPP_INFO(get_logger(), "Not configuring output configuration");
 	}
 
 	return true;
@@ -363,7 +359,7 @@ bool XdaInterface::prepare()
 		return handleError("Could not go to config");
 
 	if (!configureDevice())
-		return false;
+		return handleError("Could not not apply the custom device configuration");
 
 	// read EMTS and device config stored in .mtb file header.
 	if (!m_device->readEmtsAndDeviceConfiguration())

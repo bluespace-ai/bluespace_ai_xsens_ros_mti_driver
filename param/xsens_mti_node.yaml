@@ -50,3 +50,13 @@
         angular_velocity_stddev: [0.0, 0.0, 0.0] # [rad/s]
         orientation_stddev: [0.0, 0.0, 0.0] # [rad]
         magnetic_field_stddev: [0.0, 0.0, 0.0] # [Tesla]
+
+        # Configure the filter profile
+        # onboard_filter_profile: "Robust/VRU"
+
+        # Configure the output data
+        # output_configuration:
+        #     - "XDI_PacketCounter=65535"
+        #     - "XDI_SampleTimeFine=65535"
+        #     - "XDI_StatusWord=65535"
+        #     - "XDI_Quaternion=200"

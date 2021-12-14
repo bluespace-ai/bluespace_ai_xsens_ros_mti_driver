@@ -1,5 +1,5 @@
-
 #include "xdautils.h"
+
 #include <map>
 #include <iostream>
 #include <sstream>
@@ -98,7 +98,7 @@ std::string get_xs_data_identifier_name(XsDataIdentifier identifier)
     }
 }
 
-bool get_xs_data_identifier_by_name(std::string name, XsDataIdentifier& identifier)
+bool get_xs_data_identifier_by_name(const std::string& name, XsDataIdentifier& identifier)
 {
     std::map<std::string, XsDataIdentifier> name_mapping;
 
@@ -202,13 +202,12 @@ bool get_xs_data_identifier_by_name(std::string name, XsDataIdentifier& identifi
     }
 }
 
-bool parseConfigLine(std::string line, std::string& name, int& value)
+bool parseConfigLine(const std::string& line, std::string& name, int& value)
 {
 	std::istringstream stream;
     stream.str(line);
 	int index=0;
 	for (std::string part; std::getline(stream, part, '='); index++) {
-		// std::cout << "line PART " << part << std::endl;
 		switch (index)
 		{
 			case 0:

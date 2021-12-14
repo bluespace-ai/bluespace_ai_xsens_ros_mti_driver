@@ -27,7 +27,7 @@ add_executable(
 	src/main.cpp
 	src/xdainterface.cpp
 	src/xdacallback.cpp
-  src/xdautils.cpp
+	src/xdautils.cpp
 )
 
 add_custom_command(
@@ -79,11 +79,10 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
   
   find_package(ament_cmake_gtest REQUIRED)
-  ament_add_gtest(xda_test src/xdautils.cpp src/xdautils_test.cpp)
+  ament_add_gtest(xda_test src/xdautils.cpp test/xdautils_test.cpp)
   target_include_directories(xda_test PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/xspublic>
     $<INSTALL_INTERFACE:include>)
-
 endif()
 
 ament_package()

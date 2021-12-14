@@ -1,5 +1,3 @@
-
-
 #include "gtest/gtest.h"
 
 #include "xdautils.h"
@@ -25,7 +23,6 @@ TEST(Xda, test_get_xs_data_identifier_name)
     ASSERT_EQ(name, "XDI_Acceleration");
 }
 
-
 TEST(Xda, test_parse_line)
 {
     std::string name;
@@ -35,7 +32,6 @@ TEST(Xda, test_parse_line)
     ASSERT_EQ(name, "XDI_Acceleration");
     ASSERT_EQ(value, 1337);
 }
-
 
 TEST(Xda, test_parse_line_error)
 {
@@ -52,6 +48,3 @@ TEST(Xda, test_parse_line_error2)
     auto result = parseConfigLine("XDI_Acceleration=13=12", name, value);
     ASSERT_FALSE(result);
 }
-
-
-
