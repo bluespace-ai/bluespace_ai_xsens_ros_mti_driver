@@ -60,10 +60,14 @@
 //  
 
 #include "xdainterface.h"
+#include "xdautils.h"
+
+#include <vector>
 
 #include <xscontroller/xsscanner.h>
 #include <xscontroller/xscontrol_def.h>
 #include <xscontroller/xsdevice_def.h>
+#include <xstypes/xsfilterprofilearray.h>
 
 #include "messagepublishers/packetcallback.h"
 #include "messagepublishers/accelerationpublisher.h"
@@ -189,6 +193,7 @@ bool XdaInterface::connectDevice()
 {
 	XsPortInfo mtPort;
 	XsBaudRate baudrate = XBR_Invalid;
+	XsBaudRate config_baudrate = XBR_Invalid;
 	bool checkDeviceID = false;
 	std::string deviceId = "";
 
@@ -197,11 +202,18 @@ bool XdaInterface::connectDevice()
 	get_parameter("scan_for_devices", scan_for_devices);
 
 	if (!scan_for_devices){
-		// Read baudrate parameter
+		// Read baudrate parameter(s)
 		int baudrateParam = 0;
 		get_parameter("baudrate", baudrateParam);
 		RCLCPP_INFO(get_logger(), "Found baudrate parameter: %d", baudrateParam);
 		baudrate = XsBaud::numericToRate(baudrateParam);
+
+		int config_baudrateParam = 0;
+		if (get_parameter("config_baudrate", config_baudrateParam))
+		{
+			RCLCPP_INFO(get_logger(), "Found config_baudrate parameter: %d", config_baudrateParam);
+			config_baudrate = XsBaud::numericToRate(config_baudrateParam);
+		}
 
 		// Read device ID parameter if set
 		get_parameter("device_id", deviceId);
@@ -217,7 +229,7 @@ bool XdaInterface::connectDevice()
 		RCLCPP_INFO(get_logger(), "Found port name parameter: %s", portName.c_str());
 		mtPort = XsPortInfo(portName, baudrate);
 		RCLCPP_INFO(get_logger(), "Scanning port %s ...", portName.c_str());
-		if (!XsScanner::scanPort(mtPort, baudrate))
+		if (!XsScanner::scanPort(mtPort, baudrate) && !XsScanner::scanPort(mtPort, config_baudrate))
 			return handleError("No MTi device found. Verify port and baudrate.");
 		if (checkDeviceID && mtPort.deviceId().toString().c_str() != deviceId)
 			return handleError("No MTi device found with matching device ID.");
@@ -262,7 +274,135 @@ bool XdaInterface::connectDevice()
 
 	RCLCPP_INFO(get_logger(), "Device: %s, with ID: %s opened.", m_device->productCode().toStdString().c_str(), m_device->deviceId().toString().c_str());
 
+	if (config_baudrate != XBR_Invalid)
+	{
+		const auto actualBaudrate = XsBaud::rateToNumeric(m_device->baudRate());
+		if (m_device->baudRate() != config_baudrate)
+		{
+			RCLCPP_INFO(get_logger(), "Detected baudrate: %d, configured baudrate: %d", XsBaud::rateToNumeric(m_device->baudRate()), XsBaud::rateToNumeric(config_baudrate));
+			RCLCPP_INFO(get_logger(), "Configuring baudrate to: %d", XsBaud::rateToNumeric(config_baudrate));
+			if (!m_device->setSerialBaudRate(config_baudrate))
+				return handleError("Could not configure baudate");
+		}
+	}
+
 	m_device->addCallbackHandler(&m_xdaCallback);
+
+	return true;
+}
+
+bool XdaInterface::configureDevice()
+{
+	const auto profiles = m_device->availableOnboardFilterProfiles();
+	RCLCPP_INFO(get_logger(), "Supported device profiles:");
+	for (const auto& profile : profiles)
+	{
+		RCLCPP_INFO(get_logger(), " - %s", profile.label());
+	}
+
+	const auto current_profile = m_device->onboardFilterProfile();
+	RCLCPP_INFO(get_logger(), "Profile in use: %s", current_profile.label());
+
+	std::string selected_profile;
+	if (get_parameter("onboard_filter_profile", selected_profile) && !selected_profile.empty())
+	{
+		RCLCPP_INFO(get_logger(), "Found filter profile parameter: %s", selected_profile.c_str());
+
+		if (current_profile.label() == selected_profile)
+		{
+			RCLCPP_INFO(get_logger(), "Onboard filter profile already setup to correctly");
+		}
+		else
+		{
+			RCLCPP_INFO(get_logger(), "Selecting onboard filter profile: %s", selected_profile.c_str());
+			if (!m_device->setOnboardFilterProfile(selected_profile))
+			{
+				return handleError("Could not set onboard filter profile");
+			}
+		}
+	}
+
+	const auto current_output_configuration = m_device->outputConfiguration();
+	RCLCPP_INFO(get_logger(), "Currently configured output configuration:");
+	for (const auto& cfg : current_output_configuration) {
+		const auto output_name = get_xs_data_identifier_name(cfg.m_dataIdentifier);
+		RCLCPP_INFO(get_logger(), " - %s = %d", output_name.c_str(), cfg.m_frequency);
+	}
+
+	std::vector<std::string> output_configuration;
+	if (get_parameter("output_configuration", output_configuration) && !output_configuration.empty())
+	{
+		RCLCPP_INFO(get_logger(), "Found output configuration parameter(s):");
+
+		XsOutputConfigurationArray newConfigArray;
+		for (const auto& cfg : output_configuration)
+		{
+			std::string output_name;
+			int output_frequency;
+			if (!parseConfigLine(cfg, output_name, output_frequency))
+			{
+				return handleError("Could not parse line" + cfg);
+			}
+			RCLCPP_INFO(get_logger(), " - %s = %d", output_name.c_str(), output_frequency);
+
+			XsDataIdentifier data_identifier;
+			if (!get_xs_data_identifier_by_name(output_name, data_identifier))
+			{
+				return handleError("Invalid data identifier: " + output_name);
+			}
+
+			newConfigArray.push_back(XsOutputConfiguration(data_identifier, output_frequency));
+		}
+
+		if (newConfigArray == current_output_configuration)
+		{
+			RCLCPP_INFO(get_logger(), "Output configuration already configured correctly");
+		}
+		else
+		{
+			RCLCPP_INFO(get_logger(), "Setting output configuration");
+			if (!m_device->setOutputConfiguration(newConfigArray))
+			{
+				return handleError("Could not set output configuration");
+			}
+		}
+	}
+
+	auto configureAlignmentQuat = [&](const std::string& name)
+	{
+		const auto frame = (name == "sensor") ? XAF_Sensor : XAF_Local;
+		const auto parameterName = (frame == XAF_Sensor) ? "alignment_sensor_quat" : "alignment_local_quat";
+
+		std::vector<XsReal> alignment_quat;
+		if (get_parameter(parameterName, alignment_quat) && !alignment_quat.empty())
+		{
+			RCLCPP_INFO(get_logger(), "Configuration alignment rotation for %s", parameterName);
+			const auto currentAlignmentQuat = m_device->alignmentRotationQuaternion(frame);
+			RCLCPP_INFO(get_logger(), " - current alignment quaternion for %s (%d): [%f %f %f %f]",
+				parameterName, frame, currentAlignmentQuat.w(), currentAlignmentQuat.x(),
+				currentAlignmentQuat.y(), currentAlignmentQuat.z());
+
+			const auto paramAlignmentQuat = XsQuaternion{alignment_quat[0], alignment_quat[1], alignment_quat[2], alignment_quat[3]};
+			if (!paramAlignmentQuat.isEqual(currentAlignmentQuat, 0.01))
+			{
+				RCLCPP_INFO(get_logger(), " - desired alignment quaternion for %s (%d): [%f %f %f %f]", parameterName, frame,
+					paramAlignmentQuat.w(), paramAlignmentQuat.x(), paramAlignmentQuat.y(), paramAlignmentQuat.z());
+				if (!m_device->setAlignmentRotationQuaternion(frame, paramAlignmentQuat))
+					return handleError("Could not configure alignment quaternion");
+			}
+			else
+			{
+				RCLCPP_INFO(get_logger(), " - actual and desired are near each other, no action taken");
+			}
+		}
+
+		return true;
+	};
+
+	if (!configureAlignmentQuat("local"))
+		return handleError("Could not set the local rotation matrix");
+	if (!configureAlignmentQuat("sensor"))
+		return handleError("Could not set the sensor rotation matrix");
 
 	return true;
 }
@@ -273,6 +413,9 @@ bool XdaInterface::prepare()
 
 	if (!m_device->gotoConfig())
 		return handleError("Could not go to config");
+
+	if (!configureDevice())
+		return handleError("Could not not apply the custom device configuration");
 
 	// read EMTS and device config stored in .mtb file header.
 	if (!m_device->readEmtsAndDeviceConfiguration())
@@ -357,6 +500,12 @@ void XdaInterface::declareCommonParameters()
 	declare_parameter("device_id", "");
 	declare_parameter("port", "");
 	declare_parameter("baudrate", XsBaud::rateToNumeric(XBR_Invalid));
+
+	declare_parameter<std::string>("onboard_filter_profile", "");
+	declare_parameter<std::vector<std::string>>("output_configuration", std::vector<std::string>());
+	declare_parameter("config_baudrate", XsBaud::rateToNumeric(XBR_Invalid));
+	declare_parameter<std::vector<XsReal>>("alignment_local_quat", {1., 0., 0., 0.});
+	declare_parameter<std::vector<XsReal>>("alignment_sensor_quat", {1., 0., 0., 0.});
 
 	declare_parameter("enable_logging", false);
 	declare_parameter("log_file", "log.mtb");

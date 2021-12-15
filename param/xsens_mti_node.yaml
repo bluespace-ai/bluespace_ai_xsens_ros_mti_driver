@@ -8,6 +8,7 @@
         scan_for_devices: true
         port: "" # port name, e.g. '/dev/ttyUSB0'
         baudrate: 115200 # non necessary for some devices
+        # config_baudrate: 921600
 
         ## Connect only to specific device_id:
         ##  device_id = '077007EF' (uppercase hex string), returns with error if the device with ID is not found on the ports
@@ -20,6 +21,10 @@
         log_file: log.mtb
 
         publisher_queue_size: 5
+
+        # Configure the sensor to rotate its output using:
+        alignment_local_quat: [ 1.0, 0., 0., 0. ] # (identity)
+        alignment_sensor_quat: [ 1.0, 0., 0., 0. ] # (identity)
 
         # TF transform frame_id (default: imu_link), you may want to change it if you use multiple devices
         frame_id: "imu_link"
@@ -50,3 +55,13 @@
         angular_velocity_stddev: [0.0, 0.0, 0.0] # [rad/s]
         orientation_stddev: [0.0, 0.0, 0.0] # [rad]
         magnetic_field_stddev: [0.0, 0.0, 0.0] # [Tesla]
+
+        # Configure the filter profile
+        # onboard_filter_profile: "Robust/VRU"
+
+        # Configure the output data
+        # output_configuration:
+        #     - "XDI_PacketCounter=65535"
+        #     - "XDI_SampleTimeFine=65535"
+        #     - "XDI_StatusWord=65535"
+        #     - "XDI_Quaternion=200"
