@@ -22,6 +22,10 @@
 
         publisher_queue_size: 5
 
+        # Configure the sensor to rotate its output using:
+        alignment_local_quat: [ 1.0, 0., 0., 0. ] # (identity)
+        alignment_sensor_quat: [ 1.0, 0., 0., 0. ] # (identity)
+
         # TF transform frame_id (default: imu_link), you may want to change it if you use multiple devices
         frame_id: "imu_link"
 

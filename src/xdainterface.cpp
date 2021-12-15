@@ -368,6 +368,42 @@ bool XdaInterface::configureDevice()
 		}
 	}
 
+	auto configureAlignmentQuat = [&](const std::string& name)
+	{
+		const auto frame = (name == "sensor") ? XAF_Sensor : XAF_Local;
+		const auto parameterName = (frame == XAF_Sensor) ? "alignment_sensor_quat" : "alignment_local_quat";
+
+		std::vector<XsReal> alignment_quat;
+		if (get_parameter(parameterName, alignment_quat) && !alignment_quat.empty())
+		{
+			RCLCPP_INFO(get_logger(), "Configuration alignment rotation for %s", parameterName);
+			const auto currentAlignmentQuat = m_device->alignmentRotationQuaternion(frame);
+			RCLCPP_INFO(get_logger(), " - current alignment quaternion for %s (%d): [%f %f %f %f]",
+				parameterName, frame, currentAlignmentQuat.w(), currentAlignmentQuat.x(),
+				currentAlignmentQuat.y(), currentAlignmentQuat.z());
+
+			const auto paramAlignmentQuat = XsQuaternion{alignment_quat[0], alignment_quat[1], alignment_quat[2], alignment_quat[3]};
+			if (!paramAlignmentQuat.isEqual(currentAlignmentQuat, 0.01))
+			{
+				RCLCPP_INFO(get_logger(), " - desired alignment quaternion for %s (%d): [%f %f %f %f]", parameterName, frame,
+					paramAlignmentQuat.w(), paramAlignmentQuat.x(), paramAlignmentQuat.y(), paramAlignmentQuat.z());
+				if (!m_device->setAlignmentRotationQuaternion(frame, paramAlignmentQuat))
+					return handleError("Could not configure alignment quaternion");
+			}
+			else
+			{
+				RCLCPP_INFO(get_logger(), " - actual and desired are near each other, no action taken");
+			}
+		}
+
+		return true;
+	};
+
+	if (!configureAlignmentQuat("local"))
+		return handleError("Could not set the local rotation matrix");
+	if (!configureAlignmentQuat("sensor"))
+		return handleError("Could not set the sensor rotation matrix");
+
 	return true;
 }
 
@@ -468,6 +504,8 @@ void XdaInterface::declareCommonParameters()
 	declare_parameter<std::string>("onboard_filter_profile", "");
 	declare_parameter<std::vector<std::string>>("output_configuration", std::vector<std::string>());
 	declare_parameter("config_baudrate", XsBaud::rateToNumeric(XBR_Invalid));
+	declare_parameter<std::vector<XsReal>>("alignment_local_quat", {1., 0., 0., 0.});
+	declare_parameter<std::vector<XsReal>>("alignment_sensor_quat", {1., 0., 0., 0.});
 
 	declare_parameter("enable_logging", false);
 	declare_parameter("log_file", "log.mtb");
