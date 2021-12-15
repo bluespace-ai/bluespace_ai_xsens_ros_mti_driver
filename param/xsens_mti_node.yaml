@@ -8,6 +8,7 @@
         scan_for_devices: true
         port: "" # port name, e.g. '/dev/ttyUSB0'
         baudrate: 115200 # non necessary for some devices
+        # config_baudrate: 921600
 
         ## Connect only to specific device_id:
         ##  device_id = '077007EF' (uppercase hex string), returns with error if the device with ID is not found on the ports
