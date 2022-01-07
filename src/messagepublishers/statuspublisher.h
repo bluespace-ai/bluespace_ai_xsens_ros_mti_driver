@@ -1,8 +1,3 @@
-// BSD 3-Clause License
-//
-// Copyright (c) 2021, BlueSpace.ai, Inc.
-// All rights reserved.
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 //
@@ -59,49 +54,37 @@
 //  ARBITRATORS APPOINTED IN ACCORDANCE WITH SAID RULES.
 //  
 
-#ifndef XDAINTERFACE_H
-#define XDAINTERFACE_H
+#ifndef STATUSPUBLISHER_H
+#define STATUSPUBLISHER_H
 
-#include <rclcpp/rclcpp.hpp>
-#include <mavros_msgs/msg/rtcm.hpp>
+#include "packetcallback.h"
+#include <diagnostic_msgs/msg/key_value.hpp>
+#include <bitset>
 
-#include "xdacallback.h"
-#include <xstypes/xsportinfo.h>
-
-#include "chrono"
-
-struct XsControl;
-struct XsDevice;
-
-
-class PacketCallback;
-
-class XdaInterface : public rclcpp::Node
+struct StatusPublisher : public PacketCallback
 {
-public:
-	explicit XdaInterface(const std::string &node_name, const rclcpp::NodeOptions &options=rclcpp::NodeOptions());
-	~XdaInterface();
+    rclcpp::Publisher<diagnostic_msgs::msg::KeyValue>::SharedPtr pub;
+    std::string frame_id = DEFAULT_FRAME_ID;
 
-	void spinFor(std::chrono::milliseconds timeout);
-	void registerPublishers();
-	void rtcmCallback(const mavros_msgs::msg::RTCM::SharedPtr msg);
+    StatusPublisher(rclcpp::Node &node)
+    {
+        int pub_queue_size = 5;
+        node.get_parameter("publisher_queue_size", pub_queue_size);
+        pub = node.create_publisher<diagnostic_msgs::msg::KeyValue>("status", pub_queue_size);
+        node.get_parameter("frame_id", frame_id);
+    }
+    
+    void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
+    {
+        if (packet.containsStatus())
+        {
+            diagnostic_msgs::msg::KeyValue msg;
 
-	bool connectDevice();
-	bool prepare();
-	void close();
-
-	const int XS_DEFAULT_BAUDRATE = 115200;
-
-private:
-	void registerCallback(PacketCallback *cb);
-	bool handleError(std::string error);
-	void declareCommonParameters();
-
-	XsControl *m_control;
-	XsDevice *m_device;
-	XsPortInfo m_port;
-	XdaCallback m_xdaCallback;
-	std::list<PacketCallback *> m_callbacks;
+            msg.key = "StatusWord";
+            msg.value = std::bitset<32>(packet.status()).to_string();
+            pub->publish(msg);
+        }
+    }
 };
 
 #endif
