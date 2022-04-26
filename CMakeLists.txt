@@ -21,7 +21,6 @@ find_package(sensor_msgs REQUIRED)
 ## Build ##
 ###########
 
-link_directories(lib/xspublic/xscontroller lib/xspublic/xscommon lib/xspublic/xstypes)
 add_executable(
 	xsens_mti_node
 	src/main.cpp
@@ -30,12 +29,7 @@ add_executable(
 	src/xdautils.cpp
 )
 
-add_custom_command(
-  TARGET xsens_mti_node
-  PRE_LINK
-  COMMAND make
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib/xspublic
-)
+add_subdirectory(lib/xspublic)
 
 target_include_directories(xsens_mti_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/xspublic>
