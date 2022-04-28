@@ -1,0 +1,4 @@
+marker file for ament to skip this folder.
+
+Because this file exists, ament_uncrustify will skip this folder, since this is a vendor folder.
+

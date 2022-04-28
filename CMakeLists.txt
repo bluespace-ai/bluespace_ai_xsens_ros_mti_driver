@@ -21,15 +21,30 @@ find_package(sensor_msgs REQUIRED)
 ## Build ##
 ###########
 
+add_subdirectory(lib/xspublic)
+
+add_library(
+  xsens_mti_utils
+  STATIC
+  src/xdautils.cpp
+)
+
+target_include_directories(
+  xsens_mti_utils PUBLIC
+  src
+)
+
+target_link_libraries(
+	xsens_mti_utils
+	xstypes
+)
+
 add_executable(
 	xsens_mti_node
 	src/main.cpp
 	src/xdainterface.cpp
 	src/xdacallback.cpp
-	src/xdautils.cpp
 )
-
-add_subdirectory(lib/xspublic)
 
 target_include_directories(xsens_mti_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/xspublic>
@@ -46,6 +61,7 @@ ament_target_dependencies(xsens_mti_node
 
 target_link_libraries(
 	xsens_mti_node
+  xsens_mti_utils
 	xscontroller
 	xscommon
 	xstypes
@@ -64,19 +80,8 @@ install(DIRECTORY launch param rviz urdf
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
-  
-  find_package(ament_cmake_gtest REQUIRED)
-  ament_add_gtest(xda_test src/xdautils.cpp test/xdautils_test.cpp)
-  target_include_directories(xda_test PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/xspublic>
-    $<INSTALL_INTERFACE:include>)
+  add_subdirectory(test)
 endif()
 
 ament_package()

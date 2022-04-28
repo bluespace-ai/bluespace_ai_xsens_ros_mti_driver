@@ -1,4 +1,10 @@
 
+find_package(PkgConfig)
+pkg_check_modules(
+    MY_LIBUSB
+    IMPORTED_TARGET
+    libusb-1.0
+)
 
 ## XS COMMON
 
@@ -42,8 +48,6 @@ file(
     xscontroller/*.c xscontroller/*.cpp xscontroller/*.h
 )
 
-# TODO:
-# * libusb
 add_library(
     xscontroller
     STATIC
@@ -62,6 +66,14 @@ target_compile_definitions(
     PRIVATE
     -DHAVE_JOURNALLER
 )
+
+if(${MY_LIBUSB_FOUND})
+    target_compile_definitions(
+        xscontroller
+        PRIVATE
+        -DHAVE_LIBUSB
+    )
+endif()
 
 set_target_properties(
     xscontroller
@@ -101,4 +113,10 @@ set_target_properties(
     xstypes
     PROPERTIES
     CXX_STANDARD 11
+)
+
+target_include_directories(
+    xstypes
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
