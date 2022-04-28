@@ -28,4 +28,9 @@ jobs:
         run: |
           . /opt/ros/${{ matrix.ros_distro }}/setup.sh
           cd ros2_ws
-          colcon build --event-handlers console_cohesion+
+          colcon build --event-handlers console_cohesion+ --cmake-args -DBUILD_TESTING=ON
+      - name: Test using colcon
+        run: |
+          . /opt/ros/${{ matrix.ros_distro }}/setup.sh
+          cd ros2_ws
+          colcon test --event-handlers console_cohesion+
