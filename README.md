@@ -1,5 +1,7 @@
 # Xsens MTi driver for ROS 2.0
 
+[![CI](https://github.com/DEMCON/ros2_xsens_mti_driver/actions/workflows/main.yml/badge.svg)](https://github.com/DEMCON/ros2_xsens_mti_driver/actions/workflows/main.yml)
+
 ## Documentation
 
 You can find the full documentation in `<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html` under "ROS MTi driver"

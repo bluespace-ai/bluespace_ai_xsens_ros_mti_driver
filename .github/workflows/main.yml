@@ -1,0 +1,31 @@
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build on ROS2 ${{ matrix.ros_distro }}
+    runs-on: ubuntu-20.04
+    container: ros:${{ matrix.ros_distro }}
+    strategy:
+      matrix:
+        ros_distro: [foxy, galactic]
+
+    steps:
+      - name: Create ROS2 workspace
+        run: |
+          mkdir -p ros2_ws/src
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          path: 'ros2_ws/src/ros2_xsens_mti_driver'
+      - name: Build using colcon
+        run: |
+          . /opt/ros/${{ matrix.ros_distro }}/setup.sh
+          cd ros2_ws
+          colcon build --event-handlers console_cohesion+
