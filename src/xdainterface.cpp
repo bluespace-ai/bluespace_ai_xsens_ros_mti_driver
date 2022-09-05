@@ -119,17 +119,21 @@ void XdaInterface::registerPublishers()
 {
 	bool should_publish;
 	rclcpp::Node& node = *this;
-
+	RCLCPP_INFO(get_logger(), "Publishers ...");
 	if (get_parameter("pub_imu", should_publish) && should_publish)
 	{
 		registerCallback(new ImuPublisher(node));
 	}
-	if (get_parameter("pub_imu_with_free_acc", should_publish) && should_publish)
-	{
-		registerCallback(new ImuFreeAccPublisher(node));
-	}
+
+	// if (get_parameter("pub_imu", should_publish) && should_publish)
+	// {
+	// 	RCLCPP_INFO(get_logger(), "Free imu is published");
+	// 	registerCallback(new ImuFreeAccPublisher(node));
+	// }
 	if (get_parameter("pub_quaternion", should_publish) && should_publish)
 	{
+
+		RCLCPP_INFO(get_logger(), "Quat");
 		registerCallback(new OrientationPublisher(node));
 	}
 	if (get_parameter("pub_acceleration", should_publish) && should_publish)

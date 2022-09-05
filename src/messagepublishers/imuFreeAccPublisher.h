@@ -85,7 +85,8 @@ struct ImuFreeAccPublisher : public PacketCallback, PublisherHelperFunctions
 
         int pub_queue_size = 5;
         node.get_parameter("publisher_queue_size", pub_queue_size);
-        pub = node.create_publisher<sensor_msgs::msg::Imu>("/imu/data_free_acc", pub_queue_size);
+        RCLCPP_INFO(node.get_logger(), "why");
+        pub = node.create_publisher<sensor_msgs::msg::Imu>("/imu/data", pub_queue_size);
 
         // REP 145: Conventions for IMU Sensor Drivers (http://www.ros.org/reps/rep-0145.html)
         variance_from_stddev_param("orientation_stddev", orientation_variance, node);

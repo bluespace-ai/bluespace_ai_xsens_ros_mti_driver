@@ -25,8 +25,7 @@
         frame_id: "imu_link"
 
         # Message publishers
-        pub_imu: false
-        pub_imu_with_free_acc: true
+        pub_imu: true
         pub_quaternion: false
         pub_mag: false
         pub_angular_velocity: false
