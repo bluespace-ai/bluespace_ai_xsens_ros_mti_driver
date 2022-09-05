@@ -7,7 +7,7 @@
         ##          false: = Requires correct port and baudrate both to be specified
         scan_for_devices: true
         port: "" # port name, e.g. '/dev/ttyUSB0'
-        baudrate: 115200 # non necessary for some devices
+        baudrate: 460800 # non necessary for some devices
 
         ## Connect only to specific device_id:
         ##  device_id = '077007EF' (uppercase hex string), returns with error if the device with ID is not found on the ports
@@ -25,22 +25,23 @@
         frame_id: "imu_link"
 
         # Message publishers
-        pub_imu: true
-        pub_quaternion: true
-        pub_mag: true
-        pub_angular_velocity: true
-        pub_acceleration: true
-        pub_free_acceleration: true
-        pub_dq: true
-        pub_dv: true
-        pub_sampletime: true
-        pub_temperature: true
-        pub_pressure: true
-        pub_gnss: true
-        pub_twist: true
-        pub_transform: true
-        pub_positionLLA: true
-        pub_velocity: true
+        pub_imu: false
+        pub_imu_with_free_acc: true
+        pub_quaternion: false
+        pub_mag: false
+        pub_angular_velocity: false
+        pub_acceleration: false
+        pub_free_acceleration: false
+        pub_dq: false
+        pub_dv: false
+        pub_sampletime: false
+        pub_temperature: false
+        pub_pressure: false
+        pub_gnss: false
+        pub_twist: false
+        pub_transform: false
+        pub_positionLLA: false
+        pub_velocity: false
 
         ## Sensor standard deviation [x,y,z] (optional)
         ## This value is used to override the covariance matrix in sensor_msgs/Imu and
