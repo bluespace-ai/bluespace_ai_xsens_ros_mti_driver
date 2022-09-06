@@ -124,12 +124,11 @@ void XdaInterface::registerPublishers()
 	{
 		registerCallback(new ImuPublisher(node));
 	}
-
-	// if (get_parameter("pub_imu", should_publish) && should_publish)
-	// {
-	// 	RCLCPP_INFO(get_logger(), "Free imu is published");
-	// 	registerCallback(new ImuFreeAccPublisher(node));
-	// }
+	if (get_parameter("pub_imu_free", should_publish) && should_publish)
+	{
+		RCLCPP_INFO(get_logger(), "Free imu is published");
+		registerCallback(new ImuFreeAccPublisher(node));
+	}
 	if (get_parameter("pub_quaternion", should_publish) && should_publish)
 	{
 
@@ -346,6 +345,7 @@ void XdaInterface::declareCommonParameters()
 
 	bool should_publish = true;
 	declare_parameter("pub_imu", should_publish);
+	declare_parameter("pub_imu_free", should_publish);
 	declare_parameter("pub_quaternion", should_publish);
 	declare_parameter("pub_acceleration", should_publish);
 	declare_parameter("pub_angular_velocity", should_publish);
