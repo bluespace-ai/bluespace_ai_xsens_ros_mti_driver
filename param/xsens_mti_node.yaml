@@ -25,7 +25,8 @@
         frame_id: "imu_link"
 
         # Message publishers
-        pub_imu: true
+        pub_imu: false
+        pub_imu_free: true
         pub_quaternion: false
         pub_mag: false
         pub_angular_velocity: false
@@ -33,7 +34,7 @@
         pub_free_acceleration: false
         pub_dq: false
         pub_dv: false
-        pub_sampletime: false
+        pub_sampletime: true
         pub_temperature: false
         pub_pressure: false
         pub_gnss: false
