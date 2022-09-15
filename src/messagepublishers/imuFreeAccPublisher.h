@@ -73,12 +73,14 @@ struct ImuFreeAccPublisher : public PacketCallback, PublisherHelperFunctions
     double orientation_variance[3];
     double linear_acceleration_variance[3];
     double angular_velocity_variance[3];
+    int frameId;
     rclcpp::Node& node_handle;
 
     ImuFreeAccPublisher(rclcpp::Node &node)
         : node_handle(node)
     {
         std::vector<double> variance = {0, 0, 0};
+        frameId = 0;
         node.declare_parameter("orientation_stddev", variance);
         node.declare_parameter("angular_velocity_stddev", variance);
         node.declare_parameter("linear_acceleration_stddev", variance);
@@ -132,12 +134,12 @@ struct ImuFreeAccPublisher : public PacketCallback, PublisherHelperFunctions
         if (quaternion_available || accel_available || gyro_available)
         {
             sensor_msgs::msg::Imu msg;
-
-            std::string frame_id = DEFAULT_FRAME_ID;
-            node_handle.get_parameter("frame_id", frame_id);
-
-            msg.header.stamp = timestamp;
-            msg.header.frame_id = frame_id;
+            if (packet.containsUtcTime())
+                msg.header.stamp = get_utc_time(packet);
+            else
+                msg.header.stamp = timestamp;
+            msg.header.frame_id = std::to_string(frameId);
+            frameId++;
 
             msg.orientation = quaternion;
             if (quaternion_available)
