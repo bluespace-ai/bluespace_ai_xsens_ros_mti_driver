@@ -64,35 +64,52 @@
 
 #include "packetcallback.h"
 #include <sensor_msgs/msg/time_reference.hpp>
+#include <iomanip>      // std::get_time
+#include <ctime>        // strcut std::tm
 
 struct TimeReferencePublisher : public PacketCallback
 {
     rclcpp::Publisher<sensor_msgs::msg::TimeReference>::SharedPtr pub;
+    int timeZoneOffset;
 
     TimeReferencePublisher(rclcpp::Node &node)
     {
         int pub_queue_size = 5;
         node.get_parameter("publisher_queue_size", pub_queue_size);
+        timeZoneOffset = 0;
+        node.get_parameter("time_zone_offset", timeZoneOffset);
         pub = node.create_publisher<sensor_msgs::msg::TimeReference>("/imu/time_ref", pub_queue_size);
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
     {
-        if (packet.containsSampleTimeFine())
+        if (packet.containsUtcTime())
         {
             const uint32_t SAMPLE_TIME_FINE_HZ = 10000UL;
             const uint32_t ONE_GHZ = 1000000000UL;
-            uint32_t sec, nsec, t_fine;
+            uint32_t sec, nsec;
             sensor_msgs::msg::TimeReference msg;
 
-            t_fine = packet.sampleTimeFine();
-            sec = t_fine / SAMPLE_TIME_FINE_HZ;
-            nsec = (t_fine % SAMPLE_TIME_FINE_HZ) * (ONE_GHZ / SAMPLE_TIME_FINE_HZ);
+            auto packetTime = packet.utcTime();
+            // convert time struct to utc float time
+            std::ostringstream date;
+	        date << packetTime.m_year << 
+        	"-" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_month) << 
+        	"-" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_day) <<
+        	"T" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_hour + timeZoneOffset) << 
+        	":" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_minute) <<
+        	":" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_second) << "Z";
 
-            if (packet.containsSampleTimeCoarse())
-            {
-                sec = packet.sampleTimeCoarse();
-            }
+            std::istringstream ss(date.str());
+            std::tm t{};
+            ss >> std::get_time(&t, "%Y-%m-%dT%H:%M:%S");
+            if (ss.fail()) {
+                throw std::runtime_error{"failed to parse time string"};
+            }   
+            std::time_t time_stamp = mktime(&t);
+            
+            sec = int(time_stamp);
+            nsec = packetTime.m_nano;
 
             rclcpp::Time sample_time(sec, nsec);
 
