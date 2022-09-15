@@ -21,8 +21,7 @@
 
         publisher_queue_size: 5
 
-        # TF transform frame_id (default: imu_link), you may want to change it if you use multiple devices
-        frame_id: "imu_link"
+        time_zone_offset: 2
 
         # Message publishers
         pub_imu: false
@@ -34,7 +33,7 @@
         pub_free_acceleration: false
         pub_dq: false
         pub_dv: false
-        pub_sampletime: true
+        pub_sampletime: false
         pub_temperature: false
         pub_pressure: false
         pub_gnss: false

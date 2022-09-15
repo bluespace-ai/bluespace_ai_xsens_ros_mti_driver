@@ -62,6 +62,9 @@
 #ifndef IMUFREEPUBLISHER_H
 #define IMUFREEPUBLISHER_H
 
+#include <iomanip>      // std::get_time
+#include <ctime>        // strcut std::tm
+
 #include "packetcallback.h"
 #include "publisherhelperfunctions.h"
 #include <sensor_msgs/msg/imu.hpp>
@@ -74,6 +77,7 @@ struct ImuFreeAccPublisher : public PacketCallback, PublisherHelperFunctions
     double linear_acceleration_variance[3];
     double angular_velocity_variance[3];
     int frameId;
+    int timeZoneOffset;
     rclcpp::Node& node_handle;
 
     ImuFreeAccPublisher(rclcpp::Node &node)
@@ -89,10 +93,39 @@ struct ImuFreeAccPublisher : public PacketCallback, PublisherHelperFunctions
         node.get_parameter("publisher_queue_size", pub_queue_size);
         pub = node.create_publisher<sensor_msgs::msg::Imu>("/imu/data", pub_queue_size);
 
+        node.get_parameter("time_zone_offset", timeZoneOffset);
         // REP 145: Conventions for IMU Sensor Drivers (http://www.ros.org/reps/rep-0145.html)
         variance_from_stddev_param("orientation_stddev", orientation_variance, node);
         variance_from_stddev_param("angular_velocity_stddev", angular_velocity_variance, node);
         variance_from_stddev_param("linear_acceleration_stddev", linear_acceleration_variance, node);
+    }
+    
+    rclcpp::Time get_utc_time(const XsDataPacket &packet){
+            uint32_t sec, nsec;
+            auto packetTime = packet.utcTime();
+
+            // convert time struct to utc float time
+            std::ostringstream date;
+	        date << packetTime.m_year << 
+        	"-" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_month) << 
+        	"-" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_day) <<
+        	"T" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_hour + timeZoneOffset) << 
+        	":" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_minute) <<
+        	":" << std::setw(2) << std::setfill('0') << std::to_string(packetTime.m_second) << "Z";
+
+            std::istringstream ss(date.str());
+            std::tm t{};
+            ss >> std::get_time(&t, "%Y-%m-%dT%H:%M:%S");
+            if (ss.fail()) {
+                throw std::runtime_error{"failed to parse time string"};
+            }   
+            std::time_t time_stamp = mktime(&t);
+            
+            sec = int(time_stamp);
+            nsec = packetTime.m_nano;
+
+            rclcpp::Time sample_time(sec, nsec);
+            return sample_time;
     }
 
     void operator()(const XsDataPacket &packet, rclcpp::Time timestamp)
