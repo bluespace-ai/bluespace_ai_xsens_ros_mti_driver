@@ -64,6 +64,7 @@
 #include <xscontroller/xsscanner.h>
 #include <xscontroller/xscontrol_def.h>
 #include <xscontroller/xsdevice_def.h>
+#include <xstypes/xsoutputconfigurationarray.h>
 
 #include "messagepublishers/packetcallback.h"
 #include "messagepublishers/accelerationpublisher.h"
@@ -285,6 +286,17 @@ bool XdaInterface::prepare()
 	// read EMTS and device config stored in .mtb file header.
 	if (!m_device->readEmtsAndDeviceConfiguration())
 		return handleError("Could not read device configuration");
+	
+	XsOutputConfigurationArray configArray;
+	configArray.push_back(XsOutputConfiguration(XDI_UtcTime, 0));
+	configArray.push_back(XsOutputConfiguration(XDI_PacketCounter, 0));
+	configArray.push_back(XsOutputConfiguration(XDI_FreeAcceleration, 200));
+	configArray.push_back(XsOutputConfiguration(XDI_RateOfTurn, 200));
+	configArray.push_back(XsOutputConfiguration(XDI_Quaternion, 200));
+	if (!m_device->setOutputConfiguration(configArray))
+		return handleError("Could not configure MTi device. Aborting.");
+	
+	m_device->setUtcTime(XsTimeInfo::currentTime());
 
 	RCLCPP_INFO(get_logger(), "Measuring ...");
 	if (!m_device->gotoMeasurement())
@@ -344,6 +356,7 @@ void XdaInterface::declareCommonParameters()
 	declare_parameter("publisher_queue_size", pub_queue_size);
 
 	bool should_publish = true;
+
 	declare_parameter("pub_imu", should_publish);
 	declare_parameter("pub_imu_free", should_publish);
 	declare_parameter("pub_quaternion", should_publish);
@@ -369,4 +382,6 @@ void XdaInterface::declareCommonParameters()
 
 	declare_parameter("enable_logging", false);
 	declare_parameter("log_file", "log.mtb");
+	declare_parameter("time_zone_offset", 0);
+
 }
