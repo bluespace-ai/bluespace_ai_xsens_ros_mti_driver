@@ -50,3 +50,9 @@
         angular_velocity_stddev: [0.0, 0.0, 0.0] # [rad/s]
         orientation_stddev: [0.0, 0.0, 0.0] # [rad]
         magnetic_field_stddev: [0.0, 0.0, 0.0] # [Tesla]
+
+        ## kalman filter params (optional)
+        do_kalman_filter: true
+        free_acc_var: 7.200000000000002e-05
+        ang_vel_var: 2.9852507139097437e-06
+        process_noise_factor: 0.1

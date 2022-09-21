@@ -16,6 +16,8 @@ find_package(tf2_ros REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3)
 
 ###########
 ## Build ##
@@ -27,6 +29,7 @@ add_executable(
 	src/main.cpp
 	src/xdainterface.cpp
 	src/xdacallback.cpp
+  src/kalman_filter.cpp
 )
 
 target_include_directories(xsens_mti_node PUBLIC
