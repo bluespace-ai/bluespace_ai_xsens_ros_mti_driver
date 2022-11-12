@@ -391,6 +391,9 @@ void StandardThread::stopThread(void) noexcept
 		}
 		if (errno == EBUSY) {
 			xsYield();
+		} else {
+			// Some other error--maybe the thread is invalid?
+			break;
 		}
 	}
 	//#endif
