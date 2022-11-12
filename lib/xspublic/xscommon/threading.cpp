@@ -383,10 +383,21 @@ void StandardThread::stopThread(void) noexcept
 	//			return;
 	//	}
 	//#else
-	while (isAlive())
-		xsYield();
+	int rv = 0;
+	while (true) {
+		rv = pthread_tryjoin_np(m_thread, NULL);
+		if (rv == 0) {
+			break;
+		}
+		if (errno == EBUSY) {
+			xsYield();
+		} else {
+			// Some other error--maybe the thread is invalid?
+			break;
+		}
+	}
 	//#endif
-	if (pthread_join(m_thread, NULL))
+	if (rv != 0)
 	{
 		switch (errno)
 		{
