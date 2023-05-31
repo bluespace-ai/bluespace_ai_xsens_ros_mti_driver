@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,8 +70,8 @@
 struct XsVersion;
 
 #ifdef __cplusplus
-#include "xsversion.h"
-extern "C"
+	#include "xsversion.h"
+	extern "C"
 #endif
 XSTYPES_DLL_API void xsTypesVersion(struct XsVersion* version);
 #define XsTypesInfoGetVersion(a)	xsTypesVersion(a)

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -96,7 +96,7 @@ MtThread::~MtThread(void)
 		if (m_gotoConfigPlus)
 			delete m_gotoConfigPlus;
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -104,7 +104,7 @@ MtThread::~MtThread(void)
 /*! \brief Set whether we should send gotoconfig here */
 void MtThread::setDoGotoConfig(bool doit)
 {
-	srand( (unsigned int)XsTime_timeStampNow(0));
+	srand((unsigned int)XsTime_timeStampNow(0));
 	m_doGotoConfig = doit;
 }
 
@@ -120,7 +120,7 @@ int32_t MtThread::innerFunction(void)
 
 		if (m_communicator->writeRawData(*m_gotoConfigPlus) != XRV_OK)
 			JLALERTG("Send gotoConfig failed");
-		XsTime_msleep((uint32_t) ((rand() * 10)/RAND_MAX+5));	// if we sent a goto config, wait a bit for the result
+		XsTime_msleep((uint32_t)(((unsigned)rand()) / (RAND_MAX / 10) + 5));	// if we sent a goto config, wait a bit for the result
 	}
 
 	return DataPoller::innerFunction();

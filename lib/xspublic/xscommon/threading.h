@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,218 +66,266 @@
 #define THREADING_H
 
 #include "xsens_mutex.h"
+#include <functional>
 
 #ifndef __GNUC__
-#pragma warning(disable: 4127)
+	#pragma warning(disable: 4127)
 #endif
 
-namespace xsens {
-	/*!	\class StandardThread
-		\brief A class for a standard thread that has to perform the same action repeatedly.
-		\details The class has three virtual functions, of which the innerFunction is the most important.
-		innerFunction gets called repeatedly and is expected to return so that StandardThread can
-		check for thread termination.
-	*/
-	class StandardThread {
-	private:
-		XsThread m_thread;
-		XsThreadPriority m_priority;
+namespace xsens
+{
+/*!	\class StandardThread
+	\brief A class for a standard thread that has to perform the same action repeatedly.
+	\details The class has three virtual functions, of which the innerFunction is the most important.
+	innerFunction gets called repeatedly and is expected to return so that StandardThread can
+	check for thread termination.
+*/
+class StandardThread
+{
+private:
+	XsThread m_thread;
+	XsThreadPriority m_priority;
 #ifdef _WIN32
-		mutable xsens::Mutex m_mux;
+	mutable xsens::Mutex m_mux;
 #endif
 
-	protected:
-		volatile std::atomic_bool m_stop;	//!< Indicates that the thread should stop. Derived classes should check isTerminating() instead of directly polling this value when checking if the thread should stop. However, there are some cases (tests, SignallingThread) where direct access from within the class is desired, which is why the vlaue is protected instead of private.
-		volatile std::atomic_bool m_yieldOnZeroSleep;	//!< When true, a sleep value of 0 returned by innerFunction will trigger a thread yield operation. When false, the next cycle is started immediately.
+protected:
+	volatile std::atomic_bool m_stop;	//!< Indicates that the thread should stop. Derived classes should check isTerminating() instead of directly polling this value when checking if the thread should stop. However, there are some cases (tests, SignallingThread) where direct access from within the class is desired, which is why the vlaue is protected instead of private.
+	volatile std::atomic_bool m_yieldOnZeroSleep;	//!< When true, a sleep value of 0 returned by innerFunction will trigger a thread yield operation. When false, the next cycle is started immediately.
 #ifdef _WIN32
-		HANDLE m_stopHandle;	//!< Duplicates m_stop functionality for external dependent classes such as Semaphore
-		HANDLE m_running;		//!< Indicates that the thread is running
-	private:
-		XsThreadId m_threadId;
+	HANDLE m_stopHandle;	//!< Duplicates m_stop functionality for external dependent classes such as Semaphore
+	HANDLE m_running;		//!< Indicates that the thread is running
+private:
+	XsThreadId m_threadId;
 #else
-		pthread_attr_t m_attr;	//!< Duplicates m_stop functionality for external dependent classes such as Semaphore
-		bool m_running;			//!< Indicates that the thread is running
-	private:
+	pthread_attr_t m_attr;	//!< Duplicates m_stop functionality for external dependent classes such as Semaphore
+	bool m_running;			//!< Indicates that the thread is running
+private:
 #endif
-		char* m_name;
-		static XSENS_THREAD_RETURN threadInit(void *obj);
+	char* m_name;
+	static XSENS_THREAD_RETURN threadInit(void* obj);
 #ifndef _WIN32
-		static void threadCleanup(void *obj);
+	static void threadCleanup(void* obj);
 #endif
-		void threadMain(void);
-	protected:
-		//! Virtual initialization function
-		virtual void initFunction(void) { }
+	void threadMain(void);
+protected:
+	//! Virtual initialization function
+	virtual void initFunction(void) { }
 
-		//! Virtual exit function
-		virtual void exitFunction(void) { }
+	//! Virtual exit function
+	virtual void exitFunction(void) { }
 
-		//! Virtual inner function
-		virtual int32_t innerFunction(void) { return 0; }
+	//! Virtual inner function
+	virtual int32_t innerFunction(void)
+	{
+		return 0;
+	}
 
-		//! Return the thread handle
-		inline XsThread threadHandle() const { return m_thread; }
-	public:
-		StandardThread();
-		virtual ~StandardThread();
+	//! Return the thread handle
+	inline XsThread threadHandle() const
+	{
+		return m_thread;
+	}
+public:
+	StandardThread();
+	virtual ~StandardThread();
 
-		bool startThread(const char* name=NULL);
-		virtual void signalStopThread(void);
-		void stopThread(void) noexcept;
-		bool isAlive(void) volatile const noexcept;
-		bool isRunning(void) volatile const noexcept;
-		bool setPriority(XsThreadPriority pri);
-		bool isTerminating() volatile const noexcept;
+	bool startThread(const char* name = NULL);
+	virtual void signalStopThread(void);
+	void stopThread(void) noexcept;
+	bool isAlive(void) volatile const noexcept;
+	bool isRunning(void) volatile const noexcept;
+	bool setPriority(XsThreadPriority pri);
+	bool isTerminating() volatile const noexcept;
 
-		//! \returns The thread ID
-		XsThreadId getThreadId(void) const
-		{
+	//! \returns The thread ID
+	XsThreadId getThreadId(void) const
+	{
 #ifdef _WIN32
-			return m_threadId;
+		return m_threadId;
 #else
-			return m_thread;
+		return m_thread;
 #endif
-		}
+	}
 #ifdef _WIN32
-		void terminateThread();
+	void terminateThread();
 #endif
-	};
-	#define XSENS_THREAD_CHECK()	if (isTerminating()) return 0
+};
+#define XSENS_THREAD_CHECK()	if (isTerminating()) return 0
 
 #ifdef ANDROID
-#define CDECL_XS	
+	#define CDECL_XS
 #else
-#define CDECL_XS	__cdecl
+	#define CDECL_XS	__cdecl
 #endif
 
 #ifndef SWIG
-	typedef void (CDECL_XS *WatchDogFunction)(void*);
+typedef void (CDECL_XS* WatchDogFunction)(void*);
 
-	/*! \class WatchDogThread
-		\brief A class that keeps an eye on a threads timer
-	*/
-	class WatchDogThread {
-	private:
-		XsThread m_thread;
+/*! \class WatchDogThread
+	\brief A class that keeps an eye on a threads timer
+*/
+class WatchDogThread
+{
+private:
+	XsThread m_thread;
 #ifdef _WIN32
-		HANDLE m_stop;
-		HANDLE m_running;
-		HANDLE m_reset;
+	HANDLE m_stop;
+	HANDLE m_running;
+	HANDLE m_reset;
 #else
-		pthread_attr_t m_attr;
-		Mutex m_mutex;
-		bool m_running;
-		bool m_reset;
-		bool m_stop;
+	pthread_attr_t m_attr;
+	Mutex m_mutex;
+	bool m_running;
+	bool m_reset;
+	bool m_stop;
 #endif
-		volatile std::atomic<std::uint32_t> m_timeout;
-		WatchDogFunction m_func;
-		void* m_param;
-		char* m_name;
-		static XSENS_THREAD_RETURN threadInit(void* obj);
+	volatile std::atomic<std::uint32_t> m_timeout;
+	WatchDogFunction m_func;
+	void* m_param;
+	char* m_name;
+	static XSENS_THREAD_RETURN threadInit(void* obj);
 
-		XsThreadId m_threadId;
-		void threadMain(void);
-		bool isAlive(void) volatile const noexcept;
-		bool isRunning(void) volatile const noexcept;
-	public:
+	XsThreadId m_threadId;
+	void threadMain(void);
+	bool isAlive(void) volatile const noexcept;
+	bool isRunning(void) volatile const noexcept;
+public:
 
-		/*! \brief Constructor
-		*/
-		WatchDogThread(WatchDogFunction func, void* param = NULL);
-
-		/*! \brief Destructor
-		*/
-		~WatchDogThread();
-
-		bool resetTimer(uint32_t timeout = 0);
-		bool startTimer(uint32_t timeout = 10000, const char* name=NULL);
-		bool stopTimer(void) noexcept;
-
-		//! \returns The thread ID
-		XsThreadId getThreadId(void) const { return m_threadId; }
-	};
-
-	/*!	\class TaskThread
-		\brief Class for handling small tasks
-		\details Use this class if you have small tasks that need to be performed out of the main thread
-		The thread uses tasks supplied in a TaskType struct.
+	/*! \brief Constructor
 	*/
-	class TaskThread : public StandardThread {
-	public:
-		typedef void (CDECL_XS *TaskFunction)(void*); //!< A function prototype for a task
-	private:
-		struct TaskType {
-			TaskFunction m_function;
-			void*	m_param;
-		};
+	WatchDogThread(WatchDogFunction func, void* param = NULL);
 
-		std::deque<TaskType> m_queue;
-		Mutex m_safe;
-		bool m_inFunc;
-	protected:
+	/*! \brief Destructor
+	*/
+	~WatchDogThread();
 
-		/*! \brief The inner function of the task thread.
-			\details The function checks if there is a task in the queue and executes it.
-			Then it returns to the StandardThread main loop to check for termination.
-			If there are no tasks in the queue, the thread will terminate itself.
-			\returns Not 0 if successful
-		*/
-		virtual int32_t innerFunction(void)
-		{
-			Lock safety(&m_safe);
-			if (m_queue.size() > 0)
-			{
-				TaskType& task = m_queue.front();
-				m_queue.pop_front();
-				m_inFunc = true;
-				safety.unlock();
-				task.m_function(task.m_param);
-				m_inFunc = false;
-				return 0;	// no sleep
-			}
-			// notify thread to terminate when there are no more tasks
-			stopThread();
-			return 0;
-		}
-	public:
-		TaskThread() : m_inFunc(false) {}
-		~TaskThread()
-		{
-			while(isRunning() && getLength())
-				XsTime::msleep(100);
-		}
+	bool resetTimer(uint32_t timeout = 0);
+	bool startTimer(uint32_t timeout = 10000, const char* name = NULL);
+	bool stopTimer(void) noexcept;
 
-		/*! \brief Adds a task to a queue
-			\param func The function to add
-			\param param The parameters to add
-		*/
-		void addTask(TaskFunction func, void* param)
-		{
-			Lock safety(&m_safe);
-			TaskType tmp = {func,param};
-			m_queue.push_back(tmp);
-		}
+	//! \returns The thread ID
+	XsThreadId getThreadId(void) const
+	{
+		return m_threadId;
+	}
+};
 
-		//! \returns The length of a queue
-		int32_t getLength(void) noexcept
-		{
-			Lock safety(&m_safe);
-			return (int32_t) m_queue.size() + (m_inFunc?1:0);
-		}
-
-		//! \brief Clears a queue
-		void clear(void)
-		{
-			Lock safety(&m_safe);
-			m_queue.clear();
-		}
+/*!	\class TaskThread
+	\brief Class for handling small tasks
+	\details Use this class if you have small tasks that need to be performed out of the main thread
+	The thread uses tasks supplied in a TaskType struct.
+*/
+class TaskThread : public StandardThread
+{
+public:
+	typedef void (CDECL_XS* TaskFunction)(void*); //!< A function prototype for a task
+private:
+	struct TaskType
+	{
+		TaskFunction m_function;
+		void*	m_param;
 	};
+
+	std::deque<TaskType> m_queue;
+	Mutex m_safe;
+	bool m_inFunc;
+protected:
+
+	/*! \brief The inner function of the task thread.
+		\details The function checks if there is a task in the queue and executes it.
+		Then it returns to the StandardThread main loop to check for termination.
+		If there are no tasks in the queue, the thread will terminate itself.
+		\returns Not 0 if successful
+	*/
+	virtual int32_t innerFunction(void)
+	{
+		Lock safety(&m_safe);
+		if (m_queue.size() > 0)
+		{
+			TaskType& task = m_queue.front();
+			m_queue.pop_front();
+			m_inFunc = true;
+			safety.unlock();
+			task.m_function(task.m_param);
+			m_inFunc = false;
+			return 0;	// no sleep
+		}
+		// notify thread to terminate when there are no more tasks
+		stopThread();
+		return 0;
+	}
+public:
+	TaskThread() : m_inFunc(false) {}
+	~TaskThread()
+	{
+		while (isRunning() && getLength())
+			XsTime::msleep(100);
+	}
+
+	/*! \brief Adds a task to a queue
+		\param func The function to add
+		\param param The parameters to add
+	*/
+	void addTask(TaskFunction func, void* param)
+	{
+		Lock safety(&m_safe);
+		TaskType tmp = {func, param};
+		m_queue.push_back(tmp);
+	}
+
+	//! \returns The length of a queue
+	int32_t getLength(void) noexcept
+	{
+		Lock safety(&m_safe);
+		return (int32_t) m_queue.size() + (m_inFunc ? 1 : 0);
+	}
+
+	//! \brief Clears a queue
+	void clear(void)
+	{
+		Lock safety(&m_safe);
+		m_queue.clear();
+	}
+};
+#endif
+#ifndef __APPLE__
+// the std::function is not properly available in all iOS versions
+/*!	\class ThreadedFunction
+	\brief A class that will run a single (lambda) function in a separate thread.
+*/
+class ThreadedFunction : public StandardThread
+{
+	std::function<void()> m_func;
+public:
+	/*! \brief Construct the object
+		\param f The desired (lambda) function to run
+		\param runNow Start the thread immediately (default = true)
+	*/
+	ThreadedFunction(std::function<void()> const& f, bool runNow = true)
+		: m_func(f)
+	{
+		if (runNow)
+			startThread();
+	}
+	~ThreadedFunction()
+	{
+		stopThread();
+	}
+
+	/*! \brief The internal thread function, runs the supplied function */
+	int32_t innerFunction(void) override final
+	{
+		m_func();
+		signalStopThread();
+		return 0;
+	}
+};
 #endif
 } // namespace xsens
 
 #ifndef __GNUC__
-#pragma warning(default: 4127)
+	#pragma warning(default: 4127)
 #endif
 
 #endif

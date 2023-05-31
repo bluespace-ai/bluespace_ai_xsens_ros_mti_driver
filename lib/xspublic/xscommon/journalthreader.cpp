@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,7 +66,7 @@
 #include "journalfile.h"
 
 #ifndef XSENS_WINDOWS
-static void OutputDebugStringA(const char *msg)
+static void OutputDebugStringA(const char* msg)
 {
 	(void)fprintf(stderr, "%s", msg);
 }
@@ -92,7 +92,7 @@ JournalThreader::~JournalThreader()
 */
 void JournalThreader::flushAll(JournalFile* file)
 {
-	while(true)
+	while (true)
 	{
 		ThreadLine& line = nextLine();
 		if (line.m_line.empty())

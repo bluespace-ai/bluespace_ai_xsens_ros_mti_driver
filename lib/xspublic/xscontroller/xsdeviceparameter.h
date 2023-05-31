@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -75,9 +75,9 @@ struct XsDeviceParameter;
 #endif
 
 /*!
- *	\class XsDeviceParameter
- *	\brief Class to set and retrieve parameters from a XsDevice object.
- */
+	\class XsDeviceParameter
+	\brief Class to set and retrieve parameters from a XsDevice object.
+*/
 struct XsDeviceParameter
 {
 #ifdef __cplusplus
@@ -102,17 +102,17 @@ struct XsDeviceParameter
 	}
 
 	/*!
-	 *	\brief Returns the stored parameter value.
-	 *	\returns The parameter value in the desired type.
-	 */
+		\brief Returns the stored parameter value.
+		\returns The parameter value in the desired type.
+	*/
 	template<typename T>
 	T getValue() const;
 
 
 	/*!
-	 *	\brief Sets the parameter value.
-	 *	\param value: the desired parameter value.
-	 */
+		\brief Sets the parameter value.
+		\param value: the desired parameter value.
+	*/
 	template<typename T>
 	void setValue(T value);
 
@@ -163,7 +163,7 @@ inline int XsDeviceParameter::getValue<int>() const
 template<>
 inline void XsDeviceParameter::setValue<bool>(bool value)
 {
-	m_value = value ? 1 :0;
+	m_value = value ? 1 : 0;
 }
 
 //! \copydoc XsDeviceParameter::setValue

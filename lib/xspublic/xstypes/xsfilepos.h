@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -83,25 +83,25 @@
 
 #include <stdio.h>
 #ifdef _WIN32
-#ifndef _PSTDINT_H_INCLUDED
-#	include "pstdint.h"
-#endif
-typedef __int64 XsFilePos;
-#ifndef HANDLE
-#	include <windows.h>
-#endif
-typedef HANDLE XsIoHandle;
+	#ifndef _PSTDINT_H_INCLUDED
+		#include "pstdint.h"
+	#endif
+	typedef __int64 XsFilePos;
+	#ifndef HANDLE
+		#include <windows.h>
+	#endif
+	typedef HANDLE XsIoHandle;
 #else
-#include <sys/types.h>
-/* off_t is practically guaranteed not to be 64 bits on non64 bit systems.
-   We'd better explicitly use __off64_t to be sure of it's size.
-*/
-#if defined(__off64_t_defined)
-typedef  __off64_t	XsFilePos;
-#else
-typedef int64_t XsFilePos;
-#endif
-typedef int32_t XsIoHandle;
+	#include <sys/types.h>
+	/*	 off_t is practically guaranteed not to be 64 bits on non64 bit systems.
+	We'd better explicitly use __off64_t to be sure of it's size.
+	*/
+	#if defined(__off64_t_defined)
+		typedef  __off64_t	XsFilePos;
+	#else
+		typedef int64_t XsFilePos;
+	#endif
+	typedef int32_t XsIoHandle;
 #endif
 typedef FILE XsFileHandle;
 

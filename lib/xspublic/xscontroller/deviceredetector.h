@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -73,16 +73,16 @@ struct XsPortInfo;
 class DeviceRedetector
 {
 public:
-	DeviceRedetector(const XsPortInfo &portInfo);
+	DeviceRedetector(const XsPortInfo& portInfo);
 	virtual ~DeviceRedetector() {}
 
-	bool redetect(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck = false);
+	bool redetect(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck = false);
 
-	virtual bool redetectScanPorts(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck);
-	virtual bool redetectEnumerateSerialPorts(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck);
-	virtual bool redetectNoScan(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck);
-	virtual bool redetectOneComPort(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck);
-	virtual bool redetectEnumerateNetworkDevices(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck);
+	virtual bool redetectScanPorts(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck);
+	virtual bool redetectEnumerateSerialPorts(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck);
+	virtual bool redetectNoScan(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck);
+	virtual bool redetectOneComPort(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck);
+	virtual bool redetectEnumerateNetworkDevices(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck);
 
 protected:
 

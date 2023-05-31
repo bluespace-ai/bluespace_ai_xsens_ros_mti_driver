@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -95,15 +95,15 @@ void XsVersion_toString(const XsVersion* thisPtr, XsString* version)
 	if (thisPtr->m_extra.m_size != 0)
 	{
 		const char space = ' ';
-		XsArray_insert(version, version->m_size-1, 1, &space);
+		XsArray_insert(version, version->m_size - 1, 1, &space);
 		XsString_append(version, &thisPtr->m_extra);
 	}
 }
 
 /*!
- *	\relates XsVersion
- *	\brief Get a string with the version expressed in a readable format.
- */
+	\relates XsVersion
+	\brief Get a string with the version expressed in a readable format.
+*/
 void XsVersion_toSimpleString(const XsVersion* thisPtr, XsString* version)
 {
 	char buffer[256];
@@ -112,9 +112,9 @@ void XsVersion_toSimpleString(const XsVersion* thisPtr, XsString* version)
 }
 
 /*!
- *	\relates XsVersion
- *	\brief Set the version to the values in the string
- */
+	\relates XsVersion
+	\brief Set the version to the values in the string
+*/
 void XsVersion_fromString(XsVersion* thisPtr, const XsString* version)
 {
 	int major = 0;
@@ -155,8 +155,8 @@ void XsVersion_fromString(XsVersion* thisPtr, const XsString* version)
 }
 
 /*! \relates XsVersion
- *	\brief Create a XsVersion a XsSimpleVersion, \a simpleVersion.
- */
+	\brief Create a XsVersion a XsSimpleVersion, \a simpleVersion.
+*/
 void XsVersion_fromSimpleVersion(XsVersion* thisPtr, const XsSimpleVersion* simpleVersion)
 {
 	thisPtr->m_major = simpleVersion->m_major;
@@ -168,8 +168,8 @@ void XsVersion_fromSimpleVersion(XsVersion* thisPtr, const XsSimpleVersion* simp
 }
 
 /*! \relates XsVersion
- *	\brief Create a XsSimpleVersion (\a version) from a XsVersion.
- */
+	\brief Create a XsSimpleVersion (\a version) from a XsVersion.
+*/
 void XsVersion_toSimpleVersion(const XsVersion* thisPtr, XsSimpleVersion* simpleVersion)
 {
 	simpleVersion->m_major = (uint8_t)(int8_t)thisPtr->m_major;

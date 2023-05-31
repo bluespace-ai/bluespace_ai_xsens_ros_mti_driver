@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -78,24 +78,31 @@ public:
 
 	XsResultValue readDataToBuffer(XsByteArray& raw) override;
 	XsResultValue processBufferedData(const XsByteArray& rawIn, std::deque<XsMessage>& messages) override;
-	void handleMessage(const XsMessage &message) override;
+	void handleMessage(const XsMessage& message) override;
 
 	void flushPort() override;
 	void closePort() override;
 	bool isPortOpen() const override;
-	bool openPort(const XsPortInfo &portInfo, OpenPortStage stage = OPS_Full, bool detectRs485 = false) override;
+	bool openPort(const XsPortInfo& portInfo, OpenPortStage stage = OPS_Full, bool detectRs485 = false) override;
 	bool reopenPort(OpenPortStage stage = OPS_Full, bool skipDeviceIdCheck = false) override;
-	bool isDockedAt(Communicator *other) const override;
-	bool allowReprocessing() const override { return false; }
+	bool isDockedAt(Communicator* other) const override;
+	bool allowReprocessing() const override
+	{
+		return false;
+	}
 
 	void handleReceivedData(const XsByteArray& data);
 
-	bool doTransaction(const XsMessage &msg, XsMessage &rcv, uint32_t timeout) override;
+	bool doTransaction(const XsMessage& msg, XsMessage& rcv, uint32_t timeout) override;
 
 	static XsPortInfo createPortInfo(int channelId);
 protected:
-	XsResultValue writeRawData(const XsByteArray &data) override;
-	std::shared_ptr<StreamInterface> createStreamInterface(const XsPortInfo &pi) override { (void)pi; return std::shared_ptr<StreamInterface>(); }
+	XsResultValue writeRawData(const XsByteArray& data) override;
+	std::shared_ptr<StreamInterface> createStreamInterface(const XsPortInfo& pi) override
+	{
+		(void)pi;
+		return std::shared_ptr<StreamInterface>();
+	}
 
 	uint32_t defaultInterfaceTimeout() const override;
 

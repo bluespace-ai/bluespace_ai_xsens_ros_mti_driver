@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -73,7 +73,8 @@
 	performed or at least not all at the same time. For these cases, this enumeration supplies the
 	option of selecting which stages should be performed.
 */
-enum OpenPortStage {
+enum OpenPortStage
+{
 	OPS_OpenPort = 1,
 	//OPS_StartThread = 2,	// obsolete
 	OPS_InitDevice = 4,
@@ -84,4 +85,4 @@ enum OpenPortStage {
 /*! @} */
 typedef enum OpenPortStage OpenPortStage;
 
-#endif	// file guard
+#endif

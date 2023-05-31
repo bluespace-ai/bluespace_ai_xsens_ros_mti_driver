@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,7 +66,7 @@
 #include "xstime.h"
 #include "xstimeinfo.h"
 #ifndef XSENS_NO_STL
-#include "xsstring.h"
+	#include "xsstring.h"
 #endif
 #include <time.h>
 #include <string.h>
@@ -89,42 +89,42 @@ void XsTimeStamp_setMilliSecondTime(XsTimeStamp* thisPtr, int64_t t)
 /*! \relates XsTimeStamp \brief Get the time of day component of the stored timestamp in seconds as a double precision value. */
 double XsTimeStamp_timeOfDay(const XsTimeStamp* thisPtr)
 {
-	return (double)(thisPtr->m_msTime % (24*60*60*1000))*0.001;
+	return (double)(thisPtr->m_msTime % (24 * 60 * 60 * 1000)) * 0.001;
 }
 
 /*! \relates XsTimeStamp \brief Returns the number of seconds elapsed since the epoch as stored in the XsTimeStamp
 */
 int64_t XsTimeStamp_secondTime(const XsTimeStamp* thisPtr)
 {
-	return thisPtr->m_msTime/1000;
+	return thisPtr->m_msTime / 1000;
 }
 
 /*! \relates XsTimeStamp \brief Returns the millisecond part of the time (in the range 0-999)
 */
 int32_t XsTimeStamp_milliSecondPart(const XsTimeStamp* thisPtr)
 {
-	return (int32_t) (thisPtr->m_msTime % 1000);
+	return (int32_t)(thisPtr->m_msTime % 1000);
 }
 
 /*! \relates XsTimeStamp \brief Returns the seconds part of the time (in the range 0-59)
 */
 int32_t XsTimeStamp_secondPart(const XsTimeStamp* thisPtr)
 {
-	return (int32_t) ((thisPtr->m_msTime/(1000))%60);
+	return (int32_t)((thisPtr->m_msTime / (1000)) % 60);
 }
 
 /*! \relates XsTimeStamp \brief Returns the minutes part of the time (in the range 0-59)
 */
 int32_t XsTimeStamp_minutePart(const XsTimeStamp* thisPtr)
 {
-	return (int32_t) ((thisPtr->m_msTime/(60*1000))%60);
+	return (int32_t)((thisPtr->m_msTime / (60 * 1000)) % 60);
 }
 
 /*! \relates XsTimeStamp \brief Returns the hours part of the time (in the range 0-23)
 */
 int32_t XsTimeStamp_hourPart(const XsTimeStamp* thisPtr)
 {
-	return (int32_t) ((thisPtr->m_msTime/(60*60*1000))%24);
+	return (int32_t)((thisPtr->m_msTime / (60 * 60 * 1000)) % 24);
 }
 
 /*! \relates XsTimeStamp
@@ -201,7 +201,7 @@ void XsTimeStamp_toTimeInfo(struct XsTimeStamp const* thisPtr, struct XsTimeInfo
 		return;
 	}
 #elif (defined(__arm__) && defined(__ARMCC_VERSION))
-	#warning Function is not thread-safe for this platform/toolchain
+#warning Function is not thread-safe for this platform/toolchain
 	time_t t;
 	t = (time_t)(thisPtr->m_msTime / 1000);
 	struct tm* tmUtcPtr = gmtime(&t);
@@ -228,7 +228,7 @@ void XsTimeStamp_toTimeInfo(struct XsTimeStamp const* thisPtr, struct XsTimeInfo
 	info->m_month = (uint8_t) tmUtc.tm_mon + 1;
 	info->m_nano = (uint32_t)((thisPtr->m_msTime % 1000) * 1e6);
 	info->m_second = (uint8_t) tmUtc.tm_sec;
-	info->m_year = (uint16_t) (tmUtc.tm_year + 1900);
+	info->m_year = (uint16_t)(tmUtc.tm_year + 1900);
 	info->m_valid = 1;
 	info->m_utcOffset = 0;
 }
@@ -253,7 +253,7 @@ void XsTimeStamp_toString(struct XsTimeStamp const* thisPtr, struct XsString* re
 			, (int) info.m_hour
 			, (int) info.m_minute
 			, (int) info.m_second
-			, (int) (thisPtr->m_msTime % 1000));
+			, (int)(thisPtr->m_msTime % 1000));
 		XsString_assign(result, 23, buffer);
 	}
 	else
@@ -308,7 +308,7 @@ void XsTimeStamp_localToUtcTime2(struct XsTimeStamp const* thisPtr, struct XsTim
 */
 void XsTimeStamp_utcToLocalTime_ms(struct XsTimeStamp const* thisPtr, struct XsTimeStamp* local, int64_t utcOffset)
 {
-	local->m_msTime = thisPtr->m_msTime - (thisPtr->m_msTime ? utcOffset: 0LL);
+	local->m_msTime = thisPtr->m_msTime - (thisPtr->m_msTime ? utcOffset : 0LL);
 }
 
 /*! \brief Convert the supplied time from (assumed) local time to UTC, using the offset in \a utcOffset

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -78,8 +78,8 @@ extern "C" {
 #ifndef __cplusplus
 #define XSFINGERDATA_INITIALIZER {	XSQUATERNION_INITIALIZER, XSVECTOR3_INITIALIZER, XSVECTOR3_INITIALIZER, 0, 0, 0}
 #define XSGLOVEDATA_INITIALIZER {	XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, \
-									XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, \
-									0 ,0 ,0 ,0 }
+		XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, XSFINGERDATA_INITIALIZER, \
+		0 ,0 ,0 ,0 }
 #endif
 
 XSTYPES_DLL_API void XsFingerData_construct(struct XsFingerData* thisPtr);
@@ -222,7 +222,7 @@ struct XsGloveData
 	}
 
 	//! \brief Construct an initialized object
-	inline XsGloveData(const uint16_t frameNumber, const uint16_t validSampleFlags, const XsFingerData *fingerData)
+	inline XsGloveData(const uint16_t frameNumber, const uint16_t validSampleFlags, const XsFingerData* fingerData)
 		: m_frameNumber(frameNumber)
 		, m_validSampleFlags(validSampleFlags)
 	{
@@ -269,7 +269,7 @@ struct XsGloveData
 	inline bool operator == (const XsGloveData& other) const
 	{
 		if (m_frameNumber != other.m_frameNumber ||
-			m_validSampleFlags != other.m_validSampleFlags )
+			m_validSampleFlags != other.m_validSampleFlags)
 			return false;
 
 		for (int i = 0; i < XSFINGERSEGMENTCOUNT; ++i)
@@ -298,7 +298,7 @@ struct XsGloveData
 	{
 		XsGloveData_swap(this, &other);
 	}
-	
+
 	/*! \brief Swap the contents of \a first with \a second */
 	friend void swap(XsGloveData& first, XsGloveData& second)
 	{

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,15 +70,24 @@
 /*! \brief Pressure data.
 	\details Contains the pressure data and the pressure age
 */
-struct XsPressure {
+struct XsPressure
+{
 #ifdef __cplusplus
+	/*! \brief Create an empty XsPressure
+	*/
+	explicit XsPressure()
+		: m_pressure(0)
+		, m_pressureAge(0xFFu)
+	{
+	}
+
 	/*! \brief Create an XsPressure
 		\param pressure the pressure
 		\param age the pressure age
 	*/
-	explicit XsPressure(double pressure = 0, uint8_t age = 0) :
-		m_pressure(pressure),
-		m_pressureAge(age)
+	explicit XsPressure(double pressure, uint8_t age = 0)
+		: m_pressure(pressure)
+		, m_pressureAge(age)
 	{
 	}
 
@@ -95,7 +104,7 @@ struct XsPressure {
 		\param other the pressure carrier to copy from
 		\return this
 	*/
-	inline XsPressure const & operator=(XsPressure const& other)
+	inline XsPressure const& operator=(XsPressure const& other)
 	{
 		m_pressure = other.m_pressure;
 		m_pressureAge = other.m_pressureAge;
@@ -110,6 +119,16 @@ struct XsPressure {
 	{
 		return other.m_pressure == m_pressure && other.m_pressureAge == m_pressureAge;
 	}
+
+	/*! \brief Return true if this is not equal to \a other
+		\param other the pressure carrier to compare against
+		\return true if both XsPressures differ
+	*/
+	inline bool operator!=(XsPressure const& other) const
+	{
+		return other.m_pressure != m_pressure || other.m_pressureAge != m_pressureAge;
+	}
+
 #endif
 	double		m_pressure;		//!< Pressure in Pascal
 	uint8_t		m_pressureAge;	//!< Age of pressure data in samples

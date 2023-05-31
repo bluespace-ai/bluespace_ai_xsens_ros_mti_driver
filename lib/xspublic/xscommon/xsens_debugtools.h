@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,21 +66,21 @@
 #define XSENS_DEBUGTOOLS_H
 
 #ifndef XSTRINGIFY
-#define XSTRINGIFY2(x) #x
-#define XSTRINGIFY(x) XSTRINGIFY2(x)
+	#define XSTRINGIFY2(x) #x
+	#define XSTRINGIFY(x) XSTRINGIFY2(x)
 #endif
 
 #ifdef __cplusplus
-#ifdef _MSC_VER
-#define XSENS_COMPILER_WARNING(n, w) __pragma(message(__FILE__ "(" XSTRINGIFY(__LINE__) "): warning " n ": " w));
+	#ifdef _MSC_VER
+		#define XSENS_COMPILER_WARNING(n, w) __pragma(message(__FILE__ "(" XSTRINGIFY(__LINE__) "): warning " n ": " w));
+	#else
+		// the warning needs to be made literal. String concatenation is unfortunately not performed before _Pragma
+		#define XCW_GCCWARNING(w) _Pragma(XSTRINGIFY(GCC warning #w))
+		#define XSENS_COMPILER_WARNING(n, w) XCW_GCCWARNING(w (n))
+	#endif
 #else
-// the warning needs to be made literal. String concatenation is unfortunately not performed before _Pragma
-#define XCW_GCCWARNING(w) _Pragma(XSTRINGIFY(GCC warning #w))
-#define XSENS_COMPILER_WARNING(n, w) XCW_GCCWARNING(w (n))
-#endif
-#else
-// old/plain C compilers don't support these keywords
-#define XSENS_COMPILER_WARNING(n, w)
+	// old/plain C compilers don't support these keywords
+	#define XSENS_COMPILER_WARNING(n, w)
 #endif
 #define XSENS_COMPILER_WARNING0(w) XSENS_COMPILER_WARNING("X0000", w)
 

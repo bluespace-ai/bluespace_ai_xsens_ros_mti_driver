@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -84,7 +84,7 @@ ReplyObject::~ReplyObject()
 		delete m_waitCondition;
 		delete m_mutex;
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -139,7 +139,7 @@ uint8_t MidReplyObject::msgId() const
 /*! \returns True when a message is a valid reply message for this reply object
 	\param[in] msg the message to check
 */
-bool MidReplyObject::isReplyFor(XsMessage const & msg)
+bool MidReplyObject::isReplyFor(XsMessage const& msg)
 {
 	if (m_messageId == msg.getMessageId())
 		return true;
@@ -158,7 +158,7 @@ bool MidReplyObject::isReplyFor(XsMessage const & msg)
 	\param[in] size the size of the data in the data part of the message
 	\param[in] data pointer to data to wait for (this object does not take ownership of the data)
 */
-MidAndDataReplyObject::MidAndDataReplyObject(uint8_t messageId, XsSize offset, XsSize size, uint8_t const * data)
+MidAndDataReplyObject::MidAndDataReplyObject(uint8_t messageId, XsSize offset, XsSize size, uint8_t const* data)
 	: ReplyObject()
 	, m_messageId(messageId)
 	, m_dataOffset(offset)
@@ -193,7 +193,7 @@ uint8_t MidAndDataReplyObject::msgId() const
 /*! \returns true when a message is a valid reply message for this reply object
 	\param[in] msg the message to check
 */
-bool MidAndDataReplyObject::isReplyFor(XsMessage const & msg)
+bool MidAndDataReplyObject::isReplyFor(XsMessage const& msg)
 {
 	if (msg.getMessageId() == XMID_Error)
 		return true;
@@ -216,7 +216,7 @@ void MidAndDataReplyObject::freeData()
 /*! \brief Copies data from 'data' into this object. This is the data to wait for.
 	\param[in] data the data to copy into this object and wait for
 */
-void MidAndDataReplyObject::setData(uint8_t const * data)
+void MidAndDataReplyObject::setData(uint8_t const* data)
 {
 	freeData();
 	if (data != 0)

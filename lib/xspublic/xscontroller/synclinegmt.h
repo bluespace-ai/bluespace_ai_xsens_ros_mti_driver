@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -72,9 +72,9 @@
 */
 /*! \brief Synchronization line identifiers for the generic motion tracker (GMT) devices, only to be used directly in Xbus messages
 	Applies to these devices:
-		* MTx2
-		* MTw2
-		* MTi-1 series
+		 MTx2
+		 MTw2
+		 MTi-1 series
 */
 enum SyncLineGmt
 {

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -79,7 +79,7 @@ typedef struct XsLibraryLoader XsLibraryLoader;
 #endif
 
 XSTYPES_DLL_API int XsLibraryLoader_load(XsLibraryLoader* thisp, const XsString* libraryName);
-XSTYPES_DLL_API void* XsLibraryLoader_resolve(const XsLibraryLoader* thisp, const char *functionName);
+XSTYPES_DLL_API void* XsLibraryLoader_resolve(const XsLibraryLoader* thisp, const char* functionName);
 XSTYPES_DLL_API int XsLibraryLoader_unload(XsLibraryLoader* thisp);
 XSTYPES_DLL_API int XsLibraryLoader_isLoaded(const XsLibraryLoader* thisp);
 XSTYPES_DLL_API void XsLibraryLoader_getErrorString(XsString* error);
@@ -90,7 +90,8 @@ XSTYPES_DLL_API void XsLibraryLoader_getErrorString(XsString* error);
 
 /*! \brief The Xsens dynamic library loader base class
 */
-struct XsLibraryLoader {
+struct XsLibraryLoader
+{
 #ifdef __cplusplus
 public:
 	/*! \brief Create a library loader */
@@ -109,8 +110,8 @@ public:
 	}
 
 	/*! \brief Load the library
-	  \param[in] libraryName the name of the library to load
-	  \return true if the library could be loaded, false otherwise
+	    \param[in] libraryName the name of the library to load
+	    \return true if the library could be loaded, false otherwise
 	*/
 	inline bool load(const XsString& libraryName)
 	{
@@ -119,7 +120,7 @@ public:
 
 	/*! \brief Return true if a library has been loaded
 
-	  \return true if a library has been loaded, false otherwise
+	    \return true if a library has been loaded, false otherwise
 	*/
 	inline bool isLoaded() const
 	{
@@ -128,10 +129,10 @@ public:
 
 	/*! \brief Resolve a function from the library
 
-	  \param[in] functionName the name of the function to resolve
-	  \return a pointer to the resolved function, NULL if nothing could be resolved
+	    \param[in] functionName the name of the function to resolve
+	    \return a pointer to the resolved function, NULL if nothing could be resolved
 	*/
-	inline void* resolve(const char *functionName) const
+	inline void* resolve(const char* functionName) const
 	{
 		return XsLibraryLoader_resolve(this, functionName);
 	}
@@ -145,10 +146,10 @@ public:
 
 	/*! \brief Return a string describing the error that occurred
 
-	  Use this function after a function returned with an error to
-	  receive some extra information about what went wrong.
+	    Use this function after a function returned with an error to
+	    receive some extra information about what went wrong.
 
-	  \returns a string describing the error that occurred
+	    \returns a string describing the error that occurred
 	*/
 	inline static XsString errorString()
 	{

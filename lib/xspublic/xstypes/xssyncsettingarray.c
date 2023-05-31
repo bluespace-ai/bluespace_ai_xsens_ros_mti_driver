@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -94,7 +94,8 @@ void zeroSyncSetting(XsSyncSetting* a)
 }
 
 //! \brief Descriptor for XsSyncSettingArray
-XsArrayDescriptor const g_xsSyncSettingArrayDescriptor = {
+XsArrayDescriptor const g_xsSyncSettingArrayDescriptor =
+{
 	sizeof(XsSyncSetting),
 	XSEXPCASTITEMSWAP XsSyncSetting_swap,
 	XSEXPCASTITEMMAKE zeroSyncSetting,		// construct

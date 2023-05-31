@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -123,7 +123,7 @@ void Communicator::prepareForDestruction()
 /*! \brief Sets a master device.
 	\param masterDevice a master device.
 */
-void Communicator::setMasterDevice(XsDevice *masterDevice)
+void Communicator::setMasterDevice(XsDevice* masterDevice)
 {
 	JLDEBUGG(masterDevice);
 	assert(m_masterInfo == nullptr);
@@ -147,7 +147,7 @@ std::shared_ptr<ProtocolManager> Communicator::protocolManager() const
 /*!	\brief Sets a master device ID.
 	\param id device ID.
 */
-void Communicator::setMasterDeviceId(const XsDeviceId &id)
+void Communicator::setMasterDeviceId(const XsDeviceId& id)
 {
 	m_masterDeviceId = id;
 }
@@ -188,7 +188,7 @@ XsSize Communicator::childDeviceCount() const
 
 /*! \brief Handles a \a message
 */
-void Communicator::handleMessage(const XsMessage &message)
+void Communicator::handleMessage(const XsMessage& message)
 {
 	// handle one message at a time. This is only really necessary for dual-stream interfaces such as to the bodypack
 	xsens::Lock locky(&m_handleMux);
@@ -200,8 +200,8 @@ void Communicator::handleMessage(const XsMessage &message)
 		XsSize sz = message.getTotalMessageSize();
 		const uint8_t* m = message.getMessageStart();
 		for (XsSize i = 0; i < sz; ++i)
-			sprintf(buffer+2*i, "%02X", (unsigned int) m[i]);
-		buffer[2*sz] = 0;
+			sprintf(buffer + 2 * i, "%02X", (unsigned int) m[i]);
+		buffer[2 * sz] = 0;
 		JLALERTG("Error message received: " << buffer);
 		JLIF(gJournal, JLL_Alert, m_replyMonitor->dumpObjectList(gJournal, JLL_Alert));
 	}
@@ -211,7 +211,7 @@ void Communicator::handleMessage(const XsMessage &message)
 
 /*! \brief Write a message and await the reply
 */
-bool Communicator::doTransaction(const XsMessage &msg, uint32_t timeout)
+bool Communicator::doTransaction(const XsMessage& msg, uint32_t timeout)
 {
 	XsMessage rcv;
 	return doTransaction(msg, rcv, timeout);
@@ -219,14 +219,14 @@ bool Communicator::doTransaction(const XsMessage &msg, uint32_t timeout)
 
 /*! \brief Write a message and await the reply
 */
-bool Communicator::doTransaction(const XsMessage &msg)
+bool Communicator::doTransaction(const XsMessage& msg)
 {
 	return doTransaction(msg, defaultTimeout());
 }
 
 /*! \brief Write a message and await the reply
 */
-bool Communicator::doTransaction(const XsMessage &msg, XsMessage &rcv)
+bool Communicator::doTransaction(const XsMessage& msg, XsMessage& rcv)
 {
 	return doTransaction(msg, rcv, defaultTimeout());
 }
@@ -259,7 +259,7 @@ XsResultValue Communicator::setAndReturnLastResult(XsResultValue res, XsString c
 	Later more checks like odd message ID checks may be added here
 	\returns true if check is successful
 */
-bool Communicator::sanityCheck(XsMessage const & msg) const
+bool Communicator::sanityCheck(XsMessage const& msg) const
 {
 	if (m_masterInfo)
 		return m_masterInfo->messageLooksSane(msg);
@@ -284,7 +284,7 @@ std::shared_ptr<ReplyObject> Communicator::addReplyObject(uint8_t mid)
 	\param[in] data pointer to data to wait for (this object does not take ownership of the data)
 	\returns a shared pointer to a reply object
 */
-std::shared_ptr<ReplyObject> Communicator::addReplyObject(uint8_t mid, XsSize offset, XsSize size, uint8_t const * data)
+std::shared_ptr<ReplyObject> Communicator::addReplyObject(uint8_t mid, XsSize offset, XsSize size, uint8_t const* data)
 {
 	assert(m_replyMonitor != nullptr);
 	return m_replyMonitor->addReplyObject(new MidAndDataReplyObject(mid, offset, size, data));

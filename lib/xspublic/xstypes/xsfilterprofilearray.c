@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -95,15 +95,15 @@ void copyFilterProfile(XsFilterProfile* to, XsFilterProfile const* from)
 int compareFilterProfile(XsFilterProfile const* a, XsFilterProfile const* b)
 {
 	if (a->m_filterType != b->m_filterType)
-		return (a->m_filterType < b->m_filterType)?-1:1;
+		return (a->m_filterType < b->m_filterType) ? -1 : 1;
 	if (a->m_type != b->m_type)
-		return (a->m_type < b->m_type)?-1:1;
+		return (a->m_type < b->m_type) ? -1 : 1;
 	if (a->m_filterMajor != b->m_filterMajor)
-		return (a->m_filterMajor < b->m_filterMajor)?-1:1;
+		return (a->m_filterMajor < b->m_filterMajor) ? -1 : 1;
 	if (a->m_filterMinor != b->m_filterMinor)
-		return (a->m_filterMinor < b->m_filterMinor)?-1:1;
+		return (a->m_filterMinor < b->m_filterMinor) ? -1 : 1;
 	if (a->m_version != b->m_version)
-		return (a->m_version < b->m_version)?-1:1;
+		return (a->m_version < b->m_version) ? -1 : 1;
 	return 0;
 }
 
@@ -114,7 +114,8 @@ void zeroFilterProfile(XsFilterProfile* a)
 }
 
 //! \brief Descriptor for XsFilterProfileArray
-XsArrayDescriptor const g_xsFilterProfileArrayDescriptor = {
+XsArrayDescriptor const g_xsFilterProfileArrayDescriptor =
+{
 	sizeof(XsFilterProfile),
 	XSEXPCASTITEMSWAP swapFilterProfile,	// swap
 	XSEXPCASTITEMMAKE zeroFilterProfile,	// construct

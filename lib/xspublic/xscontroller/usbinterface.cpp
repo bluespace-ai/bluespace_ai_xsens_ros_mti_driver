@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -72,32 +72,32 @@
 #include "rx_tx_log.h"
 
 #ifndef _WIN32
-#	include <string.h>		// strcpy
+	#include <string.h>		// strcpy
 #else
-#	include <winbase.h>
-#	include <io.h>
+	#include <winbase.h>
+	#include <io.h>
 #endif
 #include <atomic>
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
-#	define _CRT_SECURE_NO_DEPRECATE
-#	ifdef _WIN32
-#		pragma warning(disable:4996)
-#	endif
+	#define _CRT_SECURE_NO_DEPRECATE
+	#ifdef _WIN32
+		#pragma warning(disable:4996)
+	#endif
 #endif
 
 /*! \brief Private object for UsbInterface */
 class UsbInterfacePrivate
 {
 public:
-	#ifdef LOG_RX_TX
-		XsFile rx_log;
-		XsFile tx_log;
-	#endif
+#ifdef LOG_RX_TX
+	XsFile rx_log;
+	XsFile tx_log;
+#endif
 
-		//! The time at which an operation will end in ms, used by several functions.
+	//! The time at which an operation will end in ms, used by several functions.
 	uint32_t m_endTime;
-		//! The last result of an operation
+	//! The last result of an operation
 	XsResultValue m_lastResult;
 	/*! The default timeout value to use during blocking operations.
 		A value of 0 means that all operations become non-blocking.
@@ -117,7 +117,7 @@ public:
 
 	XsThreadId m_threadId;
 	XsThread m_threadHandle;
-	static const int m_oCount = MAXIMUM_WAIT_OBJECTS-1;
+	static const int m_oCount = MAXIMUM_WAIT_OBJECTS - 1;
 	OVERLAPPED m_overlapped[m_oCount];
 	XsByteArray m_varBuffer;
 	static const int m_fixedBufferSize = 8192;
@@ -136,12 +136,13 @@ public:
 	int m_interfaceCount;
 	int m_interface;
 
-	libusb_device_handle *m_deviceHandle;
+	libusb_device_handle* m_deviceHandle;
 	/*! \brief A context manager for libusb
 
-	  For predictable operation with libusb, it is recommended to use at least one context per library.
+	    For predictable operation with libusb, it is recommended to use at least one context per library.
 	*/
-	class UsbContext {
+	class UsbContext
+	{
 	public:
 		/*! \brief Create the USB context
 		*/
@@ -160,7 +161,7 @@ public:
 			if (!m_claimedContexts)
 				m_libUsb.exit(m_usbContext);
 		}
-		static libusb_context *m_usbContext; // needed for proper use of libusb
+		static libusb_context* m_usbContext; // needed for proper use of libusb
 		XsLibUsb m_libUsb;
 	private:
 		static int m_claimedContexts;
@@ -174,102 +175,104 @@ public:
 	*/
 	XsResultValue libusbErrorToXrv(int libusbError, XsResultValue hint = XRV_ERROR)
 	{
-		switch (libusbError) {
-		case LIBUSB_SUCCESS:
-			return XRV_OK;
+		switch (libusbError)
+		{
+			case LIBUSB_SUCCESS:
+				return XRV_OK;
 
-		case LIBUSB_ERROR_IO:
-			return hint;
+			case LIBUSB_ERROR_IO:
+				return hint;
 
-		case LIBUSB_ERROR_INVALID_PARAM:
-			return XRV_INVALIDPARAM;
+			case LIBUSB_ERROR_INVALID_PARAM:
+				return XRV_INVALIDPARAM;
 
-		case LIBUSB_ERROR_ACCESS:
-			return hint;
+			case LIBUSB_ERROR_ACCESS:
+				return hint;
 
-		case LIBUSB_ERROR_NO_DEVICE:
-			return XRV_UNEXPECTED_DISCONNECT;
+			case LIBUSB_ERROR_NO_DEVICE:
+				return XRV_UNEXPECTED_DISCONNECT;
 
-		case LIBUSB_ERROR_NOT_FOUND:
-			return XRV_NOTFOUND;
+			case LIBUSB_ERROR_NOT_FOUND:
+				return XRV_NOTFOUND;
 
-		case LIBUSB_ERROR_BUSY:
-			return XRV_INVALIDOPERATION;
+			case LIBUSB_ERROR_BUSY:
+				return XRV_INVALIDOPERATION;
 
-		case LIBUSB_ERROR_TIMEOUT:
-			return XRV_TIMEOUT;
+			case LIBUSB_ERROR_TIMEOUT:
+				return XRV_TIMEOUT;
 
-		case LIBUSB_ERROR_OVERFLOW:
-			return hint;
+			case LIBUSB_ERROR_OVERFLOW:
+				return hint;
 
-		case LIBUSB_ERROR_PIPE:
-			return hint;
+			case LIBUSB_ERROR_PIPE:
+				return hint;
 
-		case LIBUSB_ERROR_INTERRUPTED:
-			return XRV_UNEXPECTEDMSG;
+			case LIBUSB_ERROR_INTERRUPTED:
+				return XRV_UNEXPECTEDMSG;
 
-		case LIBUSB_ERROR_NO_MEM:
-			return XRV_OUTOFMEMORY;
+			case LIBUSB_ERROR_NO_MEM:
+				return XRV_OUTOFMEMORY;
 
-		case LIBUSB_ERROR_NOT_SUPPORTED:
-			return XRV_NOTIMPLEMENTED;
+			case LIBUSB_ERROR_NOT_SUPPORTED:
+				return XRV_NOTIMPLEMENTED;
 
-		case LIBUSB_ERROR_OTHER:
-			return hint;
+			case LIBUSB_ERROR_OTHER:
+				return hint;
 		}
 		return hint;
 	}
 
 	/*! \brief Convert a libusb error to a human-readable string */
-	const char *libusbErrorToString(int libusbError)
+	const char* libusbErrorToString(int libusbError)
 	{
-		switch (libusbError) {
-		case LIBUSB_SUCCESS:
-			return "LIBUSB_SUCCESS";
+		switch (libusbError)
+		{
+			case LIBUSB_SUCCESS:
+				return "LIBUSB_SUCCESS";
 
-		case LIBUSB_ERROR_IO:
-			return "LIBUSB_ERROR_IO";
+			case LIBUSB_ERROR_IO:
+				return "LIBUSB_ERROR_IO";
 
-		case LIBUSB_ERROR_INVALID_PARAM:
-			return "LIBUSB_ERROR_INVALID_PARAM";
+			case LIBUSB_ERROR_INVALID_PARAM:
+				return "LIBUSB_ERROR_INVALID_PARAM";
 
-		case LIBUSB_ERROR_ACCESS:
-			return "LIBUSB_ERROR_ACCESS";
+			case LIBUSB_ERROR_ACCESS:
+				return "LIBUSB_ERROR_ACCESS";
 
-		case LIBUSB_ERROR_NO_DEVICE:
-			return "LIBUSB_ERROR_NO_DEVICE";
+			case LIBUSB_ERROR_NO_DEVICE:
+				return "LIBUSB_ERROR_NO_DEVICE";
 
-		case LIBUSB_ERROR_NOT_FOUND:
-			return "LIBUSB_ERROR_NOT_FOUND";
+			case LIBUSB_ERROR_NOT_FOUND:
+				return "LIBUSB_ERROR_NOT_FOUND";
 
-		case LIBUSB_ERROR_BUSY:
-			return "LIBUSB_ERROR_BUSY";
+			case LIBUSB_ERROR_BUSY:
+				return "LIBUSB_ERROR_BUSY";
 
-		case LIBUSB_ERROR_TIMEOUT:
-			return "LIBUSB_ERROR_TIMEOUT";
+			case LIBUSB_ERROR_TIMEOUT:
+				return "LIBUSB_ERROR_TIMEOUT";
 
-		case LIBUSB_ERROR_OVERFLOW:
-			return "LIBUSB_ERROR_OVERFLOW";
+			case LIBUSB_ERROR_OVERFLOW:
+				return "LIBUSB_ERROR_OVERFLOW";
 
-		case LIBUSB_ERROR_PIPE:
-			return "LIBUSB_ERROR_PIPE";
+			case LIBUSB_ERROR_PIPE:
+				return "LIBUSB_ERROR_PIPE";
 
-		case LIBUSB_ERROR_INTERRUPTED:
-			return "LIBUSB_ERROR_INTERRUPTED";
+			case LIBUSB_ERROR_INTERRUPTED:
+				return "LIBUSB_ERROR_INTERRUPTED";
 
-		case LIBUSB_ERROR_NO_MEM:
-			return "LIBUSB_ERROR_NO_MEM";
+			case LIBUSB_ERROR_NO_MEM:
+				return "LIBUSB_ERROR_NO_MEM";
 
-		case LIBUSB_ERROR_NOT_SUPPORTED:
-			return "LIBUSB_ERROR_NOT_SUPPORTED";
+			case LIBUSB_ERROR_NOT_SUPPORTED:
+				return "LIBUSB_ERROR_NOT_SUPPORTED";
 
-		case LIBUSB_ERROR_OTHER:
-			return "LIBUSB_ERROR_OTHER";
+			case LIBUSB_ERROR_OTHER:
+				return "LIBUSB_ERROR_OTHER";
 		}
 		return "Unknown";
 	}
 #else
-	void *m_deviceHandle;
+	void* m_deviceHandle;
 #endif
 };
 
@@ -284,7 +287,7 @@ static DWORD usbReadThreadFunc(void* obj)
 	{
 		d->threadFunc();
 	}
-	catch(...)
+	catch (...)
 	{
 #ifdef XSENS_DEBUG
 		assert(0);
@@ -296,15 +299,15 @@ static DWORD usbReadThreadFunc(void* obj)
 
 void UsbInterfacePrivate::threadFunc()
 {
-	HANDLE handles[1+m_oCount];
+	HANDLE handles[1 + m_oCount];
 	handles[0] = m_quitEvent;
-	handles[m_oCount] = m_waitEvents[m_oCount-1];
+	handles[m_oCount] = m_waitEvents[m_oCount - 1];
 	//= { m_quitEvent, m_waitEvents[0], m_waitEvents[1] };
 
 	// start first read operation
-	for (m_readIdx = 0 ; m_readIdx < (m_oCount-1); ++m_readIdx)
+	for (m_readIdx = 0 ; m_readIdx < (m_oCount - 1); ++m_readIdx)
 	{
-		handles[m_readIdx+1] = m_waitEvents[m_readIdx];
+		handles[m_readIdx + 1] = m_waitEvents[m_readIdx];
 		m_overlapped[m_readIdx] = OVERLAPPED();
 		::ResetEvent(m_waitEvents[m_readIdx]);
 		m_overlapped[m_readIdx].hEvent = m_waitEvents[m_readIdx];
@@ -319,72 +322,73 @@ void UsbInterfacePrivate::threadFunc()
 		m_overlapped[m_readIdx].hEvent = m_waitEvents[m_readIdx];
 		m_winUsb.ReadPipe(m_usbHandle[1], m_bulkInPipe, m_fixedBuffer[m_readIdx], (ULONG)m_fixedBufferSize, 0, &m_overlapped[m_readIdx]);
 		m_readIdx = (m_readIdx + 1) % m_oCount;
-		DWORD waitResult = ::WaitForMultipleObjects(1+m_oCount, handles, FALSE, INFINITE);
+		DWORD waitResult = ::WaitForMultipleObjects(1 + m_oCount, handles, FALSE, INFINITE);
 
 		// handle data
 		switch (waitResult)
 		{
-		case WAIT_TIMEOUT:
-		case WAIT_FAILED:
-		case WAIT_OBJECT_0:
-			run = false;
-			break;
-
-		default:
-			if (waitResult >= WAIT_ABANDONED_0)
-			{
-				JLDEBUGG("WFMO abandoned: " << (waitResult - WAIT_OBJECT_0));
+			case WAIT_TIMEOUT:
+			case WAIT_FAILED:
+			case WAIT_OBJECT_0:
+				run = false;
 				break;
-			}
+
+			default:
+				if (waitResult >= WAIT_ABANDONED_0)
+				{
+					JLDEBUGG("WFMO abandoned: " << (waitResult - WAIT_OBJECT_0));
+					break;
+				}
 
 #ifndef XSENS_RELEASE
-			JLDEBUGG("WFMO trigger: " << (waitResult - WAIT_OBJECT_0));
+				JLDEBUGG("WFMO trigger: " << (waitResult - WAIT_OBJECT_0));
 #endif
-			{
-				// put data into buffer
-				int idx = m_readIdx;
-				DWORD dataRead = 0;
-				if (!m_winUsb.GetOverlappedResult(m_usbHandle[0], &m_overlapped[idx], &dataRead, FALSE))
 				{
-					// error
-					DWORD err = ::GetLastError();
-					switch (err)
+					// put data into buffer
+					int idx = m_readIdx;
+					DWORD dataRead = 0;
+					if (!m_winUsb.GetOverlappedResult(m_usbHandle[0], &m_overlapped[idx], &dataRead, FALSE))
 					{
-					case ERROR_SEM_TIMEOUT:
-					case ERROR_IO_INCOMPLETE:
-						//JLDEBUGG("m_winUsb.GetOverlappedResult resulted in acceptable windows error " << err);
-						break;
+						// error
+						DWORD err = ::GetLastError();
+						switch (err)
+						{
+							case ERROR_SEM_TIMEOUT:
+							case ERROR_IO_INCOMPLETE:
+								//JLDEBUGG("m_winUsb.GetOverlappedResult resulted in acceptable windows error " << err);
+								break;
 
-					case ERROR_GEN_FAILURE:
-						JLDEBUGG("We seem to have lost contact with the usb device");
-						m_threadedResult = XRV_UNEXPECTED_DISCONNECT;
-						run = false;
-						break;
+							case ERROR_GEN_FAILURE:
+								JLDEBUGG("We seem to have lost contact with the usb device");
+								m_threadedResult = XRV_UNEXPECTED_DISCONNECT;
+								run = false;
+								break;
 
-					default:
-						JLALERTG("m_winUsb.GetOverlappedResult resulted in windows error " << err);
-						run = false;
-						break;
+							default:
+								JLALERTG("m_winUsb.GetOverlappedResult resulted in windows error " << err);
+								run = false;
+								break;
+						}
+						//assert (err == ERROR_IO_INCOMPLETE);
 					}
-					//assert (err == ERROR_IO_INCOMPLETE);
+					else
+					{
+						// append unread data to var buffer
+						JLTRACEG("m_winUsb.GetOverlappedResult resulted in " << dataRead << " bytes being read");
+						XsByteArray ref(&m_fixedBuffer[idx][0], dataRead, XSDF_None);
+						::EnterCriticalSection(&m_mutex);
+						m_varBuffer.append(ref);
+						::LeaveCriticalSection(&m_mutex);
+					}
 				}
-				else
-				{
-					// append unread data to var buffer
-					JLTRACEG("m_winUsb.GetOverlappedResult resulted in " << dataRead << " bytes being read");
-					XsByteArray ref(&m_fixedBuffer[idx][0], dataRead, XSDF_None);
-					::EnterCriticalSection(&m_mutex);
-					m_varBuffer.append(ref);
-					::LeaveCriticalSection(&m_mutex);
-				}
-			} break;
+				break;
 		}
 	}
 }
 
 #elif defined(HAVE_LIBUSB)
 int UsbInterfacePrivate::UsbContext::m_claimedContexts = 0;
-libusb_context *UsbInterfacePrivate::UsbContext::m_usbContext = NULL;
+libusb_context* UsbInterfacePrivate::UsbContext::m_usbContext = NULL;
 #endif
 
 /*! \class UsbInterface
@@ -435,7 +439,7 @@ UsbInterface::~UsbInterface()
 #endif
 		delete d;
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -493,7 +497,7 @@ XsResultValue UsbInterface::closeUsb(void)
 	}
 #elif defined(HAVE_LIBUSB)
 	flushData();
-	libusb_device *dev = d->m_contextManager.m_libUsb.get_device(d->m_deviceHandle);
+	libusb_device* dev = d->m_contextManager.m_libUsb.get_device(d->m_deviceHandle);
 	for (int i = 0; i < d->m_interfaceCount; i++)
 	{
 		int result = LIBUSB_ERROR_OTHER;
@@ -543,9 +547,10 @@ XsResultValue UsbInterface::flushData(void)
 #elif defined(HAVE_LIBUSB)
 	unsigned char flushBuffer[256];
 	int actual;
-	for (int i = 0; i < 64; ++i) {
-		if (d->m_contextManager.m_libUsb.bulk_transfer(d->m_deviceHandle, d->m_dataInEndPoint|LIBUSB_ENDPOINT_IN,
-								 flushBuffer, sizeof(flushBuffer), &actual, 1) != LIBUSB_SUCCESS)
+	for (int i = 0; i < 64; ++i)
+	{
+		if (d->m_contextManager.m_libUsb.bulk_transfer(d->m_deviceHandle, d->m_dataInEndPoint | LIBUSB_ENDPOINT_IN,
+				flushBuffer, sizeof(flushBuffer), &actual, 1) != LIBUSB_SUCCESS)
 			break;
 		if (actual == 0)
 			break;
@@ -564,19 +569,19 @@ XsResultValue UsbInterface::getLastResult(void) const
 }
 
 //! Return the current timeout value
-uint32_t UsbInterface::getTimeout (void) const
+uint32_t UsbInterface::getTimeout(void) const
 {
 	return d->m_timeout;
 }
 
 //! Return whether the USB communication port is open or not.
-bool UsbInterface::isOpen (void) const
+bool UsbInterface::isOpen(void) const
 {
 	return d->m_deviceHandle != NULL;
 }
 
 /*! \brief Open a communication channel to the given USB port name. */
-XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePos, PortOptions)
+XsResultValue UsbInterface::open(const XsPortInfo& portInfo, XsFilePos, XsFilePos, PortOptions)
 {
 	d->m_endTime = 0;
 
@@ -604,12 +609,12 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 	BOOL result;
 	UCHAR speed = 0;
 	ULONG length = 0;
-	USB_INTERFACE_DESCRIPTOR interfaceDescriptor = {0,0,0,0,0,0,0,0,0};
+	USB_INTERFACE_DESCRIPTOR interfaceDescriptor = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	WINUSB_PIPE_INFORMATION pipeInfo;
 
 	result = d->m_winUsb.Initialize(d->m_deviceHandle, &d->m_usbHandle[0]);
 	if (result)
-		result = d->m_winUsb.GetAssociatedInterface(d->m_usbHandle[0],0,&d->m_usbHandle[1]);
+		result = d->m_winUsb.GetAssociatedInterface(d->m_usbHandle[0], 0, &d->m_usbHandle[1]);
 	else
 	{
 #ifdef XSENS_DEBUG
@@ -619,7 +624,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 		return (d->m_lastResult = XRV_ERROR);
 	}
 
-	for (int k = 0; k<2;k++)
+	for (int k = 0; k < 2; k++)
 	{
 		if (result)
 		{
@@ -635,7 +640,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 		}
 		if (result)
 		{
-			for(int i=0;i<interfaceDescriptor.bNumEndpoints;i++)
+			for (int i = 0; i < interfaceDescriptor.bNumEndpoints; i++)
 			{
 				result = d->m_winUsb.QueryPipe(d->m_usbHandle[k], 0, (UCHAR) i, &pipeInfo);
 
@@ -646,13 +651,9 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 						pipeInfo.MaximumPacketSize;
 				}
 				else if (pipeInfo.PipeType == UsbdPipeTypeBulk && USB_ENDPOINT_DIRECTION_OUT(pipeInfo.PipeId))
-				{
 					d->m_bulkOutPipe = pipeInfo.PipeId;
-				}
 				else if (pipeInfo.PipeType == UsbdPipeTypeInterrupt)
-				{
 					d->m_interruptPipe = pipeInfo.PipeId;
-				}
 				else
 				{
 					result = FALSE;
@@ -667,7 +668,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 
 	sprintf(d->m_portname, "%s", portInfo.portName_c_str());
 
-//	d->m_offset = 0;
+	//	d->m_offset = 0;
 	::ResetEvent(&d->m_quitEvent);
 	d->m_threadHandle = xsStartThread(usbReadThreadFunc, d, &d->m_threadId);
 	if (d->m_threadHandle == XSENS_INVALID_THREAD)
@@ -679,7 +680,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 	}
 
 #elif defined(HAVE_LIBUSB)
-	libusb_device **deviceList;
+	libusb_device** deviceList;
 	ssize_t listLength = d->m_contextManager.m_libUsb.get_device_list(d->m_contextManager.m_usbContext, &deviceList);
 	if (listLength < 0)
 		return d->m_lastResult = d->libusbErrorToXrv((int)listLength);
@@ -690,10 +691,10 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 
 	XsResultValue xrv = XRV_OK;
 	int result;
-	libusb_device *device = NULL;
+	libusb_device* device = NULL;
 	for (int i = 0; i < listLength && device == NULL; ++i)
 	{
-		libusb_device *dev = deviceList[i];
+		libusb_device* dev = deviceList[i];
 		if (d->m_contextManager.m_libUsb.get_bus_number(dev) != bus || d->m_contextManager.m_libUsb.get_device_address(dev) != address)
 			continue;
 
@@ -702,7 +703,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 		if (result != LIBUSB_SUCCESS)
 			break;
 
-		libusb_config_descriptor *configDesc;
+		libusb_config_descriptor* configDesc;
 		result = d->m_contextManager.m_libUsb.get_active_config_descriptor(dev, &configDesc);
 		if (result != LIBUSB_SUCCESS)
 			break;
@@ -714,22 +715,22 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 		{
 			for (uint8_t altsettingCount = 0; altsettingCount < configDesc->interface[ifCount].num_altsetting; altsettingCount++)
 			{
-				const libusb_endpoint_descriptor *endpoints = configDesc->interface[ifCount].altsetting[altsettingCount].endpoint;
+				const libusb_endpoint_descriptor* endpoints = configDesc->interface[ifCount].altsetting[altsettingCount].endpoint;
 				int inEndpoint = -1, outEndpoint = -1;
 				for (uint8_t i = 0; i < configDesc->interface[ifCount].altsetting[altsettingCount].bNumEndpoints; i++)
 				{
-					if ((endpoints[i].bmAttributes&LIBUSB_TRANSFER_TYPE_MASK) != LIBUSB_TRANSFER_TYPE_BULK)
+					if ((endpoints[i].bmAttributes & LIBUSB_TRANSFER_TYPE_MASK) != LIBUSB_TRANSFER_TYPE_BULK)
 						continue;
 
-					switch (endpoints[i].bEndpointAddress&LIBUSB_ENDPOINT_DIR_MASK)
+					switch (endpoints[i].bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK)
 					{
-					case LIBUSB_ENDPOINT_IN:
-						inEndpoint = endpoints[i].bEndpointAddress&LIBUSB_ENDPOINT_ADDRESS_MASK;
-						break;
+						case LIBUSB_ENDPOINT_IN:
+							inEndpoint = endpoints[i].bEndpointAddress & LIBUSB_ENDPOINT_ADDRESS_MASK;
+							break;
 
-					case LIBUSB_ENDPOINT_OUT:
-						outEndpoint = endpoints[i].bEndpointAddress&LIBUSB_ENDPOINT_ADDRESS_MASK;
-						break;
+						case LIBUSB_ENDPOINT_OUT:
+							outEndpoint = endpoints[i].bEndpointAddress & LIBUSB_ENDPOINT_ADDRESS_MASK;
+							break;
 					}
 
 				}
@@ -767,7 +768,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 		return d->m_lastResult = xrv;
 	}
 
-	libusb_device_handle *handle;
+	libusb_device_handle* handle;
 	result = d->m_contextManager.m_libUsb.open(device, &handle);
 	if (result != LIBUSB_SUCCESS)
 	{
@@ -805,6 +806,7 @@ XsResultValue UsbInterface::open(const XsPortInfo &portInfo, XsFilePos, XsFilePo
 
 	flushData();
 #else // HAVE_LIBUSB
+	(void)portInfo;
 	d->m_lastResult = XRV_NOTIMPLEMENTED;
 #endif
 	JLDEBUGG("USB Port opened");
@@ -824,7 +826,7 @@ XsResultValue UsbInterface::readData(XsFilePos maxLength, XsByteArray& data)
 	XsFilePos length = 0;
 	data.setSize((XsSize) maxLength);
 	XsResultValue res = readData(maxLength, data.data(), &length);
-	data.pop_back((XsSize) (maxLength - length));
+	data.pop_back((XsSize)(maxLength - length));
 	return res;
 }
 
@@ -837,7 +839,7 @@ XsResultValue UsbInterface::readData(XsFilePos maxLength, XsByteArray& data)
 	\returns XRV_OK if no error occurred. It can be that no data is available and XRV_OK will be
 			returned. Check *length for the number of bytes that were read.
 */
-XsResultValue UsbInterface::readData(XsFilePos maxLength, void *data, XsFilePos* length)
+XsResultValue UsbInterface::readData(XsFilePos maxLength, void* data, XsFilePos* length)
 {
 	JLTRACEG("maxLength=" << maxLength << ", data=" << JLHEXLOG(data) << ", length=" << JLHEXLOG(length));
 	XsFilePos ln;
@@ -869,7 +871,7 @@ XsResultValue UsbInterface::readData(XsFilePos maxLength, void *data, XsFilePos*
 #elif defined(HAVE_LIBUSB)
 	int actual = 0;
 	JLTRACEG("starting bulk read, timeout = " << d->m_timeout);
-	int res = d->m_contextManager.m_libUsb.bulk_transfer(d->m_deviceHandle, (d->m_dataInEndPoint|LIBUSB_ENDPOINT_IN), (unsigned char *)data, maxLength, &actual, d->m_timeout);
+	int res = d->m_contextManager.m_libUsb.bulk_transfer(d->m_deviceHandle, (d->m_dataInEndPoint | LIBUSB_ENDPOINT_IN), (unsigned char*)data, maxLength, &actual, d->m_timeout);
 	JLTRACEG("bulk read returned: " << d->libusbErrorToString(res) << ". " << actual << " bytes received");
 	if ((res != LIBUSB_SUCCESS && res != LIBUSB_ERROR_TIMEOUT) || (res == LIBUSB_ERROR_TIMEOUT && actual <= 0))
 		return d->m_lastResult = d->libusbErrorToXrv(res);
@@ -888,10 +890,10 @@ XsResultValue UsbInterface::readData(XsFilePos maxLength, void *data, XsFilePos*
 		if (!d->rx_log.isOpen())
 		{
 			char fname[XS_MAX_FILENAME_LENGTH];
-			sprintf(fname,"rx_USB%03u_%03u.log", usbBus(), usbAddress());
+			sprintf(fname, "rx_USB%03u_%03u.log", usbBus(), usbAddress());
 			d->rx_log.create(XsString(fname), true);
 		}
-		d->rx_log.write(data,1,*length);
+		d->rx_log.write(data, 1, *length);
 #ifdef LOG_RX_TX_FLUSH
 		d->rx_log.flush();
 #endif
@@ -978,7 +980,7 @@ XsResultValue UsbInterface::waitForData(XsFilePos maxLength, void* data, XsFileP
 	JLTRACEG("timeout=" << d->m_timeout << ", data=" << data << ", length=" << length);
 	uint32_t timeout = d->m_timeout;
 
-	char *bdata = (char *)data;
+	char* bdata = (char*)data;
 
 	XsFilePos ln;
 	if (length == NULL)
@@ -1023,7 +1025,7 @@ XsResultValue UsbInterface::writeData(const XsByteArray& data, XsFilePos* writte
 	\returns XRV_OK if the data was successfully written
 	\sa writeData(const XsByteArray&, XsFilePos*)
 */
-XsResultValue UsbInterface::writeData(XsFilePos length, const void *data, XsFilePos* written)
+XsResultValue UsbInterface::writeData(XsFilePos length, const void* data, XsFilePos* written)
 {
 	XsFilePos bytes;
 	if (written == NULL)
@@ -1044,7 +1046,7 @@ XsResultValue UsbInterface::writeData(XsFilePos length, const void *data, XsFile
 	while (*written < length)
 	{
 		int actual;
-		int result = d->m_contextManager.m_libUsb.bulk_transfer(d->m_deviceHandle, (d->m_dataOutEndPoint|LIBUSB_ENDPOINT_OUT), (unsigned char *)data, length, &actual, 0);
+		int result = d->m_contextManager.m_libUsb.bulk_transfer(d->m_deviceHandle, (d->m_dataOutEndPoint | LIBUSB_ENDPOINT_OUT), (unsigned char*)data, length, &actual, 0);
 		*written += actual;
 		if (result != LIBUSB_SUCCESS)
 		{
@@ -1065,10 +1067,10 @@ XsResultValue UsbInterface::writeData(XsFilePos length, const void *data, XsFile
 		if (!d->tx_log.isOpen())
 		{
 			char fname[XS_MAX_FILENAME_LENGTH];
-			sprintf(fname,"tx_USB%03u_%03u.log", usbBus(), usbAddress());
+			sprintf(fname, "tx_USB%03u_%03u.log", usbBus(), usbAddress());
 			d->tx_log.create(XsString(fname), true);
 		}
-		d->tx_log.write(data,1,*written);
+		d->tx_log.write(data, 1, *written);
 #ifdef LOG_RX_TX_FLUSH
 		d->tx_log.flush();
 #endif
@@ -1085,7 +1087,7 @@ uint8_t UsbInterface::usbBus() const
 	if (!d->m_deviceHandle)
 		return 0;
 
-	libusb_device *dev = d->m_contextManager.m_libUsb.get_device(d->m_deviceHandle);
+	libusb_device* dev = d->m_contextManager.m_libUsb.get_device(d->m_deviceHandle);
 	return d->m_contextManager.m_libUsb.get_bus_number(dev);
 #else
 	return 0;
@@ -1099,7 +1101,7 @@ uint8_t UsbInterface::usbAddress() const
 	if (!d->m_deviceHandle)
 		return 0;
 
-	libusb_device *dev = d->m_contextManager.m_libUsb.get_device(d->m_deviceHandle);
+	libusb_device* dev = d->m_contextManager.m_libUsb.get_device(d->m_deviceHandle);
 	return d->m_contextManager.m_libUsb.get_device_address(dev);
 #else
 	return 0;

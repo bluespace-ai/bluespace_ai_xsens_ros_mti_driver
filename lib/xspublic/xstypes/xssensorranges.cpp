@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -67,181 +67,213 @@
 
 extern "C" {
 
-/* Find the A in hardware info of the product code
+	/*  Find the A in hardware info of the product code
 
-Returns a pointer to the A.
-*/
-static const char *findHardwareType(const char *productCode)
-{
-	if (findHardwareManufacturer(productCode) != HMT_MT)
-		return nullptr;
-
-	const char *A = strchr(productCode, 'A');
-	if (!A)
-		return nullptr;
-	const char *G = strchr(A, 'G');
-	if (!G)
-		return nullptr;
-	assert(G - A <= 3);
-	return A;
-}
-
-/*! \brief Return the hardware manufacturer from \a productCode
-*/
-HardwareManufacturerType findHardwareManufacturerC(const XsString* productCode)
-{
-	if (strstr(productCode->c_str(), "MT") != nullptr)
-		return HMT_MT;
-
-	return HMT_None;
-}
-
-/*! \brief Return the hardware type from \a productCode
-*/
-void findHardwareTypeC(const XsString* productCode, XsString* resultValue)
-{
-	if (!resultValue)
-		return;
-	const char *hwt = findHardwareType(productCode->c_str());
-	if (!hwt)
-		resultValue->clear();
-	else
-		*resultValue = hwt;
-}
-
-/* Return the accelerometer range field */
-static char accelerometerRangeField(const char *productCode)
-{
-	const char *hwi = findHardwareType(productCode);
-	if (!hwi)
-		return 0;
-	return *(hwi + 1);
-}
-
-/* Return the gyroscope range field */
-static char gyroscopeRangeField(const char *productCode)
-{
-	const char *hwi = findHardwareType(productCode);
-	if (!hwi)
-		return 0;
-	const char *G = strchr(hwi, 'G');
-	if (!G)
-		return 0;
-	return *(G + 1);
-}
-
-/*! \brief The accelerometer range from product code \a productCode
-*/
-double accelerometerRangeC(const XsString *productCode, int32_t hwVersionMajor)
-{
-	switch (findHardwareManufacturerC(productCode))
+	    Returns a pointer to the A.
+	*/
+	static const char* findHardwareType(const char* productCode)
 	{
-	case HardwareManufacturerType::HMT_MT:
-		switch(accelerometerRangeField(productCode->c_str()))
-		{
-		case '1': return   100.0;
-		case '2': return    20.0;
-		case '3': return    17.0;
-		case '5': return    50.0;
-		case '6': return    60.0;
-		case '7': return   160.0;
-		case '8':
-		{
-			if (hwVersionMajor < 3)
-				return 180.0;
-			else
-				return 200.0;
-		}
-		default: return 10000.0;
-		}
+		if (findHardwareManufacturer(productCode) != HMT_MT)
+			return nullptr;
 
-	default:
-		return 10000.0;
+		const char* A = strchr(productCode, 'A');
+		if (!A)
+			return nullptr;
+		const char* G = strchr(A, 'G');
+		if (!G)
+			return nullptr;
+		assert(G - A <= 3);
+		return A;
 	}
-}
 
-/*! \brief The actual accelerometer range from product code \a productCode
-
-This is a measured value and possibly larger than what accelerometerRange() returns.
-*/
-double actualAccelerometerRangeC(const XsString *productCode, int32_t hwVersionMajor)
-{
-	switch (findHardwareManufacturerC(productCode))
+	/*! \brief Return the hardware manufacturer from \a productCode
+	*/
+	HardwareManufacturerType findHardwareManufacturerC(const XsString* productCode)
 	{
-	case HardwareManufacturerType::HMT_MT:
-		switch(accelerometerRangeField(productCode->c_str()))
-		{
-		case '1': return   100.0;
-		case '2': return    20.0;
-		case '3': return    17.0;
-		case '5': return    50.0;
-		case '6': return    60.0;
-		case '7': return   160.0;
-		case '8':
-		{
-			if (hwVersionMajor < 3)
-				return 180.0;
-			else
-				return 200.0;
-		}
-		default: return 10000.0;
-		}
+		if (strstr(productCode->c_str(), "MT") != nullptr)
+			return HMT_MT;
 
-	default:
-		return 10000.0;
+		return HMT_None;
 	}
-}
 
-/*! \brief The gyroscope range from product code \a productCode
-*/
-double gyroscopeRangeC(const XsString *productCode)
-{
-	switch (findHardwareManufacturerC(productCode))
+	/*! \brief Return the hardware type from \a productCode
+	*/
+	void findHardwareTypeC(const XsString* productCode, XsString* resultValue)
 	{
-	case HardwareManufacturerType::HMT_MT:
-		switch(gyroscopeRangeField(productCode->c_str()))
-		{
-		case '0': return  1000.0;
-		case '1': return   150.0;
-		case '2': return  1200.0;
-		case '3': return   300.0;
-		case '4': return   450.0;
-		case '5': return  2500.0;
-		case '6': return  1800.0;
-		case '9': return   900.0;
-		default: return 10000.0;
-		}
-
-	default:
-		return 10000.0;
+		if (!resultValue)
+			return;
+		const char* hwt = findHardwareType(productCode->c_str());
+		if (!hwt)
+			resultValue->clear();
+		else
+			*resultValue = hwt;
 	}
-}
 
-/*! \brief The actual gyroscope range from product code \a productCode
-
-This is a measured value and possibly larger than what gyroscopeRange() returns.
-*/
-double actualGyroscopeRangeC(const XsString *productCode)
-{
-	switch (findHardwareManufacturerC(productCode))
+	/* Return the accelerometer range field */
+	static char accelerometerRangeField(const char* productCode)
 	{
-	case HardwareManufacturerType::HMT_MT:
-		switch(gyroscopeRangeField(productCode->c_str()))
-		{
-		case '0': return  1000.0;
-		case '1': return   180.0;
-		case '2': return  1700.0;
-		case '3': return   420.0;
-		case '4': return   450.0;
-		case '5': return  2500.0;
-		case '6': return  2000.0;
-		case '9': return  1080.0;
-		default: return 10000.0;
-		}
-
-	default:
-		return 10000.0;
+		const char* hwi = findHardwareType(productCode);
+		if (!hwi)
+			return 0;
+		return *(hwi + 1);
 	}
-}
+
+	/* Return the gyroscope range field */
+	static char gyroscopeRangeField(const char* productCode)
+	{
+		const char* hwi = findHardwareType(productCode);
+		if (!hwi)
+			return 0;
+		const char* G = strchr(hwi, 'G');
+		if (!G)
+			return 0;
+		return *(G + 1);
+	}
+
+	/*! \brief The accelerometer range from product code \a productCode
+	*/
+	double accelerometerRangeC(const XsString* productCode, int32_t hwVersionMajor)
+	{
+		switch (findHardwareManufacturerC(productCode))
+		{
+			case HardwareManufacturerType::HMT_MT:
+				switch (accelerometerRangeField(productCode->c_str()))
+				{
+					case '1':
+						return   100.0;
+					case '2':
+						return    20.0;
+					case '3':
+						return    17.0;
+					case '5':
+						return    50.0;
+					case '6':
+						return    60.0;
+					case '7':
+						return   160.0;
+					case '8':
+					{
+						if (hwVersionMajor < 3)
+							return 180.0;
+						else
+							return 200.0;
+					}
+					default:
+						return 10000.0;
+				}
+
+			default:
+				return 10000.0;
+		}
+	}
+
+	/*! \brief The actual accelerometer range from product code \a productCode
+
+	    This is a measured value and possibly larger than what accelerometerRange() returns.
+	*/
+	double actualAccelerometerRangeC(const XsString* productCode, int32_t hwVersionMajor)
+	{
+		switch (findHardwareManufacturerC(productCode))
+		{
+			case HardwareManufacturerType::HMT_MT:
+				switch (accelerometerRangeField(productCode->c_str()))
+				{
+					case '1':
+						return   100.0;
+					case '2':
+						return    20.0;
+					case '3':
+						return    17.0;
+					case '5':
+						return    50.0;
+					case '6':
+						return    60.0;
+					case '7':
+						return   160.0;
+					case '8':
+					{
+						if (hwVersionMajor < 3)
+							return 180.0;
+						else
+							return 200.0;
+					}
+					default:
+						return 10000.0;
+				}
+
+			default:
+				return 10000.0;
+		}
+	}
+
+	/*! \brief The gyroscope range from product code \a productCode
+	*/
+	double gyroscopeRangeC(const XsString* productCode)
+	{
+		switch (findHardwareManufacturerC(productCode))
+		{
+			case HardwareManufacturerType::HMT_MT:
+				switch (gyroscopeRangeField(productCode->c_str()))
+				{
+					case '0':
+						return  1000.0;
+					case '1':
+						return   150.0;
+					case '2':
+						return  1200.0;
+					case '3':
+						return   300.0;
+					case '4':
+						return   450.0;
+					case '5':
+						return  2500.0;
+					case '6':
+						return  1800.0;
+					case '9':
+						return   900.0;
+					default:
+						return 10000.0;
+				}
+
+			default:
+				return 10000.0;
+		}
+	}
+
+	/*! \brief The actual gyroscope range from product code \a productCode
+
+	    This is a measured value and possibly larger than what gyroscopeRange() returns.
+	*/
+	double actualGyroscopeRangeC(const XsString* productCode)
+	{
+		switch (findHardwareManufacturerC(productCode))
+		{
+			case HardwareManufacturerType::HMT_MT:
+				switch (gyroscopeRangeField(productCode->c_str()))
+				{
+					case '0':
+						return  1000.0;
+					case '1':
+						return   180.0;
+					case '2':
+						return  1700.0;
+					case '3':
+						return   420.0;
+					case '4':
+						return   450.0;
+					case '5':
+						return  2500.0;
+					case '6':
+						return  2000.0;
+					case '9':
+						return  1080.0;
+					default:
+						return 10000.0;
+				}
+
+			default:
+				return 10000.0;
+		}
+	}
 
 }

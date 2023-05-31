@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -97,8 +97,8 @@
 #define XS_LEN_PRODUCTCODE				20
 #define XS_LEN_PROCESSINGFLAGS			2
 #define XS_LEN_XMPWROFF				0
-#define XS_LEN_OUTPUTMODE		 		2
-#define XS_LEN_OUTPUTSETTINGS		 	4
+#define XS_LEN_OUTPUTMODE				2
+#define XS_LEN_OUTPUTSETTINGS			4
 #define XS_LEN_OUTPUTSKIPFACTOR		2
 #define XS_LEN_SYNCINMODE				2
 #define XS_LEN_SYNCINSKIPFACTOR		2
@@ -112,8 +112,8 @@
 #define XS_LEN_OBJECTALIGNMENT			36
 #define XS_LEN_XMERRORMODE				2
 #define XS_LEN_BUFFERSIZE				2
-#define XS_LEN_HEADING		 			4
-#define XS_LEN_MAGNETICFIELD		 	12
+#define XS_LEN_HEADING					4
+#define XS_LEN_MAGNETICFIELD			12
 #define XS_LEN_LOCATIONID				2
 #define XS_LEN_EXTOUTPUTMODE			2
 #define XS_LEN_INITTRACKMODE			2
@@ -161,21 +161,26 @@
 
 #pragma pack(push, 1)
 // little endian
-union Itypes {
+union Itypes
+{
 	int64_t i64;
-	struct {
-		int32_t i1,i0;
+	struct
+	{
+		int32_t i1, i0;
 	} i32;
-	struct {
-		int16_t s3,s2,s1,s0;
+	struct
+	{
+		int16_t s3, s2, s1, s0;
 	} i16;
-	struct {
-		signed char b7,b6,b5,b4,b3,b2,b1,b0;
+	struct
+	{
+		signed char b7, b6, b5, b4, b3, b2, b1, b0;
 	} i8;
 
 	double d;
-	struct {
-		float f1,f0;
+	struct
+	{
+		float f1, f0;
 	} f32;
 };
 #pragma pack(pop)
@@ -201,34 +206,34 @@ uint8_t byteSum(const uint8_t* buffer, XsSize count)
 }
 
 /*! \brief Get the buffer at offset \a offset */
-static inline uint8_t *XsMessage_dataAtOffset(XsMessage *thisPtr, XsSize offset)
+static inline uint8_t* XsMessage_dataAtOffset(XsMessage* thisPtr, XsSize offset)
 {
 	XsMessageHeader* hdr;
 
 	assert(thisPtr->m_message.m_data);
 	assert(offset < XsMessage_dataSize(thisPtr));
 
-	hdr = (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	hdr = (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 	if (hdr->m_length != 255)
 		return hdr->m_datlen.m_data + offset;
 	return hdr->m_datlen.m_extended.m_data + offset;
 }
 
 /*! \brief return the const data at offset \a offset */
-static inline const uint8_t *XsMessage_cdataAtOffset(XsMessage const *thisPtr, XsSize offset)
+static inline const uint8_t* XsMessage_cdataAtOffset(XsMessage const* thisPtr, XsSize offset)
 {
 	return XsMessage_dataAtOffset((XsMessage*)thisPtr, offset);
 }
 
 /*! \brief Make sure the data buffer is large enough to hold a new data item of \a sizeofValue */
-static inline void XsMessage_ensureDataSize(XsMessage *thisPtr, XsSize offset, XsSize sizeofValue)
+static inline void XsMessage_ensureDataSize(XsMessage* thisPtr, XsSize offset, XsSize sizeofValue)
 {
 	if (XsMessage_dataSize(thisPtr) < offset + sizeofValue)
 		XsMessage_resizeData(thisPtr, offset + sizeofValue);
 }
 
 /*! \brief Update the message checksum with the passed value */
-static inline void XsMessage_updateChecksumWithValue(XsMessage *thisPtr, const void *value, XsSize sizeofValue, XsSize offset)
+static inline void XsMessage_updateChecksumWithValue(XsMessage* thisPtr, const void* value, XsSize sizeofValue, XsSize offset)
 {
 	if (thisPtr->m_autoUpdateChecksum)
 	{
@@ -238,36 +243,39 @@ static inline void XsMessage_updateChecksumWithValue(XsMessage *thisPtr, const v
 }
 
 /*! \brief Swap the endianness based on the data size */
-static inline void swapEndian(void *data, const XsSize size)
+static inline void swapEndian(void* data, const XsSize size)
 {
-    switch (size)
-    {
-    case sizeof(char):
-        break;
-    case sizeof(uint16_t):
-    {
-        uint16_t i16;
-        memcpy((void*)&i16, data, sizeof(uint16_t));
-        i16 = swapEndian16(i16);
-        memcpy(data, (void*)&i16, sizeof(uint16_t));
-    }   break;
-    case sizeof(uint32_t):
-    {
-        uint32_t i32;
-        memcpy((void*)&i32, data, sizeof(uint32_t));
-        i32 = swapEndian32(i32);
-        memcpy(data, (void*)&i32, sizeof(uint32_t));
-    }   break;
-    case sizeof(uint64_t):
-    {
-        uint64_t i64;
-        memcpy((void*)&i64, data, sizeof(uint64_t));
-        i64 = swapEndian64(i64);
-        memcpy(data, (void*)&i64, sizeof(uint64_t));
-     }   break;
-    default:
-        assert(0);
-    }
+	switch (size)
+	{
+		case sizeof(char):
+			break;
+		case sizeof(uint16_t):
+		{
+			uint16_t i16;
+			memcpy((void*)&i16, data, sizeof(uint16_t));
+			i16 = swapEndian16(i16);
+			memcpy(data, (void*)&i16, sizeof(uint16_t));
+			break;
+		}
+		case sizeof(uint32_t):
+		{
+			uint32_t i32;
+			memcpy((void*)&i32, data, sizeof(uint32_t));
+			i32 = swapEndian32(i32);
+			memcpy(data, (void*)&i32, sizeof(uint32_t));
+			break;
+		}
+		case sizeof(uint64_t):
+		{
+			uint64_t i64;
+			memcpy((void*)&i64, data, sizeof(uint64_t));
+			i64 = swapEndian64(i64);
+			memcpy(data, (void*)&i64, sizeof(uint64_t));
+			break;
+		}
+		default:
+			assert(0);
+	}
 }
 
 /*! \brief Get data of size \a size at \a offset, and put it byteswapped into \a value
@@ -275,7 +283,7 @@ static inline void swapEndian(void *data, const XsSize size)
 	\param size The size of the message
 	\param offset The offset of the message
 */
-void XsMessage_getEndianCorrectData(XsMessage const* thisPtr, void *value, XsSize size, XsSize offset)
+void XsMessage_getEndianCorrectData(XsMessage const* thisPtr, void* value, XsSize size, XsSize offset)
 {
 	memcpy(value, (void const*) XsMessage_cdataAtOffset(thisPtr, offset), size);
 	swapEndian(value, size);
@@ -286,7 +294,7 @@ void XsMessage_getEndianCorrectData(XsMessage const* thisPtr, void *value, XsSiz
 	\param size The size of the message
 	\param offset The offset of the message
 */
-void XsMessage_setEndianCorrectData(XsMessage *thisPtr, void const *value, XsSize size, XsSize offset)
+void XsMessage_setEndianCorrectData(XsMessage* thisPtr, void const* value, XsSize size, XsSize offset)
 {
 	void* dest;
 	XsMessage_ensureDataSize(thisPtr, offset, size);
@@ -312,7 +320,7 @@ void XsMessage_constructSized(XsMessage* thisPtr, XsSize dataSize)
 
 	XsByteArray_construct(&thisPtr->m_message, msgSize, 0);
 	memset(thisPtr->m_message.m_data, 0, msgSize);
-	hdr = (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	hdr = (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 	hdr->m_preamble = XS_PREAMBLE;
 	hdr->m_messageId = 0;
 	hdr->m_busId = XS_BID_MASTER;
@@ -321,15 +329,15 @@ void XsMessage_constructSized(XsMessage* thisPtr, XsSize dataSize)
 	{
 		hdr->m_length = (uint8_t) dataSize;
 		*((uint8_t**) &thisPtr->m_checksum) = &hdr->m_datlen.m_data[dataSize];
-		thisPtr->m_checksum[0] = (uint8_t)-(int8_t)(uint8_t)dataSize;
+		thisPtr->m_checksum[0] = (uint8_t) - (int8_t)(uint8_t)dataSize;
 	}
 	else
 	{
 		hdr->m_length = XS_EXTLENCODE;
-		hdr->m_datlen.m_extended.m_length.m_high = (uint8_t) (dataSize >> 8);
+		hdr->m_datlen.m_extended.m_length.m_high = (uint8_t)(dataSize >> 8);
 		hdr->m_datlen.m_extended.m_length.m_low = (uint8_t) dataSize;
 		*((uint8_t**) &thisPtr->m_checksum) = &hdr->m_datlen.m_extended.m_data[dataSize];
-		thisPtr->m_checksum[0] = (uint8_t) -(hdr->m_datlen.m_extended.m_length.m_high + hdr->m_datlen.m_extended.m_length.m_low + XS_EXTLENCODE);
+		thisPtr->m_checksum[0] = (uint8_t) - (hdr->m_datlen.m_extended.m_length.m_high + hdr->m_datlen.m_extended.m_length.m_low + XS_EXTLENCODE);
 	}
 	thisPtr->m_checksum[0] -= hdr->m_busId;
 }
@@ -354,7 +362,7 @@ void XsMessage_copyConstruct(XsMessage* thisPtr, XsMessage const* src)
 		XsSize dataSize;
 		XsArray_copyConstruct(&thisPtr->m_message, &src->m_message);
 		thisPtr->m_autoUpdateChecksum = src->m_autoUpdateChecksum;
-		hdr = (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+		hdr = (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 		dataSize = XsMessage_dataSize(thisPtr);
 		if (dataSize >= 255)
 			*((uint8_t**) &thisPtr->m_checksum) = &hdr->m_datlen.m_extended.m_data[dataSize];
@@ -380,7 +388,7 @@ void XsMessage_assign(XsMessage* thisPtr, XsSize dataSize)
 void XsMessage_load(XsMessage* thisPtr, XsSize msgSize, unsigned char const* src)
 {
 	XsByteArray_construct(&thisPtr->m_message, msgSize, src);
-	*((uint8_t**) &thisPtr->m_checksum) = &thisPtr->m_message.m_data[XsMessage_getTotalMessageSize(thisPtr)-1];
+	*((uint8_t**) &thisPtr->m_checksum) = &thisPtr->m_message.m_data[XsMessage_getTotalMessageSize(thisPtr) - 1];
 }
 
 /*! \brief This function clears the data in the message
@@ -398,7 +406,7 @@ void XsMessage_destruct(XsMessage* thisPtr)
 void XsMessage_copy(XsMessage* copy, XsMessage const* thisPtr)
 {
 	XsArray_copy(&copy->m_message, &thisPtr->m_message);
-	*((uint8_t**) &copy->m_checksum) = &copy->m_message.m_data[XsMessage_getTotalMessageSize(copy)-1];
+	*((uint8_t**) &copy->m_checksum) = &copy->m_message.m_data[XsMessage_getTotalMessageSize(copy) - 1];
 	copy->m_autoUpdateChecksum = thisPtr->m_autoUpdateChecksum;
 }
 
@@ -412,7 +420,7 @@ XsSize XsMessage_dataSize(XsMessage const* thisPtr)
 	if (!thisPtr->m_message.m_data)
 		return 0;
 
-	hdr = (XsMessageHeader const*) (void const*) thisPtr->m_message.m_data;
+	hdr = (XsMessageHeader const*)(void const*) thisPtr->m_message.m_data;
 	if (hdr->m_length == 255)
 		return (((XsSize) hdr->m_datlen.m_extended.m_length.m_high) << 8) + hdr->m_datlen.m_extended.m_length.m_low;
 	else
@@ -457,7 +465,7 @@ XsSize XsMessage_getTotalMessageSize(XsMessage const* thisPtr)
 	if (!thisPtr->m_message.m_data)
 		return 0;
 
-	hdr = (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	hdr = (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 	if (hdr->m_length == 255)
 		return (((XsSize) hdr->m_datlen.m_extended.m_length.m_high) << 8) + hdr->m_datlen.m_extended.m_length.m_low + 7;
 	else
@@ -550,7 +558,7 @@ double XsMessage_getDataF1220(XsMessage const* thisPtr, XsSize offset)
 	Itypes rv;
 	tmp = (int32_t) XsMessage_getDataLong(thisPtr, offset);
 
-	rv.d = ((double) tmp)/1048576.0;
+	rv.d = ((double) tmp) / 1048576.0;
 	rv.i64 = (rv.i64 & ~1LL) | (tmp & 1);
 	return rv.d;
 }
@@ -567,7 +575,7 @@ double XsMessage_getDataFP1632(XsMessage const* thisPtr, XsSize offset)
 	Itypes fp, rv;
 
 	fpfrac = (int32_t) XsMessage_getDataLong(thisPtr, offset);
-	fpint = (int16_t) XsMessage_getDataShort(thisPtr, offset+4);
+	fpint = (int16_t) XsMessage_getDataShort(thisPtr, offset + 4);
 
 	fp.i32.i0 = fpint;
 	fp.i32.i1 = fpfrac;
@@ -661,7 +669,7 @@ void XsMessage_setDataF1220(XsMessage* thisPtr, double value, XsSize offset)
 	uint32_t val;
 
 	fp.d = value;
-	val = (uint32_t) (int32_t) (value*1048576.0);
+	val = (uint32_t)(int32_t)(value * 1048576.0);
 
 	XsMessage_setDataLong(thisPtr, (val & ~1UL) | (fp.i64 & 1), offset);
 }
@@ -680,7 +688,7 @@ void XsMessage_setDataFP1632(XsMessage* thisPtr, double value, XsSize offset)
 	uint32_t b;
 
 	fp.d = value;
-	b = (uint32_t) (fp.i64 & 1);
+	b = (uint32_t)(fp.i64 & 1);
 	dexp = ((fp.i32.i0 & (0x7fffffffL)) >> 20) - 1023;
 
 	if (dexp <= 14)
@@ -689,7 +697,7 @@ void XsMessage_setDataFP1632(XsMessage* thisPtr, double value, XsSize offset)
 		if (value < 0)
 			fp.i64 = -fp.i64;
 		if (dexp > -32)
-			fp.i64 = fp.i64 >> (20-dexp);	// 52-32 - exponent
+			fp.i64 = fp.i64 >> (20 - dexp);	// 52-32 - exponent
 		else
 			fp.i64 = fp.i64 >> 52;	// this could be optimized?
 		fpint = fp.i16.s1;
@@ -699,7 +707,7 @@ void XsMessage_setDataFP1632(XsMessage* thisPtr, double value, XsSize offset)
 	{
 		if (value < 0)
 		{
-			fpint = ((int16_t) (uint16_t) (0x8000));
+			fpint = ((int16_t)(uint16_t)(0x8000));
 			fpfrac = 0;
 		}
 		else
@@ -710,7 +718,7 @@ void XsMessage_setDataFP1632(XsMessage* thisPtr, double value, XsSize offset)
 	}
 
 	XsMessage_setDataLong(thisPtr, (fpfrac & ~1L) | b, offset);
-	XsMessage_setDataShort(thisPtr, (uint16_t) fpint, offset+(XsSize)4);
+	XsMessage_setDataShort(thisPtr, (uint16_t) fpint, offset + (XsSize)4);
 }
 
 /*! \brief Puts \a size number of bytes from \a buffer into the message at \a offset
@@ -787,36 +795,36 @@ static float convertToFloat(double d)
 	\param offset offset in the data buffer from where to start reading.
 	\param numValues number of values to be read
 */
-void XsMessage_getDataFPValuesById(XsMessage const* thisPtr, XsDataIdentifier dataIdentifier, double *dest, XsSize offset, XsSize numValues)
+void XsMessage_getDataFPValuesById(XsMessage const* thisPtr, XsDataIdentifier dataIdentifier, double* dest, XsSize offset, XsSize numValues)
 {
 	XsSize i;
-	for (i=0; i<numValues; i++)
+	for (i = 0; i < numValues; i++)
 	{
 		switch (dataIdentifier & XDI_SubFormatMask)
 		{
-		case XDI_SubFormatFloat:
-			*dest++ = convertFromFloat(XsMessage_getDataFloat(thisPtr, offset));
-			offset += 4;
-			break;
+			case XDI_SubFormatFloat:
+				*dest++ = convertFromFloat(XsMessage_getDataFloat(thisPtr, offset));
+				offset += 4;
+				break;
 
-		case XDI_SubFormatDouble:
-			*dest++ = XsMessage_getDataDouble(thisPtr, offset);
-			offset += 8;
-			break;
+			case XDI_SubFormatDouble:
+				*dest++ = XsMessage_getDataDouble(thisPtr, offset);
+				offset += 8;
+				break;
 
-		case XDI_SubFormatFp1632:
-			*dest++ = XsMessage_getDataFP1632(thisPtr, offset);
-			offset += 6;
-			break;
+			case XDI_SubFormatFp1632:
+				*dest++ = XsMessage_getDataFP1632(thisPtr, offset);
+				offset += 6;
+				break;
 
-		case XDI_SubFormatFp1220:
-			*dest++ = XsMessage_getDataF1220(thisPtr, offset);
-			offset += 4;
-			break;
+			case XDI_SubFormatFp1220:
+				*dest++ = XsMessage_getDataF1220(thisPtr, offset);
+				offset += 4;
+				break;
 
-		default:
-			*dest++ = 0;
-			break;
+			default:
+				*dest++ = 0;
+				break;
 		}
 	}
 }
@@ -828,35 +836,35 @@ void XsMessage_getDataFPValuesById(XsMessage const* thisPtr, XsDataIdentifier da
 	\param offset Offset in the data buffer from where to start writing.
 	\param numValues number of values to be written
 */
-void XsMessage_setDataFPValuesById(XsMessage* thisPtr, XsDataIdentifier dataIdentifier, double const*data, XsSize offset, XsSize numValues)
+void XsMessage_setDataFPValuesById(XsMessage* thisPtr, XsDataIdentifier dataIdentifier, double const* data, XsSize offset, XsSize numValues)
 {
 	XsSize i;
-	for (i=0; i<numValues; i++)
+	for (i = 0; i < numValues; i++)
 	{
 		switch (dataIdentifier & XDI_SubFormatMask)
 		{
-		case XDI_SubFormatFloat:
-			XsMessage_setDataFloat(thisPtr, convertToFloat(data[i]), offset);
-			offset += 4;
-			break;
+			case XDI_SubFormatFloat:
+				XsMessage_setDataFloat(thisPtr, convertToFloat(data[i]), offset);
+				offset += 4;
+				break;
 
-		case XDI_SubFormatDouble:
-			XsMessage_setDataDouble(thisPtr, data[i], offset);
-			offset += 8;
-			break;
+			case XDI_SubFormatDouble:
+				XsMessage_setDataDouble(thisPtr, data[i], offset);
+				offset += 8;
+				break;
 
-		case XDI_SubFormatFp1632:
-			XsMessage_setDataFP1632(thisPtr, data[i], offset);
-			offset += 6;
-			break;
+			case XDI_SubFormatFp1632:
+				XsMessage_setDataFP1632(thisPtr, data[i], offset);
+				offset += 6;
+				break;
 
-		case XDI_SubFormatFp1220:
-			XsMessage_setDataF1220(thisPtr, data[i], offset);
-			offset += 4;
-			break;
+			case XDI_SubFormatFp1220:
+				XsMessage_setDataF1220(thisPtr, data[i], offset);
+				offset += 4;
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 }
@@ -870,52 +878,52 @@ void XsMessage_setDataFPValuesById(XsMessage* thisPtr, XsDataIdentifier dataIden
 	\param offset offset in the data buffer from where to start reading.
 	\param numValues number of values to be read
 */
-void XsMessage_getDataRealValuesById(XsMessage const* thisPtr, XsDataIdentifier dataIdentifier, XsReal *dest, XsSize offset, XsSize numValues)
+void XsMessage_getDataRealValuesById(XsMessage const* thisPtr, XsDataIdentifier dataIdentifier, XsReal* dest, XsSize offset, XsSize numValues)
 {
 	XsSize i;
-	for (i=0; i<numValues; i++)
+	for (i = 0; i < numValues; i++)
 	{
 		switch (dataIdentifier & XDI_SubFormatMask)
 		{
-		case XDI_SubFormatFloat:
+			case XDI_SubFormatFloat:
 #ifdef XSENS_SINGLE_PRECISION
-			*dest++ = XsMessage_getDataFloat(thisPtr, offset);
+				*dest++ = XsMessage_getDataFloat(thisPtr, offset);
 #else
-			*dest++ = convertFromFloat(XsMessage_getDataFloat(thisPtr, offset));
+				*dest++ = convertFromFloat(XsMessage_getDataFloat(thisPtr, offset));
 #endif
-			offset += 4;
-			break;
+				offset += 4;
+				break;
 
-		case XDI_SubFormatDouble:
+			case XDI_SubFormatDouble:
 #ifdef XSENS_SINGLE_PRECISION
-			*dest++ = convertToFloat(XsMessage_getDataDouble(thisPtr, offset));
+				*dest++ = convertToFloat(XsMessage_getDataDouble(thisPtr, offset));
 #else
-			*dest++ = XsMessage_getDataDouble(thisPtr, offset);
+				*dest++ = XsMessage_getDataDouble(thisPtr, offset);
 #endif
-			offset += 8;
-			break;
+				offset += 8;
+				break;
 
-		case XDI_SubFormatFp1632:
+			case XDI_SubFormatFp1632:
 #ifdef XSENS_SINGLE_PRECISION
-			*dest++ = convertToFloat(XsMessage_getDataFP1632(thisPtr, offset));
+				*dest++ = convertToFloat(XsMessage_getDataFP1632(thisPtr, offset));
 #else
-			*dest++ = XsMessage_getDataFP1632(thisPtr, offset);
+				*dest++ = XsMessage_getDataFP1632(thisPtr, offset);
 #endif
-			offset += 6;
-			break;
+				offset += 6;
+				break;
 
-		case XDI_SubFormatFp1220:
+			case XDI_SubFormatFp1220:
 #ifdef XSENS_SINGLE_PRECISION
-			*dest++ = convertToFloat(XsMessage_getDataF1220(thisPtr, offset));
+				*dest++ = convertToFloat(XsMessage_getDataF1220(thisPtr, offset));
 #else
-			*dest++ = XsMessage_getDataF1220(thisPtr, offset);
+				*dest++ = XsMessage_getDataF1220(thisPtr, offset);
 #endif
-			offset += 4;
-			break;
+				offset += 4;
+				break;
 
-		default:
-			*dest++ = 0;
-			break;
+			default:
+				*dest++ = 0;
+				break;
 		}
 	}
 }
@@ -927,35 +935,35 @@ void XsMessage_getDataRealValuesById(XsMessage const* thisPtr, XsDataIdentifier 
 	\param offset Offset in the data buffer from where to start writing.
 	\param numValues number of values to be written
 */
-void XsMessage_setDataRealValuesById(XsMessage* thisPtr, XsDataIdentifier dataIdentifier, XsReal const*data, XsSize offset, XsSize numValues)
+void XsMessage_setDataRealValuesById(XsMessage* thisPtr, XsDataIdentifier dataIdentifier, XsReal const* data, XsSize offset, XsSize numValues)
 {
 	XsSize i;
-	for (i=0; i<numValues; i++)
+	for (i = 0; i < numValues; i++)
 	{
 		switch (dataIdentifier & XDI_SubFormatMask)
 		{
-		case XDI_SubFormatFloat:
-			XsMessage_setDataFloat(thisPtr, convertToFloat(data[i]), offset);
-			offset += 4;
-			break;
+			case XDI_SubFormatFloat:
+				XsMessage_setDataFloat(thisPtr, convertToFloat(data[i]), offset);
+				offset += 4;
+				break;
 
-		case XDI_SubFormatDouble:
-			XsMessage_setDataDouble(thisPtr, data[i], offset);
-			offset += 8;
-			break;
+			case XDI_SubFormatDouble:
+				XsMessage_setDataDouble(thisPtr, data[i], offset);
+				offset += 8;
+				break;
 
-		case XDI_SubFormatFp1632:
-			XsMessage_setDataFP1632(thisPtr, data[i], offset);
-			offset += 6;
-			break;
+			case XDI_SubFormatFp1632:
+				XsMessage_setDataFP1632(thisPtr, data[i], offset);
+				offset += 6;
+				break;
 
-		case XDI_SubFormatFp1220:
-			XsMessage_setDataF1220(thisPtr, data[i], offset);
-			offset += 4;
-			break;
+			case XDI_SubFormatFp1220:
+				XsMessage_setDataF1220(thisPtr, data[i], offset);
+				offset += 4;
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 }
@@ -968,7 +976,7 @@ uint8_t XsMessage_computeChecksum(XsMessage const* thisPtr)
 	XsSize i, msgSize;
 	uint8_t cs = 0;
 
-	msgSize = XsMessage_getTotalMessageSize(thisPtr)-1;
+	msgSize = XsMessage_getTotalMessageSize(thisPtr) - 1;
 	for (i = 1; i < msgSize; ++i)
 		cs -= thisPtr->m_message.m_data[i];
 
@@ -997,13 +1005,13 @@ int XsMessage_isChecksumOk(XsMessage const* thisPtr)
 */
 XsMessageHeader* XsMessage_getHeader(XsMessage* thisPtr)
 {
-	return (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	return (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 }
 
 /*! \brief \returns a const pointer to the message header */
 const XsMessageHeader* XsMessage_getConstHeader(XsMessage const* thisPtr)
 {
-	return (const XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	return (const XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 }
 
 /*! \brief Test if this message is empty
@@ -1011,7 +1019,7 @@ const XsMessageHeader* XsMessage_getConstHeader(XsMessage const* thisPtr)
 */
 int XsMessage_empty(XsMessage const* thisPtr)
 {
-	XsMessageHeader* hdr = (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	XsMessageHeader* hdr = (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 	if (!hdr)
 		return 1;
 	return (hdr->m_messageId == 0 && hdr->m_busId == XS_BID_MASTER);
@@ -1083,7 +1091,7 @@ void XsMessage_setBusId(XsMessage* thisPtr, uint8_t busId)
 	if (!thisPtr->m_message.m_data)
 		XsMessage_construct(thisPtr);
 
-	hdr = (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	hdr = (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 	if (thisPtr->m_autoUpdateChecksum)
 		thisPtr->m_checksum[0] += hdr->m_busId;
 	hdr->m_busId = busId;
@@ -1101,7 +1109,7 @@ void XsMessage_setMessageId(XsMessage* thisPtr, enum XsXbusMessageId msgId)
 	if (!thisPtr->m_message.m_data)
 		XsMessage_construct(thisPtr);
 
-	hdr = (XsMessageHeader*) (void*) thisPtr->m_message.m_data;
+	hdr = (XsMessageHeader*)(void*) thisPtr->m_message.m_data;
 	if (thisPtr->m_autoUpdateChecksum)
 		thisPtr->m_checksum[0] += hdr->m_messageId;
 	hdr->m_messageId = (uint8_t) msgId;
@@ -1125,10 +1133,10 @@ void XsMessage_insertData(XsMessage* thisPtr, XsSize count, XsSize offset)
 		return;
 
 	oldSize = XsMessage_dataSize(thisPtr);
-	newSize = oldSize+count;
+	newSize = oldSize + count;
 
-	if (newSize < offset+count)
-		newSize = offset+count;
+	if (newSize < offset + count)
+		newSize = offset + count;
 
 	XsArray_swap(&thisPtr->m_message, &old);
 	XsMessage_constructSized(thisPtr, newSize);
@@ -1165,7 +1173,7 @@ void XsMessage_insertData(XsMessage* thisPtr, XsSize count, XsSize offset)
 			newData[index] = 0;
 	}
 	for (; index < oldSize; ++index)
-		newData[index+count] = oldData[index];
+		newData[index + count] = oldData[index];
 
 	if (thisPtr->m_autoUpdateChecksum)
 		thisPtr->m_checksum[0] -= byteSum(oldData, oldSize);
@@ -1194,7 +1202,7 @@ void XsMessage_deleteData(XsMessage* thisPtr, XsSize count, XsSize offset)
 		XsMessage_resizeData(thisPtr, offset);
 		return;
 	}
-	newSize = oldSize-count;
+	newSize = oldSize - count;
 
 	XsArray_swap(&thisPtr->m_message, &old);
 	XsMessage_constructSized(thisPtr, newSize);
@@ -1221,7 +1229,7 @@ void XsMessage_deleteData(XsMessage* thisPtr, XsSize count, XsSize offset)
 	for (index = 0; index < offset; ++index)
 		newData[index] = oldData[index];
 	for (; index < newSize; ++index)
-		newData[index] = oldData[index+count];
+		newData[index] = oldData[index + count];
 
 	if (thisPtr->m_autoUpdateChecksum)
 		thisPtr->m_checksum[0] -= byteSum(newData, newSize);
@@ -1276,11 +1284,11 @@ void XsMessage_toHexString(XsMessage const* thisPtr, XsSize maxBytes, XsString* 
 
 	if (maxBytes)
 	{
-		XsString_resize(resultValue, maxBytes*3-1);
+		XsString_resize(resultValue, maxBytes * 3 - 1);
 		s = (char*) resultValue->m_data;
-		for (i = 0; i < maxBytes-1; ++i)
-			sprintf(s+(i*3), "%02X ", (unsigned int) ((uint8_t const*) thisPtr->m_message.m_data)[i]);
-		sprintf(s+((maxBytes-1)*3), "%02X", (unsigned int) ((uint8_t const*) thisPtr->m_message.m_data)[maxBytes-1]);
+		for (i = 0; i < maxBytes - 1; ++i)
+			sprintf(s + (i * 3), "%02X ", (unsigned int)((uint8_t const*) thisPtr->m_message.m_data)[i]);
+		sprintf(s + ((maxBytes - 1) * 3), "%02X", (unsigned int)((uint8_t const*) thisPtr->m_message.m_data)[maxBytes - 1]);
 	}
 	else
 		XsString_resize(resultValue, 0);

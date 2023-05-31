@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -93,5 +93,31 @@
 #define XSLISTSWAP2(C, B)	XSLISTSWAP3(C, B, C##_swap)
 
 #define XSLISTSWAP(C)	XSLISTSWAP2(C, C##Array)
+
+#ifdef __cplusplus
+/*! \brief Byte-wise copy for data (de-)serialization
+	\details The function essentially performs a memcpy from \a src to \a tgt using the size of \a tgt
+	\param tgt The destination of the copy (reference)
+	\param src The source of the copy (pointer)
+*/
+template <typename T>
+inline static void xsByteCopy(T& tgt, void const* src)
+{
+	memcpy(&tgt, src, sizeof(T));
+}
+
+/*! \brief Byte-wise copy for data (de-)serialization followed by a multiplication
+	\details The function essentially performs a memcpy from \a src to \a tgt using the size of \a tgt
+	\param tgt The destination of the copy (reference)
+	\param src The source of the copy (pointer)
+	\param mul The multiplication value
+*/
+template <typename T>
+inline static void xsByteCopyMultiply(T& tgt, void const* src, T mul)
+{
+	memcpy(&tgt, src, sizeof(T));
+	tgt *= mul;
+}
+#endif
 
 #endif

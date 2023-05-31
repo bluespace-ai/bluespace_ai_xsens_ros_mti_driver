@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,7 +66,8 @@
 #include "replyobject.h"
 #include <algorithm>
 
-namespace xsens {
+namespace xsens
+{
 
 /*! \class ReplyObjectDeleter
 	\brief A class that deletes a reply object and removes it from the given monitor
@@ -75,21 +76,21 @@ class ReplyObjectDeleter
 {
 public:
 	// create a reply object deleter
-	ReplyObjectDeleter(ReplyObjectRemover *monitor = NULL) :
+	ReplyObjectDeleter(ReplyObjectRemover* monitor = NULL) :
 		m_monitor(monitor)
 	{
 	}
 
 	// delete the ReplyObject and remove it from m_monitor
 	// not necessarily in that order
-	void operator()(ReplyObject *p) const
+	void operator()(ReplyObject* p) const
 	{
 		if (m_monitor)
 			m_monitor->removeObject(p);
 		delete p;
 	}
 private:
-	ReplyObjectRemover *m_monitor;
+	ReplyObjectRemover* m_monitor;
 };
 
 
@@ -131,13 +132,13 @@ void ReplyMonitor::removeObject(std::shared_ptr<ReplyObject> const& obj)
 	\param obj The object to remove
 	\note This does not delete the object
 */
-void ReplyMonitor::removeObject(ReplyObject *obj)
+void ReplyMonitor::removeObject(ReplyObject* obj)
 {
 	xsens::Lock locky(&m_mutex);
 	if (m_objectList.empty())
 		return;
 
-	std::vector<ReplyObject *>::iterator it = std::find(m_objectList.begin(), m_objectList.end(), obj);
+	std::vector<ReplyObject*>::iterator it = std::find(m_objectList.begin(), m_objectList.end(), obj);
 	if (it == m_objectList.end())
 		return;
 
@@ -157,7 +158,7 @@ bool ReplyMonitor::addReply(const XsMessage& message)
 		if (m_objectList[i]->isReplyFor(message))
 		{
 			ReplyObject* tmp = m_objectList[i];
-			m_objectList.erase(m_objectList.begin()+(ptrdiff_t) i);
+			m_objectList.erase(m_objectList.begin() + (ptrdiff_t) i);
 			tmp->setMessage(message);
 			return true;
 		}
@@ -173,9 +174,7 @@ void ReplyMonitor::dumpObjectList(Journaller* journal, JournalLogLevel level) co
 	size_t numElements = m_objectList.size();
 	JLGENERIC(journal, level, "Waiting for " << numElements << " objects");
 	for (size_t i = 0; i < numElements; i++)
-	{
 		JLGENERIC(journal, level, i << ": msg ID = " << JLHEXLOG((int) m_objectList[i]->msgId()));
-	}
 }
 
 }	// namespace xsens

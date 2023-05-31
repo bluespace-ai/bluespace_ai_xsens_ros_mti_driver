@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,11 +69,13 @@
 
 /*! \brief The sync settings of MT
 */
-struct MtSyncSettings {
+struct MtSyncSettings
+{
 
 	/*! \brief Sync in settings
 	*/
-	struct {
+	struct
+	{
 		uint16_t m_mode;
 		uint16_t m_skipFactor;
 		uint32_t m_offset;
@@ -81,7 +83,8 @@ struct MtSyncSettings {
 
 	/*! \brief Sync out settings
 	*/
-	struct {
+	struct
+	{
 		uint16_t m_mode;
 		uint16_t m_skipFactor;
 		uint32_t m_offset;

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -87,12 +87,12 @@ void XsMatrix3x3_assign(XsMatrix3x3* thisPtr, const XsReal* src, XsSize srcStrid
 	if (src)
 	{
 		if (srcStride == 0 || srcStride == 3)
-			memcpy(thisPtr->m_matrix.m_data, src, 3*3*sizeof(XsReal));
+			memcpy(thisPtr->m_matrix.m_data, src, 3 * 3 * sizeof(XsReal));
 		else
 		{
 			for (r = 0; r < 3; ++r)
 				for (c = 0; c < 3; ++c)
-					thisPtr->m_matrix.m_data[r*3+c] = src[r*srcStride + c];
+					thisPtr->m_matrix.m_data[r * 3 + c] = src[r * srcStride + c];
 		}
 	}
 }

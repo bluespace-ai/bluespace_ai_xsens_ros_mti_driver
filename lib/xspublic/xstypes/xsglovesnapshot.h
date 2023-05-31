@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -75,8 +75,8 @@ extern "C" {
 #endif
 #ifndef __cplusplus
 #define XSGLOVESNAPSHOT_INITIALIZER {0, 0, 0, 0, \
-										XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, \
-										XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER}
+		XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, \
+		XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER, XSFINGERSNAPSHOT_INITIALIZER}
 #define XSFINGERSNAPSHOT_INITIALIZER {0,0,0, 0,0,0, 0,0,0, 0, 0, 0}
 #endif
 
@@ -84,22 +84,13 @@ extern "C" {
 } // extern "C"
 #endif
 
-#ifdef _MSC_VER
-#pragma pack(push, 1)
-#ifndef	PACK_POST
-#define PACK_POST
-#endif
-#else
-#ifndef	PACK_POST
-#define PACK_POST __attribute__((__packed__))
-#endif
-#endif
-
 #include <math.h>       /* pow */
 
+XS_PACKED_STRUCT_START
 /*! \brief int24
 */
-struct int24_t {
+struct int24_t
+{
 	uint8_t m_vals[3]; /*!< \brief The data*/
 
 #ifdef __cplusplus
@@ -116,13 +107,14 @@ struct int24_t {
 #ifdef SWIG
 };
 #else
-} PACK_POST;
+} XS_PACKED_STRUCT;
 #endif
 typedef struct int24_t int24_t;
 
 /*! \brief A container for Finger Snapshot data
 */
-struct XsFingerSnapshot {
+struct XsFingerSnapshot
+{
 	int24_t m_iQ[3];		/*!< \brief The integrated orientation */
 	int32_t m_iV[3];		/*!< \brief The integrated velocity */
 	int16_t m_mag[3];		/*!< \brief The magnetic field */
@@ -132,7 +124,7 @@ struct XsFingerSnapshot {
 #ifdef SWIG
 };
 #else
-} PACK_POST;
+} XS_PACKED_STRUCT;
 #endif
 typedef struct XsFingerSnapshot XsFingerSnapshot;
 
@@ -154,12 +146,10 @@ struct XsGloveSnapshot
 #ifdef SWIG
 };
 #else
-} PACK_POST;
+} XS_PACKED_STRUCT;
 #endif
 typedef struct XsGloveSnapshot XsGloveSnapshot;
 
-#ifdef _MSC_VER
-#pragma pack(pop)
-#endif
+XS_PACKED_STRUCT_END
 
 #endif

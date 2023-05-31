@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -153,7 +153,7 @@ struct XsSdiData
 	inline bool operator == (const XsSdiData& other) const
 	{
 		return	m_orientationIncrement == other.m_orientationIncrement &&
-				m_velocityIncrement == other.m_velocityIncrement;
+			m_velocityIncrement == other.m_velocityIncrement;
 	}
 
 private:

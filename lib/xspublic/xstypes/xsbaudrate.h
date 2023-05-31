@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,15 +66,15 @@
 #define XSBAUDRATE_H
 
 #ifdef _WIN32
-#	include <windows.h>
+	#include <windows.h>
 #else
-#	include <termios.h>
-#	ifndef	B460800
-#		undef	B230400
-#		define	B230400	0010003
-#		define  B460800 0010004
-#		define  B921600 0010007
-#	endif
+	#include <termios.h>
+	#ifndef	B460800
+		#undef	B230400
+		#define	B230400	0010003
+		#define  B460800 0010004
+		#define  B921600 0010007
+	#endif
 #endif
 
 /*!	\addtogroup enums Global enumerations
@@ -84,13 +84,14 @@
 
 //AUTO namespace xstypes {
 /*! \brief Communication speed. */
-enum XsBaudRate {
+enum XsBaudRate
+{
 	XBR_Invalid					= 0,			//!< Not a valid baud rate
 	XBR_4800					= CBR_4800,		//!< 4k8 (4800 bps)
 	XBR_9600					= CBR_9600,		//!< 9k6 (9600 bps)
-//	XBR_14k4					= CBR_14400,
+	//	XBR_14k4					= CBR_14400,
 	XBR_19k2					= CBR_19200,	//!< 19k2 (19200 bps)
-//	XBR_28k8					= 28800,
+	//	XBR_28k8					= 28800,
 	XBR_38k4					= CBR_38400,	//!< 38k4 (38400 bps)
 	XBR_57k6					= CBR_57600,	//!< 57k6 (57600 bps)
 	XBR_115k2					= CBR_115200,	//!< 115k2 (115200 bps)
@@ -106,28 +107,28 @@ enum XsBaudRate {
 #else
 
 /*! \brief Communication speed. */
-enum XSNOCOMEXPORT XsBaudRate {
+enum XSNOCOMEXPORT XsBaudRate
+{
 
 	// support high baudrates on MAC OS X
 #ifndef SWIG
-
 #ifndef	B2000000
-    #define B2000000	2000000
-    #endif
-    #ifndef	B3500000
-    #define B3500000	3500000
-    #endif
-    #ifndef	B4000000
-    #define B4000000	4000000
-    #endif
+#define B2000000	2000000
+#endif
+#ifndef	B3500000
+#define B3500000	3500000
+#endif
+#ifndef	B4000000
+#define B4000000	4000000
+#endif
 #endif
 	XBR_Invalid					= 0,			//!< Not a valid baud rate
 
 	XBR_4800					= B4800,		//!< 4k8 (4800 bps)
 	XBR_9600					= B9600,		//!< 9k6 (9600 bps)
-//	XBR_14k4					= B14400,
+	//	XBR_14k4					= B14400,
 	XBR_19k2					= B19200,		//!< 19k2 (19200 bps)
-//	XBR_28k8					= B28800,
+	//	XBR_28k8					= B28800,
 	XBR_38k4					= B38400,		//!< 38k4 (38400 bps)
 	XBR_57k6					= B57600,		//!< 57k6 (57600 bps)
 	XBR_115k2					= B115200,		//!< 115k2 (115200 bps)

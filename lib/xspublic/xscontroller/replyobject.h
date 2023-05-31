@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -90,14 +90,14 @@ public:
 	/*! \returns True when a message is a valid reply message for this reply object
 		\param[in] message The message to check
 	*/
-	virtual bool isReplyFor(XsMessage const & message) = 0;
+	virtual bool isReplyFor(XsMessage const& message) = 0;
 
 	//! \returns The message ID that this reply object is waiting for
 	virtual uint8_t msgId() const = 0;
 
 private:
 	xsens::Mutex* m_mutex;
-	xsens::WaitCondition *m_waitCondition;
+	xsens::WaitCondition* m_waitCondition;
 	XsMessage m_message;
 	bool m_delivered;
 };
@@ -111,7 +111,7 @@ public:
 	MidReplyObject(uint8_t messageId);
 	~MidReplyObject(void);
 
-	virtual bool isReplyFor(XsMessage const & message);
+	virtual bool isReplyFor(XsMessage const& message);
 	virtual uint8_t msgId() const;
 private:
 	uint8_t m_messageId;
@@ -123,17 +123,17 @@ private:
 class MidAndDataReplyObject : public ReplyObject
 {
 public:
-	MidAndDataReplyObject(uint8_t messageId, XsSize offset, XsSize size, uint8_t const * data);
+	MidAndDataReplyObject(uint8_t messageId, XsSize offset, XsSize size, uint8_t const* data);
 	~MidAndDataReplyObject();
-	void setData(uint8_t const * data);
-	virtual bool isReplyFor(XsMessage const & message);
+	void setData(uint8_t const* data);
+	virtual bool isReplyFor(XsMessage const& message);
 	virtual uint8_t msgId() const;
 private:
 	void freeData();
 	uint8_t m_messageId;
 	XsSize m_dataOffset;
 	XsSize m_dataSize;
-	uint8_t * m_data;
+	uint8_t* m_data;
 };
 
 #endif

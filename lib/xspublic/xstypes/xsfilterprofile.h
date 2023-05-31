@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -77,7 +77,7 @@ extern "C" {
 #endif
 
 struct XsFilterProfile;
-XSTYPES_DLL_API void XsFilterProfile_toString(struct XsFilterProfile const* thisPtr, XsString *out);
+XSTYPES_DLL_API void XsFilterProfile_toString(struct XsFilterProfile const* thisPtr, XsString* out);
 XSTYPES_DLL_API int XsFilterProfile_empty(struct XsFilterProfile const* thisPtr);
 XSTYPES_DLL_API void XsFilterProfile_swap(struct XsFilterProfile* a, struct XsFilterProfile* b);
 #ifdef __cplusplus
@@ -150,25 +150,46 @@ struct XsFilterProfile
 	}
 
 	/*! \brief The filter profile type */
-	inline uint8_t type() const { return m_type; }
+	inline uint8_t type() const
+	{
+		return m_type;
+	}
 
 	/*! \brief The filter profile version */
-	inline uint8_t version() const { return m_version; }
+	inline uint8_t version() const
+	{
+		return m_version;
+	}
 
 	/*! \brief The filter profile name */
-	inline const char* label() const { return m_label; }
+	inline const char* label() const
+	{
+		return m_label;
+	}
 
 	/*! \brief The filter profile kind */
-	inline const char* kind() const { return m_kind; }
+	inline const char* kind() const
+	{
+		return m_kind;
+	}
 
 	/*! \brief The filter type this filter profile is for */
-	inline char filterType() const { return m_filterType; }
+	inline char filterType() const
+	{
+		return m_filterType;
+	}
 
 	/*! \brief The major version of the compatible filter */
-	inline uint8_t filterMajor() const { return m_filterMajor; }
+	inline uint8_t filterMajor() const
+	{
+		return m_filterMajor;
+	}
 
 	/*! \brief The minor version of the compatible filter */
-	inline uint8_t filterMinor() const { return m_filterMinor; }
+	inline uint8_t filterMinor() const
+	{
+		return m_filterMinor;
+	}
 
 	/*! \brief Set the type of the filter profile to \a type_
 		\param type_ the new type of the filter profile
@@ -192,13 +213,11 @@ struct XsFilterProfile
 	inline void setLabel(const char* label_)
 	{
 		if (!label_ || label_[0] == 0)
-		{
 			m_label[0] = 0;
-		}
 		else
 		{
 			int i = 0;
-			for (; i < 2 * (XS_LEN_FILTERPROFILELABEL_TERM-1); ++i)
+			for (; i < 2 * (XS_LEN_FILTERPROFILELABEL_TERM - 1); ++i)
 			{
 				if (label_[i] == '\0' || label_[i] == ' ')
 					break;
@@ -209,18 +228,16 @@ struct XsFilterProfile
 	}
 
 	/*! \brief Set the kind of filter profile \a kind_
-	  \param kind_ the new kind of filter profile
+	    \param kind_ the new kind of filter profile
 	*/
 	inline void setKind(const char* kind_)
 	{
 		if (!kind_ || kind_[0] == 0)
-		{
 			m_kind[0] = 0;
-		}
 		else
 		{
 			int i = 0;
-			for (; i < XS_LEN_FILTERPROFILELABEL_TERM-1; ++i)
+			for (; i < XS_LEN_FILTERPROFILELABEL_TERM - 1; ++i)
 			{
 				if (kind_[i] == '\0' || kind_[i] == ' ')
 					break;

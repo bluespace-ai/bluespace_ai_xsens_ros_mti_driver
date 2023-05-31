@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,7 +69,8 @@
 	@{
 */
 /*! \brief Serial control lines. */
-enum XsControlLine {
+enum XsControlLine
+{
 	XCL_DCD		= 0x0001,		//!< pin 1: Carrier Detect
 	XCL_RD		= 0x0002,		//!< pin 2: Received Data
 	XCL_TD		= 0x0004,		//!< pin 3: Transmitted Data

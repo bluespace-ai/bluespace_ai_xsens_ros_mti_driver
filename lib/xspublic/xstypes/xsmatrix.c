@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,6 +71,10 @@
 #include "xsquaternion.h"
 #include <assert.h>
 
+#ifdef __ICCARM__
+	#pragma diag_suppress=Pa039
+#endif
+
 /*! \class XsMatrix
 	\brief A class that represents a matrix of real numbers
 */
@@ -96,7 +100,7 @@ void XsMatrix_ref(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride, Xs
 void XsMatrix_construct(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride, const XsReal* src, XsSize srcStride)
 {
 	XsSize r;
-	XsSize size = rows*stride;
+	XsSize size = rows * stride;
 
 	if (stride == 0)
 	{
@@ -106,7 +110,7 @@ void XsMatrix_construct(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stri
 	if (size)
 	{
 		// init to size
-		XsReal* data = (XsReal*) xsMathMalloc(size*sizeof(XsReal));
+		XsReal* data = (XsReal*) xsMathMalloc(size * sizeof(XsReal));
 		assert(data);
 		*((XsReal**) &thisPtr->m_data) = data;
 		XsMatrix_incAllocCount();
@@ -121,17 +125,17 @@ void XsMatrix_construct(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stri
 	if (src && size)
 	{
 		if (srcStride == 0 || srcStride == stride)
-			memcpy(thisPtr->m_data, src, size*sizeof(XsReal));
+			memcpy(thisPtr->m_data, src, size * sizeof(XsReal));
 		else
 		{
 			for (r = 0; r < rows; ++r)
 			{
 #if XSREAL_ALLOWS_MEMCPY
-				memcpy(thisPtr->m_data + r*stride, src + r*srcStride, cols*sizeof(XsReal));
+				memcpy(thisPtr->m_data + r * stride, src + r * srcStride, cols * sizeof(XsReal));
 #else
 				XsSize c;
 				for (c = 0; c < cols; ++c)
-					thisPtr->m_data[r*stride+c] = src[r*srcStride + c];
+					thisPtr->m_data[r * stride + c] = src[r * srcStride + c];
 #endif
 			}
 		}
@@ -142,7 +146,7 @@ void XsMatrix_construct(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stri
 void XsMatrix_assign(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride, const XsReal* src, XsSize srcStride)
 {
 	XsSize r;
-	XsSize size = rows*stride;
+	XsSize size = rows * stride;
 
 	if (thisPtr->m_flags & XSDF_FixedSize)
 	{
@@ -172,13 +176,13 @@ void XsMatrix_assign(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride,
 				stride = cols;
 				size = rows * stride;
 			}
-			if (size > thisPtr->m_rows*thisPtr->m_stride || thisPtr->m_rows == 0)
+			if (size > thisPtr->m_rows * thisPtr->m_stride || thisPtr->m_rows == 0)
 			{
 				XsMatrix_destruct(thisPtr);
 				if (size)
 				{
 					// init to size
-					XsReal* data = (XsReal*) xsMathMalloc(size*sizeof(XsReal));
+					XsReal* data = (XsReal*) xsMathMalloc(size * sizeof(XsReal));
 					assert(data);
 					*((XsReal**) &thisPtr->m_data) = data;
 					*((XsSize*) &thisPtr->m_flags) = XSDF_Managed;
@@ -192,18 +196,18 @@ void XsMatrix_assign(XsMatrix* thisPtr, XsSize rows, XsSize cols, XsSize stride,
 	}
 	if (src && size)
 	{
-		if (srcStride == 0 || srcStride == stride)
-			memcpy(thisPtr->m_data, src, size*sizeof(XsReal));
+		if (stride == cols && (srcStride == 0 || srcStride == stride))
+			memcpy(thisPtr->m_data, src, size * sizeof(XsReal));
 		else
 		{
 			for (r = 0; r < rows; ++r)
 			{
 #if XSREAL_ALLOWS_MEMCPY
-				memcpy(thisPtr->m_data + r*stride, src + r*srcStride, cols*sizeof(XsReal));
+				memcpy(thisPtr->m_data + r * stride, src + r * srcStride, cols * sizeof(XsReal));
 #else
 				XsSize c;
 				for (c = 0; c < cols; ++c)
-					thisPtr->m_data[r*stride+c] = src[r*srcStride + c];
+					thisPtr->m_data[r * stride + c] = src[r * srcStride + c];
 #endif
 			}
 		}
@@ -245,18 +249,18 @@ void XsMatrix_setZero(XsMatrix* thisPtr)
 {
 #if XSREAL_ALLOWS_MEMCPY
 	if (thisPtr->m_stride == thisPtr->m_cols)
-		memset(thisPtr->m_data, 0, sizeof(XsReal)*thisPtr->m_rows*thisPtr->m_cols);
+		memset(thisPtr->m_data, 0, sizeof(XsReal)*thisPtr->m_rows * thisPtr->m_cols);
 	else
 	{
 		XsSize r;
 		for (r = 0; r < thisPtr->m_rows; ++r)
-			memset(thisPtr->m_data + r*thisPtr->m_stride, 0, sizeof(XsReal) * thisPtr->m_cols);
+			memset(thisPtr->m_data + r * thisPtr->m_stride, 0, sizeof(XsReal) * thisPtr->m_cols);
 	}
 #else
-	XsSize r,c,stride = thisPtr->m_stride;
+	XsSize r, c, stride = thisPtr->m_stride;
 	for (r = 0; r < thisPtr->m_rows; ++r)
 		for (c = 0; c < thisPtr->m_cols; ++c)
-			thisPtr->m_data[r*stride+c] = XsMath_zero;
+			thisPtr->m_data[r * stride + c] = XsMath_zero;
 #endif
 }
 
@@ -272,12 +276,12 @@ int XsMatrix_empty(const XsMatrix* thisPtr)
 */
 void XsMatrix_multiplyScalar(const XsMatrix* thisPtr, XsReal scalar, XsMatrix* dest)
 {
-	XsSize r,c,stride = thisPtr->m_stride, stride2;
+	XsSize r, c, stride = thisPtr->m_stride, stride2;
 	XsMatrix_assign(dest, thisPtr->m_rows, thisPtr->m_cols, 0, 0, 0);
 	stride2 = dest->m_stride;
 	for (r = 0; r < thisPtr->m_rows; ++r)
 		for (c = 0; c < thisPtr->m_cols; ++c)
-			dest->m_data[r*stride2+c] = thisPtr->m_data[r*stride+c] * scalar;
+			dest->m_data[r * stride2 + c] = thisPtr->m_data[r * stride + c] * scalar;
 }
 
 /*! \relates XsMatrix
@@ -321,18 +325,18 @@ void XsMatrix_fromQuaternion(XsMatrix* thisPtr, const XsQuaternion* quat)
 		return;
 	}
 
-	q00 = quat->m_w*quat->m_w;
-	q11 = quat->m_x*quat->m_x;
-	q22 = quat->m_y*quat->m_y;
-	q33 = quat->m_z*quat->m_z;
+	q00 = quat->m_w * quat->m_w;
+	q11 = quat->m_x * quat->m_x;
+	q22 = quat->m_y * quat->m_y;
+	q33 = quat->m_z * quat->m_z;
 
-	q01 = quat->m_w*quat->m_x;
-	q02 = quat->m_w*quat->m_y;
-	q03 = quat->m_w*quat->m_z;
+	q01 = quat->m_w * quat->m_x;
+	q02 = quat->m_w * quat->m_y;
+	q03 = quat->m_w * quat->m_z;
 
-	q12 = quat->m_x*quat->m_y;
-	q13 = quat->m_x*quat->m_z;
-	q23 = quat->m_y*quat->m_z;
+	q12 = quat->m_x * quat->m_y;
+	q13 = quat->m_x * quat->m_z;
+	q23 = quat->m_y * quat->m_z;
 
 	XsMatrix_assign(thisPtr, 3, 3, 3, 0, 0);
 
@@ -358,7 +362,7 @@ void XsMatrix_fromQuaternion(XsMatrix* thisPtr, const XsQuaternion* quat)
 void XsMatrix_swap(XsMatrix* a, XsMatrix* b)
 {
 #ifdef __ICCARM__
-	#pragma diag_suppress=Pe370
+#pragma diag_suppress=Pe370
 #endif
 	XsMatrix tmp;
 	if ((!a->m_data || (a->m_flags & XSDF_Managed)) && (!b->m_data || (b->m_flags & XSDF_Managed)))
@@ -388,8 +392,8 @@ void XsMatrix_swap(XsMatrix* a, XsMatrix* b)
 		assert(a->m_data && b->m_data && a->m_rows == b->m_rows && a->m_cols == b->m_cols);
 		for (r = 0; r < a->m_rows; ++r)
 		{
-			XsReal* aa = a->m_data + r*a->m_stride*sizeof(XsReal);
-			XsReal* bb = b->m_data + r*b->m_stride*sizeof(XsReal);
+			XsReal* aa = a->m_data + r * a->m_stride;
+			XsReal* bb = b->m_data + r * b->m_stride;
 			for (c = 0; c < a->m_cols; ++c, ++aa, ++bb)
 			{
 				v = *aa;

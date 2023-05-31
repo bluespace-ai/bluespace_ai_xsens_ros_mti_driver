@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -102,7 +102,8 @@ int compareXsOutputConfiguration(XsOutputConfiguration const* a, XsOutputConfigu
 
 
 //! \brief Descriptor for XsOutputConfigurationArray
-XsArrayDescriptor const g_xsOutputConfigurationArrayDescriptor = {
+XsArrayDescriptor const g_xsOutputConfigurationArrayDescriptor =
+{
 	sizeof(XsOutputConfiguration),
 	XSEXPCASTITEMSWAP swapXsOutputConfiguration,	// swap
 	0,												// construct

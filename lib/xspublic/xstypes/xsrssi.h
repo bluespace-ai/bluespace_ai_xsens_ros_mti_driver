@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -80,25 +80,26 @@ XSTYPES_DLL_API int XsRssi_unbiased(int raw);
 
 #ifdef __cplusplus
 } // extern "C"
-namespace XsRssi {
-	/*! \brief The bias on biased RSSI values. */
-	static const int bias = XS_RSSI_MAX;
+namespace XsRssi
+{
+/*! \brief The bias on biased RSSI values. */
+static const int bias = XS_RSSI_MAX;
 
-	/*! \brief The maximum RSSI value. */
-	static const int max = XS_RSSI_MAX;
-	/*! \brief The RSSI value that was reserved for when the RSSI is unknown. */
-	static const int unknown = XS_RSSI_UNKNOWN;
+/*! \brief The maximum RSSI value. */
+static const int max = XS_RSSI_MAX;
+/*! \brief The RSSI value that was reserved for when the RSSI is unknown. */
+static const int unknown = XS_RSSI_UNKNOWN;
 
-	/*! \brief The maximum unbiased RSSI value. */
-	static const int maxUnbiased = XS_RSSI_MAX + XS_RSSI_MAX;
-	/*! \brief The RSSI value that was reserved for when the RSSI is unknown (unbiased). */
-	static const int unknownUnbiased = XS_RSSI_UNKNOWN + XS_RSSI_MAX;
+/*! \brief The maximum unbiased RSSI value. */
+static const int maxUnbiased = XS_RSSI_MAX + XS_RSSI_MAX;
+/*! \brief The RSSI value that was reserved for when the RSSI is unknown (unbiased). */
+static const int unknownUnbiased = XS_RSSI_UNKNOWN + XS_RSSI_MAX;
 
-	/*! \copydoc XsRssi_unbiased */
-	inline int unbiased(int raw)
-	{
-		return XsRssi_unbiased(raw);
-	}
+/*! \copydoc XsRssi_unbiased */
+inline int unbiased(int raw)
+{
+	return XsRssi_unbiased(raw);
+}
 }
 #endif
 

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -89,41 +89,42 @@ XSTYPES_DLL_API void XsFilterProfileArray_construct(XsFilterProfileArray* thisPt
 #endif
 
 #ifdef __cplusplus
-struct XsFilterProfileArray : public XsArrayImpl<XsFilterProfile, g_xsFilterProfileArrayDescriptor, XsFilterProfileArray> {
-	//! \brief Constructs an XsFilterProfileArray
-	inline explicit XsFilterProfileArray(XsSize sz = 0, XsFilterProfile const* src = 0)
-		 : ArrayImpl(sz, src)
+	struct XsFilterProfileArray : public XsArrayImpl<XsFilterProfile, g_xsFilterProfileArrayDescriptor, XsFilterProfileArray>
 	{
-	}
+		//! \brief Constructs an XsFilterProfileArray
+		inline explicit XsFilterProfileArray(XsSize sz = 0, XsFilterProfile const* src = 0)
+			: ArrayImpl(sz, src)
+		{
+		}
 
-	//! \brief Constructs an XsFilterProfileArray as a copy of \a other
-	inline XsFilterProfileArray(XsFilterProfileArray const& other)
-		 : ArrayImpl(other)
-	{
-	}
+		//! \brief Constructs an XsFilterProfileArray as a copy of \a other
+		inline XsFilterProfileArray(XsFilterProfileArray const& other)
+			: ArrayImpl(other)
+		{
+		}
 
-	//! \brief Constructs an XsFilterProfileArray that references the data supplied in \a ref
-	inline explicit XsFilterProfileArray(XsFilterProfile* ref, XsSize sz, XsDataFlags flags /* = XSDF_None */)
-		: ArrayImpl(ref, sz, flags)
-	{
-	}
+		//! \brief Constructs an XsFilterProfileArray that references the data supplied in \a ref
+		inline explicit XsFilterProfileArray(XsFilterProfile* ref, XsSize sz, XsDataFlags flags /* = XSDF_None */)
+			: ArrayImpl(ref, sz, flags)
+		{
+		}
 
 #ifndef SWIG
-	/*! \brief Swap the contents the \a first and \a second array */
-	friend void swap(XsFilterProfileArray& first, XsFilterProfileArray& second)
-	{
-		first.swap(second);
-	}
+		/*! \brief Swap the contents the \a first and \a second array */
+		friend void swap(XsFilterProfileArray& first, XsFilterProfileArray& second)
+		{
+			first.swap(second);
+		}
 #endif
 
 #ifndef XSENS_NOITERATOR
-	//! \brief Constructs an XsFilterProfileArray with the array bound by the supplied iterators \a beginIt and \a endIt
-	template <typename Iterator>
-	inline XsFilterProfileArray(Iterator beginIt, Iterator endIt)
-		: ArrayImpl(beginIt, endIt)
-	{
-	}
+		//! \brief Constructs an XsFilterProfileArray with the array bound by the supplied iterators \a beginIt and \a endIt
+		template <typename Iterator>
+		inline XsFilterProfileArray(Iterator beginIt, Iterator endIt)
+			: ArrayImpl(beginIt, endIt)
+		{
+		}
 #endif
-};
+	};
 #endif
 #endif

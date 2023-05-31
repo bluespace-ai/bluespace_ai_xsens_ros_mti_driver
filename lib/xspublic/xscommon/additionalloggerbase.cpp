@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -138,7 +138,7 @@ bool AdditionalLoggerBase::logLevel(JournalLogLevel level) const
 /*! \copydoc AbstractAdditionalLogger::logNoDecoration
 	The AdditionalLoggerBase simply forwards this call to the normal log method but this method can be overridden in derived classes
 */
-void AdditionalLoggerBase::logNoDecoration(JournalLogLevel level, char const * file, int line, char const * function, std::string const & msg)
+void AdditionalLoggerBase::logNoDecoration(JournalLogLevel level, char const* file, int line, char const* function, std::string const& msg)
 {
 	log(level, file, line, function, msg);
 }

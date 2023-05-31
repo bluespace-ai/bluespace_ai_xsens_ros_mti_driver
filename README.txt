@@ -1,10 +1,10 @@
 =[ Xsens MTi driver for ROS 2.0]============================================================
 
 Documentation:
-    You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section. The SDK can be downloaded from https://www.xsens.com/software-downloads. Please note, this is a 3rd Party driver with no official support. Check the compatibility section for the compatible devices. For official support on Xsens MTi products, please refer to Xsens knowledge base: https://base.xsens.com
+    You can find the full documentation in "<your MT SDK directory>/doc/xsensdeviceapi/doc/html/index.html" under "ROS MTi driver" section. The SDK can be downloaded from https://www.xsens.com/software-downloads. Please note, this is a 3rd Party driver built from MTSDK2021.2 with no official support. Check the compatibility section for the compatible devices. For official support on Xsens MTi products, please refer to Xsens knowledge base: https://base.xsens.com
 
 Prerequisites:
-    - ROS 2.0 Foxy
+    - ROS 2.0 Galactic/Foxy
     - C/C++ Compiler: GCC 5.4.0 or MSVC 14.0
     - C++14
 
@@ -12,14 +12,14 @@ Building:
     - Copy bluespace_ai_xsens_mti_driver folder into your ROS 2.0 workspace 'src' folder.
         Make sure the permissions are set to o+rw on your files and directories.
 
-    - Build xspublic from your ament workspace:
-        $ pushd src/bluespace_ai_xsens_ros_mti_driver/lib/xspublic && make && popd
-
     - Build Xsens MTi driver package:
         $ colcon build
 
     - Source workspace:
         $ source install/setup.bash
+
+Note: Building of 'xspublic' from the ament workspace has been automated in the CMake script. To build it manually, run the following from the ROS2.0 workspace root:
+        $ pushd src/bluespace_ai_xsens_ros_mti_driver/lib/xspublic && make && popd
 
 Changes in this release compared to the Xsens ROS 1.0 driver open source:
     - Added ROS 2.0 support: The ROS 1.0 wrapper node was modified to work with ROS 2.0.

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -63,14 +63,14 @@
 //  
 
 /**********************************************************************
- *
- * StackWalker.h
- *
- *
- * History:
- *  2005-07-27   v1    - First public release on http://www.codeproject.com/
- *  (for additional changes see History in 'StackWalker.cpp'!
- *
+
+    StackWalker.h
+
+
+    History:
+    2005-07-27   v1    - First public release on http://www.codeproject.com/
+    (for additional changes see History in 'StackWalker.cpp'!
+
  **********************************************************************/
 #ifndef STACKWALKER_H
 #define STACKWALKER_H
@@ -85,17 +85,18 @@
 
 // special defines for VC5/6 (if no actual PSDK is installed):
 #if _MSC_VER < 1300
-typedef unsigned __int64 DWORD64, *PDWORD64;
-#if defined(_WIN64)
-typedef unsigned __int64 SIZE_T, *PSIZE_T;
-#else
-typedef unsigned long SIZE_T, *PSIZE_T;
-#endif
+	typedef unsigned __int64 DWORD64, *PDWORD64;
+	#if defined(_WIN64)
+		typedef unsigned __int64 SIZE_T, *PSIZE_T;
+	#else
+		typedef unsigned long SIZE_T, *PSIZE_T;
+	#endif
 #endif  // _MSC_VER < 1300
 
 class StackWalkerInternal;
 /*! \brief A class that can help with walking the stack for debugging purposes (Windows version) */
-class StackWalker {
+class StackWalker
+{
 public:
 	enum StackWalkOptions
 	{
@@ -132,28 +133,28 @@ public:
 	};
 
 	StackWalker(int options = (int) OptionsAll, // 'int' is by design, to combine the enum-flags
-				LPCSTR szSymPath = NULL,
-				DWORD dwProcessId = GetCurrentProcessId(),
-				HANDLE hProcess = GetCurrentProcess());
+		LPCSTR szSymPath = NULL,
+		DWORD dwProcessId = GetCurrentProcessId(),
+		HANDLE hProcess = GetCurrentProcess());
 	StackWalker(DWORD dwProcessId, HANDLE hProcess);
 	virtual ~StackWalker();
 
-	typedef BOOL (__stdcall *PReadProcessMemoryRoutine)(
-	HANDLE      hProcess,
-	DWORD64     qwBaseAddress,
-	PVOID       lpBuffer,
-	DWORD       nSize,
-	LPDWORD     lpNumberOfBytesRead,
-	LPVOID      pUserData  // optional data, which was passed in "ShowCallstack"
+	typedef BOOL (__stdcall* PReadProcessMemoryRoutine)(
+		HANDLE      hProcess,
+		DWORD64     qwBaseAddress,
+		PVOID       lpBuffer,
+		DWORD       nSize,
+		LPDWORD     lpNumberOfBytesRead,
+		LPVOID      pUserData  // optional data, which was passed in "ShowCallstack"
 	);
 
 	BOOL LoadModules();
 
 	BOOL ShowCallstack(HANDLE hThread = GetCurrentThread(),
-						const CONTEXT *context = NULL,
-						PReadProcessMemoryRoutine readMemoryFunction = NULL,
-						LPVOID pUserData = NULL  // optional to identify some data in the 'readMemoryFunction'-callback
-						);
+		const CONTEXT* context = NULL,
+		PReadProcessMemoryRoutine readMemoryFunction = NULL,
+		LPVOID pUserData = NULL  // optional to identify some data in the 'readMemoryFunction'-callback
+	);
 
 protected:
 	enum { STACKWALK_MAX_NAMELEN = 1024 }; // max name length for found symbols
@@ -180,11 +181,11 @@ protected:
 
 	virtual void OnSymInit(LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName);
 	virtual void OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion);
-	virtual void OnCallstackEntry(CallstackEntryType eType, CallstackEntry &entry);
+	virtual void OnCallstackEntry(CallstackEntryType eType, CallstackEntry& entry);
 	virtual void OnDbgHelpErr(LPCSTR szFuncName, DWORD gle, DWORD64 addr);
 	virtual void OnOutput(LPCSTR szText);
 
-	StackWalkerInternal *m_sw;
+	StackWalkerInternal* m_sw;
 	HANDLE m_hProcess;
 	DWORD m_dwProcessId;
 	BOOL m_modulesLoaded;
@@ -215,39 +216,39 @@ protected:
 // The following is not a "perfect" implementation,
 // because the callstack is only valid in the "__except" block...
 #define GET_CURRENT_CONTEXT(c, contextFlags) \
-  do { \
-    memset(&c, 0, sizeof(CONTEXT)); \
-    EXCEPTION_POINTERS *pExp = NULL; \
-    __try { \
-      throw 0; \
-    } __except( ( (pExp = GetExceptionInformation()) ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_EXECUTE_HANDLER)) {} \
-    if (pExp != NULL) \
-      memcpy(&c, pExp->ContextRecord, sizeof(CONTEXT)); \
-      c.ContextFlags = contextFlags; \
-  } while(0);
+	do { \
+		memset(&c, 0, sizeof(CONTEXT)); \
+		EXCEPTION_POINTERS *pExp = NULL; \
+		__try { \
+			throw 0; \
+		} __except( ( (pExp = GetExceptionInformation()) ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_EXECUTE_HANDLER)) {} \
+		if (pExp != NULL) \
+			memcpy(&c, pExp->ContextRecord, sizeof(CONTEXT)); \
+		c.ContextFlags = contextFlags; \
+	} while(0)
 #else
 // The following should be enough for walking the callstack...
 #define GET_CURRENT_CONTEXT(c, contextFlags) \
-  do { \
-    memset(&c, 0, sizeof(CONTEXT)); \
-    c.ContextFlags = contextFlags; \
-    __asm    call x \
-    __asm x: pop eax \
-    __asm    mov c.Eip, eax \
-    __asm    mov c.Ebp, ebp \
-    __asm    mov c.Esp, esp \
-  } while(0);
+	do { \
+		memset(&c, 0, sizeof(CONTEXT)); \
+		c.ContextFlags = contextFlags; \
+		__asm    call x \
+		__asm x: pop eax \
+		__asm    mov c.Eip, eax \
+		__asm    mov c.Ebp, ebp \
+		__asm    mov c.Esp, esp \
+	} while(0)
 #endif
 
 #else
 
 // The following is defined for x86 (XP and higher), x64 and IA64:
 #define GET_CURRENT_CONTEXT(c, contextFlags) \
-  do { \
-    memset(&c, 0, sizeof(CONTEXT)); \
-    c.ContextFlags = contextFlags; \
-    RtlCaptureContext(&c); \
-} while(0);
+	do { \
+		memset(&c, 0, sizeof(CONTEXT)); \
+		c.ContextFlags = contextFlags; \
+		RtlCaptureContext(&c); \
+	} while(0)
 #endif
 
 #endif

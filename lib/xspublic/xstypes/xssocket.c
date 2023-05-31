@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -92,20 +92,20 @@ static int closesocket(SOCKET s)
 }
 #endif
 #if defined(__FreeBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
-# define USE_GETIFADDRS 1
-# include <ifaddrs.h>
+	#define USE_GETIFADDRS 1
+	#include <ifaddrs.h>
 #endif
 #include <errno.h>
 
 // MSG_NOSIGNAL is linux stuff
 #ifndef MSG_NOSIGNAL
-#define MSG_NOSIGNAL 0
+	#define MSG_NOSIGNAL 0
 #endif
 
 #include "xssocket.h"
 
 #ifndef PEEKBUFSIZE
-#define PEEKBUFSIZE 32768
+	#define PEEKBUFSIZE 32768
 #endif
 
 /* the socket data */
@@ -138,13 +138,13 @@ static int socketIsUsable(SOCKET s)
 
 
 /*!
-	* \brief Get the IP address of \a remote.
-	* \param[in] remote the socket address info of the remote peer
-	* \param[in,out] address XsString to return the host IP address in.
-	*/
-static void getRemoteHostAddress(const struct sockaddr_storage *remote, XsString *address)
+	 \brief Get the IP address of \a remote.
+	 \param[in] remote the socket address info of the remote peer
+	 \param[in,out] address XsString to return the host IP address in.
+*/
+static void getRemoteHostAddress(const struct sockaddr_storage* remote, XsString* address)
 {
-	void *src;
+	void* src;
 	socklen_t length;
 
 	switch (remote->ss_family)
@@ -164,7 +164,7 @@ static void getRemoteHostAddress(const struct sockaddr_storage *remote, XsString
 		XsString_erase(address, 0, address->m_size);
 }
 
-/* Update the last result of thisPtr to retval, if thisPtr is non-null
+/*  Update the last result of thisPtr to retval, if thisPtr is non-null
 
 	Returns retval for easy use in return statements.
 */
@@ -178,7 +178,7 @@ static XsResultValue setLastResult(XsSocket* thisPtr, XsResultValue retval, int 
 	return retval;
 }
 
-/* Translate a platform error into an XsResultValue
+/*  Translate a platform error into an XsResultValue
 
 	If thisPtr is non-null, the socket's last result will be updated.
 */
@@ -192,130 +192,130 @@ static XsResultValue translateAndReturnSocketError(XsSocket* thisPtr, int functi
 	err = WSAGetLastError();
 	switch (err)
 	{
-	case WSA_INVALID_HANDLE:
-	case WSA_INVALID_PARAMETER:
-	case WSAEINVAL:
-		result = XRV_INVALIDPARAM;
-		break;
-	case WSA_NOT_ENOUGH_MEMORY:
-		result = XRV_OUTOFMEMORY;
-		break;
-	case WSA_OPERATION_ABORTED:
-		result = XRV_ABORTED;
-		break;
-	case WSAEMSGSIZE:
-		result = XRV_BUFFEROVERFLOW;
-		break;
-	case WSAETIMEDOUT:
-		result = XRV_TIMEOUTNODATA;
-		break;
-	case WSAEACCES:
-	case WSAEADDRINUSE:
-		result = XRV_IN_USE;
-		break;
-	case WSA_IO_INCOMPLETE:
-	case WSA_IO_PENDING:
-	case WSAEINTR:
-	case WSAEBADF:
-	case WSAEFAULT:
-	case WSAEMFILE:
-	case WSAEWOULDBLOCK:
-	case WSAEINPROGRESS:
-	case WSAEALREADY:
-	case WSAENOTSOCK:
-	case WSAEDESTADDRREQ:
-	case WSAEPROTOTYPE:
-	case WSAENOPROTOOPT:
-	case WSAEPROTONOSUPPORT:
-	case WSAESOCKTNOSUPPORT:
-	case WSAEOPNOTSUPP:
-	case WSAEPFNOSUPPORT:
-	case WSAEAFNOSUPPORT:
-	case WSAEADDRNOTAVAIL:
-	case WSAENETDOWN:
-	case WSAENETUNREACH:
-	case WSAENETRESET:
-	case WSAECONNABORTED:
-	case WSAECONNRESET:
-	case WSAENOBUFS:
-	case WSAEISCONN:
-	case WSAENOTCONN:
-	case WSAESHUTDOWN:
-	case WSAETOOMANYREFS:
-	case WSAECONNREFUSED:
-	case WSAELOOP:
-	case WSAENAMETOOLONG:
-	case WSAEHOSTDOWN:
-	case WSAEHOSTUNREACH:
-	case WSAENOTEMPTY:
-	case WSAEPROCLIM:
-	case WSAEUSERS:
-	case WSAEDQUOT:
-	case WSAESTALE:
-	case WSAEREMOTE:
-	case WSASYSNOTREADY:
-	case WSAVERNOTSUPPORTED:
-	case WSANOTINITIALISED:
-	case WSAEDISCON:
-	case WSAENOMORE:
-	case WSAECANCELLED:
-	case WSAEINVALIDPROCTABLE:
-	case WSAEINVALIDPROVIDER:
-	case WSAEPROVIDERFAILEDINIT:
-	case WSASYSCALLFAILURE:
-	case WSASERVICE_NOT_FOUND:
-	case WSATYPE_NOT_FOUND:
-	case WSA_E_NO_MORE:
-	case WSA_E_CANCELLED:
-	case WSAEREFUSED:
-	case WSAHOST_NOT_FOUND:
-	case WSATRY_AGAIN:
-	case WSANO_RECOVERY:
-	case WSANO_DATA:
-	default:
-		result = XRV_OTHER;
-		break;
+		case WSA_INVALID_HANDLE:
+		case WSA_INVALID_PARAMETER:
+		case WSAEINVAL:
+			result = XRV_INVALIDPARAM;
+			break;
+		case WSA_NOT_ENOUGH_MEMORY:
+			result = XRV_OUTOFMEMORY;
+			break;
+		case WSA_OPERATION_ABORTED:
+			result = XRV_ABORTED;
+			break;
+		case WSAEMSGSIZE:
+			result = XRV_BUFFEROVERFLOW;
+			break;
+		case WSAETIMEDOUT:
+			result = XRV_TIMEOUTNODATA;
+			break;
+		case WSAEACCES:
+		case WSAEADDRINUSE:
+			result = XRV_IN_USE;
+			break;
+		case WSA_IO_INCOMPLETE:
+		case WSA_IO_PENDING:
+		case WSAEINTR:
+		case WSAEBADF:
+		case WSAEFAULT:
+		case WSAEMFILE:
+		case WSAEWOULDBLOCK:
+		case WSAEINPROGRESS:
+		case WSAEALREADY:
+		case WSAENOTSOCK:
+		case WSAEDESTADDRREQ:
+		case WSAEPROTOTYPE:
+		case WSAENOPROTOOPT:
+		case WSAEPROTONOSUPPORT:
+		case WSAESOCKTNOSUPPORT:
+		case WSAEOPNOTSUPP:
+		case WSAEPFNOSUPPORT:
+		case WSAEAFNOSUPPORT:
+		case WSAEADDRNOTAVAIL:
+		case WSAENETDOWN:
+		case WSAENETUNREACH:
+		case WSAENETRESET:
+		case WSAECONNABORTED:
+		case WSAECONNRESET:
+		case WSAENOBUFS:
+		case WSAEISCONN:
+		case WSAENOTCONN:
+		case WSAESHUTDOWN:
+		case WSAETOOMANYREFS:
+		case WSAECONNREFUSED:
+		case WSAELOOP:
+		case WSAENAMETOOLONG:
+		case WSAEHOSTDOWN:
+		case WSAEHOSTUNREACH:
+		case WSAENOTEMPTY:
+		case WSAEPROCLIM:
+		case WSAEUSERS:
+		case WSAEDQUOT:
+		case WSAESTALE:
+		case WSAEREMOTE:
+		case WSASYSNOTREADY:
+		case WSAVERNOTSUPPORTED:
+		case WSANOTINITIALISED:
+		case WSAEDISCON:
+		case WSAENOMORE:
+		case WSAECANCELLED:
+		case WSAEINVALIDPROCTABLE:
+		case WSAEINVALIDPROVIDER:
+		case WSAEPROVIDERFAILEDINIT:
+		case WSASYSCALLFAILURE:
+		case WSASERVICE_NOT_FOUND:
+		case WSATYPE_NOT_FOUND:
+		case WSA_E_NO_MORE:
+		case WSA_E_CANCELLED:
+		case WSAEREFUSED:
+		case WSAHOST_NOT_FOUND:
+		case WSATRY_AGAIN:
+		case WSANO_RECOVERY:
+		case WSANO_DATA:
+		default:
+			result = XRV_OTHER;
+			break;
 	}
 #else
 	err = errno;
 	switch (err)
 	{
-	case EROFS:
-		result = XRV_READONLY;
-		break;
-	case EACCES:
-		result = XRV_INPUTCANNOTBEOPENED;
-		break;
-	case EADDRINUSE:
-		result = XRV_ALREADYOPEN;
-		break;
-	case EBADF:
-	case EINVAL:
-	case ENOTDIR:
-	case EFAULT:
-		result = XRV_INVALIDPARAM;
-		break;
-	case ENAMETOOLONG:
-		result = XRV_DATAOVERFLOW;
-		break;
-	case ENOTSOCK:
-		result = XRV_UNSUPPORTED;
-		break;
-	case EADDRNOTAVAIL:
-	case ENOENT:
-		result = XRV_NOTFOUND;
-		break;
-	case ELOOP:
-	case ENOMEM:
-		result = XRV_OUTOFMEMORY;
-		break;
-	case ETIME:
-	case ETIMEDOUT:
-		result = XRV_TIMEOUTNODATA;
-		break;
-	default:
-		result = XRV_OTHER;
-		break;
+		case EROFS:
+			result = XRV_READONLY;
+			break;
+		case EACCES:
+			result = XRV_INPUTCANNOTBEOPENED;
+			break;
+		case EADDRINUSE:
+			result = XRV_ALREADYOPEN;
+			break;
+		case EBADF:
+		case EINVAL:
+		case ENOTDIR:
+		case EFAULT:
+			result = XRV_INVALIDPARAM;
+			break;
+		case ENAMETOOLONG:
+			result = XRV_DATAOVERFLOW;
+			break;
+		case ENOTSOCK:
+			result = XRV_UNSUPPORTED;
+			break;
+		case EADDRNOTAVAIL:
+		case ENOENT:
+			result = XRV_NOTFOUND;
+			break;
+		case ELOOP:
+		case ENOMEM:
+			result = XRV_OUTOFMEMORY;
+			break;
+		case ETIME:
+		case ETIMEDOUT:
+			result = XRV_TIMEOUTNODATA;
+			break;
+		default:
+			result = XRV_OTHER;
+			break;
 	}
 #endif
 	return setLastResult(thisPtr, result, err);
@@ -326,7 +326,7 @@ static void translateSocketError(XsSocket* thisPtr, int functionResult)
 	(void)translateAndReturnSocketError(thisPtr, functionResult);
 }
 
-/* Initialize the socket
+/*  Initialize the socket
 
 	This function performs some basic initialization on the socket
 */
@@ -337,7 +337,7 @@ static void XsSocket_initialize(XsSocket* thisPtr, XsDataFlags flags)
 	thisPtr->d->m_sd = INVALID_SOCKET;
 	thisPtr->d->m_flags = flags;
 #ifdef _WIN32
-	(void)WSAStartup(MAKEWORD(2,0), &thisPtr->d->m_sockData);
+	(void)WSAStartup(MAKEWORD(2, 0), &thisPtr->d->m_sockData);
 #endif
 }
 
@@ -360,13 +360,13 @@ void XsSocket_create(XsSocket* thisPtr, enum NetworkLayerProtocol ip, enum IpPro
 	thisPtr->d->m_ipProtocol = protocol;
 }
 
-/* Create a socket from a native socket
+/*  Create a socket from a native socket
 
 	Usually we expect that theirinfo and infolen are filled in. If theirInfo is NULL though,
 	we will fetch the information from the socket. Doing so by default would add a possible
 	extra point of failure.
 */
-void XsSocket_createFromNativeSocket(XsSocket* thisPtr, SOCKET nativeSocket, struct sockaddr const *theirInfo, socklen_t infolen, XsDataFlags flags)
+void XsSocket_createFromNativeSocket(XsSocket* thisPtr, SOCKET nativeSocket, struct sockaddr const* theirInfo, socklen_t infolen, XsDataFlags flags)
 {
 	XsSocket_initialize(thisPtr, flags);
 	thisPtr->d->m_sd = nativeSocket;
@@ -386,39 +386,39 @@ void XsSocket_createFromNativeSocket(XsSocket* thisPtr, SOCKET nativeSocket, str
 
 	switch (thisPtr->d->m_remoteAddr.ss_family)
 	{
-	case PF_INET6:
-		thisPtr->d->m_ipVersion = NLP_IPV6;
-		break;
-	case PF_INET:
-		thisPtr->d->m_ipVersion = NLP_IPV4;
-		break;
-	default:
-		// IRDA and the likes. do we need it?
-		break;
+		case PF_INET6:
+			thisPtr->d->m_ipVersion = NLP_IPV6;
+			break;
+		case PF_INET:
+			thisPtr->d->m_ipVersion = NLP_IPV4;
+			break;
+		default:
+			// IRDA and the likes. do we need it?
+			break;
 	}
 }
 
 /*!
-	* \brief Create a socket from a native file descriptor.
-	* \param[in] sockfd the file descriptor of the underlying socket
-	* \param[in] flags flags to inicate if the underlying socket should be managed by this object
-	* \relates XsSocket
-	*
-	* If the socket should be closed when this XsSocket is destroyed then the flags
-	* should be set to XSDF_Managed.
-	*/
+	 \brief Create a socket from a native file descriptor.
+	 \param[in] sockfd the file descriptor of the underlying socket
+	 \param[in] flags flags to inicate if the underlying socket should be managed by this object
+	 \relates XsSocket
+
+	 If the socket should be closed when this XsSocket is destroyed then the flags
+	 should be set to XSDF_Managed.
+*/
 void XsSocket_createFromFileDescriptor(XsSocket* thisPtr, int sockfd, XsDataFlags flags)
 {
 	XsSocket_createFromNativeSocket(thisPtr, sockfd, NULL, 0, flags);
 }
 
 /*! \brief Return the native file descriptor
-	*
-	* The native socket descriptor returned from this function should only be
-	* passed to third party libraries. However, it is possible to select, read and
-	* write on it, if you know what you're doing. Do remember that this object
-	* still manages the lifetime of the file descriptor.
-	*/
+
+	 The native socket descriptor returned from this function should only be
+	 passed to third party libraries. However, it is possible to select, read and
+	 write on it, if you know what you're doing. Do remember that this object
+	 still manages the lifetime of the file descriptor.
+*/
 XSOCKET XsSocket_nativeDescriptor(XsSocket const* thisPtr)
 {
 	return thisPtr->d->m_sd;
@@ -459,9 +459,7 @@ void XsSocket_destroy(XsSocket* thisPtr)
 	if (thisPtr->d)
 	{
 		if ((thisPtr->d->m_flags & XSDF_Managed) != 0)
-		{
 			(void)XsSocket_close(thisPtr);
-		}
 		free(thisPtr->d);
 		thisPtr->d = NULL;
 #ifdef _WIN32
@@ -484,7 +482,7 @@ void XsSocket_destroy(XsSocket* thisPtr)
 	If only one of canRead or canWrite points to non-null, a positive non-zero return value
 	already indicates the filled in value is set to non-zero.
 */
-int XsSocket_select(XsSocket* thisPtr, int mstimeout, int *canRead, int *canWrite)
+int XsSocket_select(XsSocket* thisPtr, int mstimeout, int* canRead, int* canWrite)
 {
 	fd_set readfd;
 	fd_set writefd;
@@ -503,34 +501,34 @@ int XsSocket_select(XsSocket* thisPtr, int mstimeout, int *canRead, int *canWrit
 	if (canWrite)
 		*canWrite = 0;
 
-	timeout.tv_sec = mstimeout/1000;
-	timeout.tv_usec = (mstimeout%1000) * 1000;
+	timeout.tv_sec = mstimeout / 1000;
+	timeout.tv_usec = (mstimeout % 1000) * 1000;
 
 	rv = select(FD_SETSIZE, (canRead ? &readfd : NULL),
-				(canWrite ? &writefd : NULL),
-				&errorfd, mstimeout >= 0 ? &timeout : NULL);
+			(canWrite ? &writefd : NULL),
+			&errorfd, mstimeout >= 0 ? &timeout : NULL);
 
 	switch (rv)
 	{
-	case -1:
-		translateSocketError(thisPtr, rv);
-		break;
-	case 0:
-		(void)setLastResult(thisPtr, XRV_TIMEOUT, 0);
-		break;
-	default:
-		if (FD_ISSET(thisPtr->d->m_sd, &errorfd))
-		{
-			(void)setLastResult(thisPtr, XRV_ERROR, 0);
-			rv = -1;
+		case -1:
+			translateSocketError(thisPtr, rv);
 			break;
-		}
+		case 0:
+			(void)setLastResult(thisPtr, XRV_TIMEOUT, 0);
+			break;
+		default:
+			if (FD_ISSET(thisPtr->d->m_sd, &errorfd))
+			{
+				(void)setLastResult(thisPtr, XRV_ERROR, 0);
+				rv = -1;
+				break;
+			}
 
-		if (canRead)
-			*canRead = FD_ISSET(thisPtr->d->m_sd, &readfd);
-		if (canWrite)
-			*canWrite = FD_ISSET(thisPtr->d->m_sd, &writefd);
-		break;
+			if (canRead)
+				*canRead = FD_ISSET(thisPtr->d->m_sd, &readfd);
+			if (canWrite)
+				*canWrite = FD_ISSET(thisPtr->d->m_sd, &writefd);
+			break;
 	}
 	return rv;
 }
@@ -588,7 +586,7 @@ int XsSocket_readFrom(XsSocket* thisPtr, void* dest, XsSize size, XsString* host
 	if (!dest)
 		return peekPendingDataSize(thisPtr);
 
-	rv = recvfrom(thisPtr->d->m_sd, dest, (int)size, 0, (struct sockaddr *)&sender, &l);
+	rv = recvfrom(thisPtr->d->m_sd, dest, (int)size, 0, (struct sockaddr*)&sender, &l);
 
 	if (hostname)
 		getRemoteHostAddress(&sender, hostname);
@@ -638,7 +636,7 @@ int XsSocket_readFrom2ByteArray(XsSocket* thisPtr, XsByteArray* dest, XsString* 
 	if (!dest)
 		return peekPendingDataSize(thisPtr);
 
-	rv = recvfrom(thisPtr->d->m_sd, thisPtr->d->m_peekBuf, PEEKBUFSIZE, 0, (struct sockaddr *)&sender, &l);
+	rv = recvfrom(thisPtr->d->m_sd, thisPtr->d->m_peekBuf, PEEKBUFSIZE, 0, (struct sockaddr*)&sender, &l);
 	if (rv <= 0)
 	{
 		translateSocketError(thisPtr, rv);
@@ -678,7 +676,7 @@ int XsSocket_write(XsSocket* thisPtr, const void* data, XsSize size)
 /* Return non-zero if the hostname is actually an IPv4 address */
 int isIPv4Address(XsString const* hostname)
 {
-	char *c;
+	char* c;
 	int expectNum = 1;
 	int expectDot = 0;
 	int numbersFound = 0;
@@ -706,9 +704,7 @@ int isIPv4Address(XsString const* hostname)
 				expectNum = 0;
 		}
 		else
-		{
 			return 0;
-		}
 	}
 	return 1;
 }
@@ -731,7 +727,7 @@ void XsSocket_fixupHostname(XsSocket const* thisPtr, XsString* hostname)
 
 typedef int (*lookupTestFunction)(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo const* info);
 
-/* Do a lookup of the given hostname and port
+/*  Do a lookup of the given hostname and port
 
 	This is an internal function that centralizes the lookup code.
 
@@ -746,10 +742,10 @@ typedef int (*lookupTestFunction)(XsSocket* thisPtr, SOCKET currentSocket, struc
 	return OK or NOTFOUND
 */
 static XsResultValue XsSocket_internalLookup(XsSocket* thisPtr, const XsString* hostname, uint16_t port,
-						int hints_flags, lookupTestFunction tester,
-						struct sockaddr* info, socklen_t* addrlen)
+	int hints_flags, lookupTestFunction tester,
+	struct sockaddr* info, socklen_t* addrlen)
 {
-	struct addrinfo *lookupInfo, *p;
+	struct addrinfo* lookupInfo, *p;
 	SOCKET s;
 	char gaport[7];
 	struct addrinfo hints;
@@ -758,9 +754,15 @@ static XsResultValue XsSocket_internalLookup(XsSocket* thisPtr, const XsString* 
 
 	switch (thisPtr->d->m_ipVersion)
 	{
-	case NLP_IPV6: hints.ai_family = AF_INET6;  break;
-	case NLP_IPV4: hints.ai_family = AF_INET;   break;
-	case NLP_IPVX: hints.ai_family = AF_UNSPEC; break;
+		case NLP_IPV6:
+			hints.ai_family = AF_INET6;
+			break;
+		case NLP_IPV4:
+			hints.ai_family = AF_INET;
+			break;
+		case NLP_IPVX:
+			hints.ai_family = AF_UNSPEC;
+			break;
 	}
 	hints.ai_socktype = (thisPtr->d->m_ipProtocol == IP_UDP) ? SOCK_DGRAM : SOCK_STREAM;
 	hints.ai_flags = hints_flags;
@@ -780,33 +782,31 @@ static XsResultValue XsSocket_internalLookup(XsSocket* thisPtr, const XsString* 
 		XsString_destruct(&host);
 	}
 	else
-	{
 		ret = getaddrinfo(NULL, gaport, &hints, &lookupInfo);
-	}
 
 	if (ret)
 	{
 		switch (ret)
 		{
-		case EAI_BADFLAGS:
-			return setLastResult(thisPtr, XRV_INVALIDPARAM, -1);
-		case EAI_AGAIN:
-			return translateAndReturnSocketError(thisPtr, EAGAIN);
-		case EAI_FAIL:
-			return setLastResult(thisPtr, XRV_ERROR, -1);
-		case EAI_MEMORY:
-			return setLastResult(thisPtr, XRV_INSUFFICIENTSPACE, -1);
-		//case EAI_NODATA:
-		//	return setLastResult(thisPtr, XRV_TIMEOUTNODATA, -1);
-		case EAI_NONAME:
-			return setLastResult(thisPtr, XRV_INSUFFICIENTDATA, -1);
-		//case EAI_ADDRFAMILY:
-		case EAI_SERVICE:
-		case EAI_FAMILY:
-		case EAI_SOCKTYPE:
-			return setLastResult(thisPtr, XRV_UNSUPPORTED, -1);
-		default:
-			return translateAndReturnSocketError(thisPtr, ret);
+			case EAI_BADFLAGS:
+				return setLastResult(thisPtr, XRV_INVALIDPARAM, -1);
+			case EAI_AGAIN:
+				return translateAndReturnSocketError(thisPtr, EAGAIN);
+			case EAI_FAIL:
+				return setLastResult(thisPtr, XRV_ERROR, -1);
+			case EAI_MEMORY:
+				return setLastResult(thisPtr, XRV_INSUFFICIENTSPACE, -1);
+			//case EAI_NODATA:
+			//	return setLastResult(thisPtr, XRV_TIMEOUTNODATA, -1);
+			case EAI_NONAME:
+				return setLastResult(thisPtr, XRV_INSUFFICIENTDATA, -1);
+			//case EAI_ADDRFAMILY:
+			case EAI_SERVICE:
+			case EAI_FAMILY:
+			case EAI_SOCKTYPE:
+				return setLastResult(thisPtr, XRV_UNSUPPORTED, -1);
+			default:
+				return translateAndReturnSocketError(thisPtr, ret);
 		}
 	}
 
@@ -906,9 +906,9 @@ int XsSocket_enableBroadcasts(XsSocket* thisPtr, int enable)
 }
 
 #ifdef USE_GETIFADDRS
-static uint32_t SockAddrToUint32(struct sockaddr * a)
+static uint32_t SockAddrToUint32(struct sockaddr* a)
 {
-	return ((a)&&(a->sa_family == AF_INET)) ? ntohl(((struct sockaddr_in *)a)->sin_addr.s_addr) : 0;
+	return ((a) && (a->sa_family == AF_INET)) ? ntohl(((struct sockaddr_in*)a)->sin_addr.s_addr) : 0;
 }
 #endif
 
@@ -945,16 +945,16 @@ int XsSocket_broadcast(XsSocket* thisPtr, const void* data, XsSize size, uint16_
 		do
 		{
 			// Windows XP style implementation
-			MIB_IPADDRTABLE * ipTable = NULL;
+			MIB_IPADDRTABLE* ipTable = NULL;
 			{
 				ULONG bufLen = 0;
-				for (int i=0; i<5; i++)
+				for (int i = 0; i < 5; i++)
 				{
 					DWORD ipRet = GetIpAddrTable(ipTable, &bufLen, FALSE);
 					if (ipRet == ERROR_INSUFFICIENT_BUFFER)
 					{
 						free(ipTable);  // in case we had previously allocated it
-						ipTable = (MIB_IPADDRTABLE *) malloc(bufLen);
+						ipTable = (MIB_IPADDRTABLE*) malloc(bufLen);
 					}
 					else if (ipRet == NO_ERROR)
 						break;
@@ -969,16 +969,16 @@ int XsSocket_broadcast(XsSocket* thisPtr, const void* data, XsSize size, uint16_
 
 			if (ipTable)
 			{
-				IP_ADAPTER_INFO * pAdapterInfo = NULL;
+				IP_ADAPTER_INFO* pAdapterInfo = NULL;
 				{
 					ULONG bufLen = 0;
-					for (int i=0; i<5; i++)
+					for (int i = 0; i < 5; i++)
 					{
 						DWORD apRet = GetAdaptersInfo(pAdapterInfo, &bufLen);
 						if (apRet == ERROR_BUFFER_OVERFLOW)
 						{
 							free(pAdapterInfo);  // in case we had previously allocated it
-							pAdapterInfo = (IP_ADAPTER_INFO *) malloc(bufLen);
+							pAdapterInfo = (IP_ADAPTER_INFO*) malloc(bufLen);
 						}
 						else if (apRet == ERROR_SUCCESS)
 							break;
@@ -991,12 +991,12 @@ int XsSocket_broadcast(XsSocket* thisPtr, const void* data, XsSize size, uint16_
 					}
 				}
 
-				for (DWORD i=0; i<ipTable->dwNumEntries; i++)
+				for (DWORD i = 0; i < ipTable->dwNumEntries; i++)
 				{
 					const MIB_IPADDRROW* row = &ipTable->table[i];
 					uint32_t ad = ntohl(row->dwAddr) | ~ntohl(row->dwMask);
 					char bcastAddr[32];
-					sprintf(bcastAddr, "%u.%u.%u.%u", (ad >> 24)&0xFF, (ad >> 16) & 0xFF, (ad >> 8) & 0xFF, ad & 0xFF);
+					sprintf(bcastAddr, "%u.%u.%u.%u", (ad >> 24) & 0xFF, (ad >> 16) & 0xFF, (ad >> 8) & 0xFF, ad & 0xFF);
 					inet_pton(AF_INET, bcastAddr, &addr.sin_addr);
 					sent = sendto(thisPtr->d->m_sd, data, (int)size, MSG_NOSIGNAL, (struct sockaddr const*) &addr, sizeof(addr));
 					if (sent < 0)
@@ -1011,21 +1011,20 @@ int XsSocket_broadcast(XsSocket* thisPtr, const void* data, XsSize size, uint16_
 				free(pAdapterInfo);
 				free(ipTable);
 			}
-		}
-		while (0);
+		} while (0);
 #elif defined(USE_GETIFADDRS)
 		// BSD-style implementation
-		struct ifaddrs * ifap;
+		struct ifaddrs* ifap;
 		if (getifaddrs(&ifap) == 0)
 		{
-			struct ifaddrs * p = ifap;
+			struct ifaddrs* p = ifap;
 			while (p)
 			{
 				uint32_t bcastAddr = (uint32_t)SockAddrToUint32(p->ifa_dstaddr);
 				if (bcastAddr > 0)
 				{
 					char bcastAddrStr[32];
-					sprintf(bcastAddrStr, "%u.%u.%u.%u", (bcastAddr >> 24)&0xFF, (bcastAddr >> 16) & 0xFF, (bcastAddr >> 8) & 0xFF, bcastAddr & 0xFF);
+					sprintf(bcastAddrStr, "%u.%u.%u.%u", (bcastAddr >> 24) & 0xFF, (bcastAddr >> 16) & 0xFF, (bcastAddr >> 8) & 0xFF, bcastAddr & 0xFF);
 					inet_pton(AF_INET, bcastAddrStr, &addr.sin_addr);
 					sent = (int)sendto(thisPtr->d->m_sd, data, size, MSG_NOSIGNAL, (struct sockaddr const*) &addr, sizeof(addr));
 					if (sent < 0)
@@ -1081,10 +1080,10 @@ void XsSocket_flush(XsSocket* thisPtr)
 
 	\returns a pointer to a newly created socket for the new connection. NULL on error.
 	\relates XsSocket
-	*/
+*/
 XsSocket* XsSocket_accept(XsSocket* thisPtr, int mstimeout)
 {
-	XsSocket *ns;
+	XsSocket* ns;
 	struct sockaddr_storage theirInfo;
 	socklen_t infoLength = sizeof(struct sockaddr_storage);
 	SOCKET sd;
@@ -1106,7 +1105,7 @@ XsSocket* XsSocket_accept(XsSocket* thisPtr, int mstimeout)
 		}
 	}
 
-	sd = accept(thisPtr->d->m_sd, (struct sockaddr *)&theirInfo, &infoLength);
+	sd = accept(thisPtr->d->m_sd, (struct sockaddr*)&theirInfo, &infoLength);
 	if (!socketIsUsable(sd))
 		return NULL;
 
@@ -1145,23 +1144,23 @@ void XsSocket_free(XsSocket* thisPtr)
 }
 
 /*! \brief Changes the value of a socket option
-	*	\param[in] option the socket option to change
-	*	\param[in] valuePtr poins to the value the option must be set to
-	*	\param[in] valueSize the size of the value \a valuePtr points to
-	*	\return an XsResultValue indicating the result of the operation, possibly pointing towards a cause
-	*	\relates XsSocket
-	*/
-XsResultValue XsSocket_setSocketOption(XsSocket *thisPtr, enum XsSocketOption option, void* valuePtr, int valueSize)
+		\param[in] option the socket option to change
+		\param[in] valuePtr poins to the value the option must be set to
+		\param[in] valueSize the size of the value \a valuePtr points to
+		\return an XsResultValue indicating the result of the operation, possibly pointing towards a cause
+		\relates XsSocket
+*/
+XsResultValue XsSocket_setSocketOption(XsSocket* thisPtr, enum XsSocketOption option, void* valuePtr, int valueSize)
 {
 	int res;
 	int nativeOption;
 #ifdef _WIN32
-	const char *valPtr = (const char*)valuePtr;
+	const char* valPtr = (const char*)valuePtr;
 #else
-	const void *valPtr = valuePtr;
+	const void* valPtr = valuePtr;
 #endif
 
-	switch(option)
+	switch (option)
 	{
 		case XSO_ReuseAddress:
 			nativeOption = SO_REUSEADDR;
@@ -1182,7 +1181,7 @@ XsResultValue XsSocket_setSocketOption(XsSocket *thisPtr, enum XsSocketOption op
 }
 
 
-/* test if we can bind to info
+/*  test if we can bind to info
 
 	keeps the bind alive after leaving the function
 */
@@ -1191,9 +1190,9 @@ static int binder(XsSocket* thisPtr, SOCKET currentSocket, struct addrinfo const
 	int res;
 	int yesval = 1;
 #ifdef _WIN32
-	const char *yes = (const char*)&yesval;
+	const char* yes = (const char*)&yesval;
 #else
-	const void *yes = &yesval;
+	const void* yes = &yesval;
 #endif
 
 	(void)currentSocket;
@@ -1231,7 +1230,7 @@ XsResultValue XsSocket_bind(XsSocket* thisPtr, const XsString* hostname, uint16_
 
 	if (thisPtr->d->m_ipVersion == NLP_IPV4)
 	{
-		struct sockaddr_in *sin = (struct sockaddr_in*)&s;
+		struct sockaddr_in* sin = (struct sockaddr_in*)&s;
 		sin->sin_family = AF_INET;
 		sin->sin_port = htons(port);
 		sin->sin_addr.s_addr = INADDR_ANY;
@@ -1239,7 +1238,7 @@ XsResultValue XsSocket_bind(XsSocket* thisPtr, const XsString* hostname, uint16_
 	}
 	else
 	{
-		struct sockaddr_in6 *sin6 = (struct sockaddr_in6*)&s;
+		struct sockaddr_in6* sin6 = (struct sockaddr_in6*)&s;
 		sin6->sin6_family = AF_INET6;
 		sin6->sin6_port = htons(port);
 		sin6->sin6_addr = in6addr_any;
@@ -1263,7 +1262,7 @@ XsResultValue XsSocket_listen(XsSocket* thisPtr, int maxPending)
 	return translateAndReturnSocketError(thisPtr, r);
 }
 
-/* Connect to info
+/*  Connect to info
 
 	Keep the connection alive
 */
@@ -1310,18 +1309,18 @@ int XsSocket_isUsable(const XsSocket* thisPtr)
 }
 
 /*!
-	* \brief Get the numeric IP address of remote host of this socket.
-	* \param[in,out] address XsString to return the remote host IP address in
-	*/
-void XsSocket_getRemoteAddress(const XsSocket* thisPtr, XsString *address)
+	 \brief Get the numeric IP address of remote host of this socket.
+	 \param[in,out] address XsString to return the remote host IP address in
+*/
+void XsSocket_getRemoteAddress(const XsSocket* thisPtr, XsString* address)
 {
 	getRemoteHostAddress(&thisPtr->d->m_remoteAddr, address);
 }
 
 /*!
-	* \brief Return the system error code of the last socket operation
-	* \return The error code
-	*/
+	 \brief Return the system error code of the last socket operation
+	 \return The error code
+*/
 int XsSocket_getLastSystemError(const XsSocket* thisPtr)
 {
 	return thisPtr->d->m_lastSystemError;

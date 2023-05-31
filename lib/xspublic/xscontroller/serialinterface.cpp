@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,26 +69,26 @@
 
 #include <errno.h>
 #ifndef _WIN32
-#	include <unistd.h>		// close
-#	include <sys/ioctl.h>	// ioctl
-#	include <fcntl.h>		// open, O_RDWR
-#	include <string.h>		// strcpy
-#	include <sys/param.h>
-#	include <sys/file.h>
-#	include <stdarg.h>
-#if !defined(__APPLE__) && !defined(ANDROID)
-#	include <linux/serial.h>
-#endif
+	#include <unistd.h>		// close
+	#include <sys/ioctl.h>	// ioctl
+	#include <fcntl.h>		// open, O_RDWR
+	#include <string.h>		// strcpy
+	#include <sys/param.h>
+	#include <sys/file.h>
+	#include <stdarg.h>
+	#if !defined(__APPLE__) && !defined(ANDROID)
+		#include <linux/serial.h>
+	#endif
 #else
-#	include <winbase.h>
-#   include <io.h>
+	#include <winbase.h>
+	#include <io.h>
 #endif
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
-#	define _CRT_SECURE_NO_DEPRECATE
-#	ifdef _WIN32
-#		pragma warning(disable:4996)
-#	endif
+	#define _CRT_SECURE_NO_DEPRECATE
+	#ifdef _WIN32
+		#pragma warning(disable:4996)
+	#endif
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ SerialInterface::~SerialInterface()
 	{
 		closeLive();
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -147,16 +147,17 @@ XsResultValue SerialInterface::closeLive(void)
 		// read all data before closing the handle, a Flush is not enough for FTDI devices unfortunately
 		// we first need to set the COMM timeouts to instantly return when no more data is available
 		COMMTIMEOUTS cto;
-		if (::GetCommTimeouts(m_handle,&cto))
+		if (::GetCommTimeouts(m_handle, &cto))
 		{
 			cto.ReadIntervalTimeout = MAXDWORD;
 			cto.ReadTotalTimeoutConstant = 0;
 			cto.ReadTotalTimeoutMultiplier = 0;
-			if (::SetCommTimeouts(m_handle,&cto))
+			if (::SetCommTimeouts(m_handle, &cto))
 			{
 				char buffer[1024];
 				DWORD length;
-				do {
+				do
+				{
 					if (!::ReadFile(m_handle, buffer, 1024, &length, NULL))
 						break;
 				} while (length > 0);
@@ -189,7 +190,7 @@ XsResultValue SerialInterface::closeLive(void)
 	\param state	Contains the new state of the control lines.
 	\returns XRV_OK if the function succeeded
 */
-XsResultValue SerialInterface::escape (const XsControlLine mask, const XsControlLine state)
+XsResultValue SerialInterface::escape(const XsControlLine mask, const XsControlLine state)
 {
 	if (!isOpen())
 		return (m_lastResult = XRV_NOPORTOPEN);
@@ -198,17 +199,17 @@ XsResultValue SerialInterface::escape (const XsControlLine mask, const XsControl
 	if (mask & XCL_DTR)
 	{
 		if (state & XCL_DTR)
-			rv = EscapeCommFunction(m_handle,SETDTR);
+			rv = EscapeCommFunction(m_handle, SETDTR);
 		else
-			rv = EscapeCommFunction(m_handle,CLRDTR);
+			rv = EscapeCommFunction(m_handle, CLRDTR);
 	}
 
 	if (mask & XCL_RTS)
 	{
 		if (state & XCL_RTS)
-			rv = EscapeCommFunction(m_handle,SETRTS);
+			rv = EscapeCommFunction(m_handle, SETRTS);
 		else
-			rv = EscapeCommFunction(m_handle,CLRRTS);
+			rv = EscapeCommFunction(m_handle, CLRRTS);
 	}
 	if (rv)
 		return m_lastResult = XRV_OK;
@@ -254,7 +255,7 @@ XsResultValue SerialInterface::escape (const XsControlLine mask, const XsControl
 	\note This function tries to send and receive any remaining data immediately
 	and does not return until the buffers are empty.
 */
-XsResultValue SerialInterface::flushData (void)
+XsResultValue SerialInterface::flushData(void)
 {
 	m_lastResult = XRV_OK;
 #ifdef _WIN32
@@ -283,7 +284,7 @@ XsIoHandle SerialInterface::getHandle(void) const
 }
 
 //! Retrieve the port number that was last successfully opened.
-uint16_t SerialInterface::getPortNumber (void) const
+uint16_t SerialInterface::getPortNumber(void) const
 {
 	return m_port;
 }
@@ -301,13 +302,13 @@ XsResultValue SerialInterface::getLastResult(void) const
 }
 
 //! Return the current timeout value
-uint32_t SerialInterface::getTimeout (void) const
+uint32_t SerialInterface::getTimeout(void) const
 {
 	return m_timeout;
 }
 
 //! Return whether the communication port is open or not.
-bool SerialInterface::isOpen (void) const
+bool SerialInterface::isOpen(void) const
 {
 #ifdef _WIN32
 	return m_handle != INVALID_HANDLE_VALUE;
@@ -339,9 +340,9 @@ static T setBitsEnabled(T field, T bits, bool cond)
 	\returns XRV_OK if the device was opened successfully
 */
 XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
-						XsFilePos readBufSize,
-						XsFilePos writeBufSize,
-						PortOptions options)
+	XsFilePos readBufSize,
+	XsFilePos writeBufSize,
+	PortOptions options)
 {
 	m_endTime = 0;
 
@@ -385,16 +386,16 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 	commState.BaudRate = (DWORD) portInfo.baudrate();		// Setup the baud rate
 	commState.Parity = NOPARITY;				// Setup the Parity
 	commState.ByteSize = 8;					// Setup the data bits
-	commState.StopBits = (options&PO_TwoStopBits)?TWOSTOPBITS:ONESTOPBIT;
+	commState.StopBits = (options & PO_TwoStopBits) ? TWOSTOPBITS : ONESTOPBIT;
 
 	// Setup flow control
-	commState.fDsrSensitivity = (options&PO_DtrDsrFlowControl)?TRUE:FALSE;
-	commState.fOutxDsrFlow = (options&PO_DtrDsrFlowControl)?DTR_CONTROL_HANDSHAKE:DTR_CONTROL_DISABLE;
+	commState.fDsrSensitivity = (options & PO_DtrDsrFlowControl) ? TRUE : FALSE;
+	commState.fOutxDsrFlow = (options & PO_DtrDsrFlowControl) ? DTR_CONTROL_HANDSHAKE : DTR_CONTROL_DISABLE;
 
 	commState.fOutxCtsFlow = (options & PO_RtsCtsFlowControl || (portInfo.linesOptions() & XPLO_RtsCtsFlowControl)) ? TRUE : FALSE;
 	commState.fRtsControl  = (options & PO_RtsCtsFlowControl || (portInfo.linesOptions() & XPLO_RtsCtsFlowControl)) ? RTS_CONTROL_HANDSHAKE : RTS_CONTROL_ENABLE;
 
-	commState.fOutX = (options&PO_XonXoffFlowControl)?TRUE:FALSE;
+	commState.fOutX = (options & PO_XonXoffFlowControl) ? TRUE : FALSE;
 	commState.fInX = commState.fOutX;
 
 	if (!SetCommState(m_handle, (LPDCB)&commState)) // Set new state
@@ -443,7 +444,8 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 	// O_NOCTTY: Raw input, no "controlling terminal"
 	// O_NDELAY: Don't care about DCD signal
 
-	if (m_handle < 0) {
+	if (m_handle < 0)
+	{
 		// Port not open
 		return m_lastResult = XRV_INPUTCANNOTBEOPENED;
 	}
@@ -470,29 +472,29 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 	// Enable the receiver and set local mode
 	m_commState.c_cflag |= (CLOCAL | CREAD);
 	// Set character size to data bits and set no parity Mask the characte size bits
-	m_commState.c_cflag &= ~(CSIZE|PARENB|PARODD);
+	m_commState.c_cflag &= ~(CSIZE | PARENB | PARODD);
 	m_commState.c_cflag |= CS8;		// Select 8 data bits
 
-	m_commState.c_cflag = setBitsEnabled(m_commState.c_cflag, (tcflag_t)CSTOPB, (options&PO_TwoStopBits) == PO_TwoStopBits);
+	m_commState.c_cflag = setBitsEnabled(m_commState.c_cflag, (tcflag_t)CSTOPB, (options & PO_TwoStopBits) == PO_TwoStopBits);
 
 	// Hardware flow control
-	m_commState.c_cflag = setBitsEnabled(m_commState.c_cflag, (tcflag_t)CRTSCTS, (options&PO_RtsCtsFlowControl) == PO_RtsCtsFlowControl);
+	m_commState.c_cflag = setBitsEnabled(m_commState.c_cflag, (tcflag_t)CRTSCTS, (options & PO_RtsCtsFlowControl) == PO_RtsCtsFlowControl);
 #ifdef CDTRDSR
-	m_commState.c_cflag = setBitsEnabled(m_commState.c_cflag, (tcflag_t)CDTRDSR, (options&PO_DtrDsrFlowControl) == PO_DtrDsrFlowControl);
+	m_commState.c_cflag = setBitsEnabled(m_commState.c_cflag, (tcflag_t)CDTRDSR, (options & PO_DtrDsrFlowControl) == PO_DtrDsrFlowControl);
 #endif
 
-	m_commState.c_lflag &= ~(ECHO|ECHOE|ECHOK|ECHONL|ICANON|ISIG|IEXTEN);
+	m_commState.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON | ISIG | IEXTEN);
 	// Software flow control
-	m_commState.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|INPCK|ISTRIP|INLCR|IGNCR|ICRNL);
-	m_commState.c_iflag = setBitsEnabled(m_commState.c_iflag, (tcflag_t)(IXON|IXOFF), options&PO_XonXoffFlowControl);
+	m_commState.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP | INLCR | IGNCR | ICRNL);
+	m_commState.c_iflag = setBitsEnabled(m_commState.c_iflag, (tcflag_t)(IXON | IXOFF), options & PO_XonXoffFlowControl);
 	// Set Raw output
 	m_commState.c_oflag &= ~OPOST;
 	// Timeout 0.001 sec for first byte, read minimum of 0 bytes
 	m_commState.c_cc[VMIN]     = 0;
-	m_commState.c_cc[VTIME]    = (m_timeout+99)/100;	// 1
+	m_commState.c_cc[VTIME]    = (m_timeout + 99) / 100;	// 1
 
 	// Set the new options for the port
-	if (tcsetattr(m_handle,TCSANOW, &m_commState) != 0)
+	if (tcsetattr(m_handle, TCSANOW, &m_commState) != 0)
 		return XRV_INPUTCANNOTBEOPENED;
 
 #if defined(JLDEF_BUILD) && JLDEF_BUILD <= JLL_ALERT
@@ -506,19 +508,19 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 	if (cfgetospeed(&checkCommState) != portInfo.baudrate())
 		JLALERTG("Set baudrate doesn't match requested baudrate");
 
-	if (options&PO_RtsCtsFlowControl && !(checkCommState.c_cflag&CRTSCTS))
+	if (options & PO_RtsCtsFlowControl && !(checkCommState.c_cflag & CRTSCTS))
 		JLALERTG("Requested RTS/CTS flow control, but could not be set.");
 
-	if (options&PO_DtrDsrFlowControl &&
+	if (options & PO_DtrDsrFlowControl &&
 #ifdef CDTRDSR
-		!(checkCommState.c_cflag&CDTRDSR)
+		!(checkCommState.c_cflag & CDTRDSR)
 #else
 		false
 #endif
-		)
+	)
 		JLALERTG("Requested DTR/DSR flow control, but could not be set.");
 
-	if (options&PO_XonXoffFlowControl && !((checkCommState.c_iflag&(IXON|IXOFF)) == (IXON|IXOFF)))
+	if (options & PO_XonXoffFlowControl && !((checkCommState.c_iflag & (IXON | IXOFF)) == (IXON | IXOFF)))
 		JLALERTG("Requested Xon/Xoff flow control, but could not be set.");
 #endif // JLDEF_BUILD < JLL_ALERT
 
@@ -547,17 +549,13 @@ XsResultValue SerialInterface::open(const XsPortInfo& portInfo,
 	// setting RTS and DTR;
 	int cmbits;
 	if (ioctl(m_handle, TIOCMGET, &cmbits) < 0)
-	{
 		JLDEBUGG("TIOCMGET failed, which is OK for USB connected MkIV devices");
-	}
 
 	// Port Lines Options
 	applyHwControlLinesOptions(options, portInfo.linesOptions(), cmbits);
 
 	if (ioctl(m_handle, TIOCMSET, &cmbits) < 0)
-	{
 		JLDEBUGG("TIOCMSET failed, which is OK for USB connected MkIV devices");
-	}
 #endif // !_WIN32
 
 	JLDEBUGG("Port " << portInfo.portName().toStdString() << " opened");
@@ -581,7 +579,7 @@ XsResultValue SerialInterface::readData(XsFilePos maxLength, XsByteArray& data)
 	DWORD length;
 	data.setSize((XsSize) maxLength);
 	BOOL rres = ::ReadFile(m_handle, data.data(), (DWORD) maxLength, &length, NULL);
-	data.pop_back((XsSize) (maxLength-length));
+	data.pop_back((XsSize)(maxLength - length));
 	JLTRACEG("ReadFile result " << rres << ", length " << length);
 
 	if (!rres)
@@ -606,7 +604,7 @@ XsResultValue SerialInterface::readData(XsFilePos maxLength, XsByteArray& data)
 	FD_SET(m_handle, &fd);
 	FD_SET(m_handle, &err);
 
-	timeout.tv_sec = m_timeout/1000;
+	timeout.tv_sec = m_timeout / 1000;
 	timeout.tv_usec = (m_timeout - (timeout.tv_sec * 1000)) * 1000;
 
 	int res = select(FD_SETSIZE, &fd, NULL, &err, &timeout);
@@ -614,7 +612,9 @@ XsResultValue SerialInterface::readData(XsFilePos maxLength, XsByteArray& data)
 	{
 		data.clear();
 		return (m_lastResult = XRV_ERROR);
-	} else if (res == 0) {
+	}
+	else if (res == 0)
+	{
 		data.clear();
 		return (m_lastResult = XRV_TIMEOUT);
 	}
@@ -622,9 +622,7 @@ XsResultValue SerialInterface::readData(XsFilePos maxLength, XsByteArray& data)
 	data.setSize(maxLength);
 	int length = read(m_handle, (void*)data.data(), maxLength);
 	if (length > 0)
-	{
 		data.pop_back(maxLength - length);
-	}
 	else
 	{
 		int err = errno;
@@ -632,17 +630,17 @@ XsResultValue SerialInterface::readData(XsFilePos maxLength, XsByteArray& data)
 		data.clear();
 		switch (err)
 		{
-		case EAGAIN:
+			case EAGAIN:
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
-		case EWOULDBLOCK:
+			case EWOULDBLOCK:
 #endif
-			return XRV_TIMEOUT;
+				return XRV_TIMEOUT;
 
-		case EIO:
-			return XRV_UNEXPECTED_DISCONNECT;
+			case EIO:
+				return XRV_UNEXPECTED_DISCONNECT;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 #if defined(JLDEF_BUILD) && JLDEF_BUILD <= JLL_TRACE && !defined(ANDROID)
@@ -670,7 +668,7 @@ XsResultValue SerialInterface::readData(XsFilePos maxLength, XsByteArray& data)
 #ifdef _WIN32
 			sprintf(fname, "rx_%03d_%d.log", (int32_t) m_port, m_baudrate);
 #else
-			char *devname = strrchr(m_portname, '/');
+			char* devname = strrchr(m_portname, '/');
 			sprintf(fname, "rx_%s_%d.log", devname + 1, XsBaud::rateToNumeric(m_baudrate));
 #endif
 			makeFilenameUnique(fname, state);
@@ -696,7 +694,7 @@ XsResultValue SerialInterface::readData(XsFilePos maxLength, XsByteArray& data)
 	\param ms The new timeout in milliseconds
 	\returns XRV_OK if the function succeeded
 */
-XsResultValue SerialInterface::setTimeout (const uint32_t ms)
+XsResultValue SerialInterface::setTimeout(const uint32_t ms)
 {
 	JLDEBUGG("Setting timeout to " << ms << " ms");
 
@@ -705,7 +703,7 @@ XsResultValue SerialInterface::setTimeout (const uint32_t ms)
 	// Set COM timeouts
 	COMMTIMEOUTS commTimeouts;
 
-	if (!GetCommTimeouts(m_handle,&commTimeouts))	// Fill CommTimeouts structure
+	if (!GetCommTimeouts(m_handle, &commTimeouts))	// Fill CommTimeouts structure
 		return m_lastResult = XRV_ERROR;
 
 	// immediate return if data is available, wait 1ms otherwise
@@ -719,7 +717,7 @@ XsResultValue SerialInterface::setTimeout (const uint32_t ms)
 	}
 	else
 	{
-	// immediate return whether data is available or not
+		// immediate return whether data is available or not
 		commTimeouts.ReadIntervalTimeout = MAXDWORD;
 		commTimeouts.ReadTotalTimeoutConstant = 0;
 		commTimeouts.ReadTotalTimeoutMultiplier = 0;
@@ -732,11 +730,11 @@ XsResultValue SerialInterface::setTimeout (const uint32_t ms)
 #else
 	// Timeout 0.1 sec for first byte, read minimum of 0 bytes
 	m_commState.c_cc[VMIN]     = 0;
-	m_commState.c_cc[VTIME]    = (m_timeout+99)/100;		// ds time
+	m_commState.c_cc[VTIME]    = (m_timeout + 99) / 100;		// ds time
 
 	// Set the new options for the port if it is open
 	if (isOpen())
-		tcsetattr(m_handle,TCSANOW, &m_commState);
+		tcsetattr(m_handle, TCSANOW, &m_commState);
 #endif
 	return (m_lastResult = XRV_OK);
 }
@@ -760,7 +758,7 @@ XsResultValue SerialInterface::waitForData(XsFilePos maxLength, XsByteArray& dat
 	uint32_t timeout = m_timeout;
 
 	uint32_t eTime = XsTime_getTimeOfDay(NULL, NULL) + timeout;
-//	uint32_t newLength = 0;
+	//	uint32_t newLength = 0;
 
 	while (((XsFilePos) data.size() < maxLength) && (XsTime_getTimeOfDay(NULL, NULL) <= eTime))
 	{
@@ -812,18 +810,18 @@ XsResultValue SerialInterface::writeData(const XsByteArray& data, XsFilePos* wri
 		*written = 0;
 		switch (err)
 		{
-		case EAGAIN:
+			case EAGAIN:
 #if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
-		case EWOULDBLOCK:
+			case EWOULDBLOCK:
 #endif
-			return XRV_TIMEOUT;
+				return XRV_TIMEOUT;
 
-		case EIO:
-			return XRV_UNEXPECTED_DISCONNECT;
+			case EIO:
+				return XRV_UNEXPECTED_DISCONNECT;
 
-		/* we don't expect any other errors to actually occur */
-		default:
-			break;
+			/* we don't expect any other errors to actually occur */
+			default:
+				break;
 		}
 	}
 
@@ -843,8 +841,8 @@ XsResultValue SerialInterface::writeData(const XsByteArray& data, XsFilePos* wri
 #ifdef _WIN32
 			sprintf(fname, "tx_%03d_%d.log", (int32_t) m_port, m_baudrate);
 #else
-			char *devname = strrchr(m_portname, '/');
-			sprintf(fname,"tx_%s_%d.log", devname + 1, XsBaud::rateToNumeric(m_baudrate));
+			char* devname = strrchr(m_portname, '/');
+			sprintf(fname, "tx_%s_%d.log", devname + 1, XsBaud::rateToNumeric(m_baudrate));
 #endif
 			makeFilenameUnique(fname, state);
 
@@ -864,8 +862,8 @@ XsResultValue SerialInterface::writeData(const XsByteArray& data, XsFilePos* wri
 void SerialInterface::cancelIo() const
 {
 #ifdef _WIN32
-	/* This function is only available on Windows Vista and higher.
-	   When a read action hangs, this function can cancel IO operations from another thread.
+	/*  This function is only available on Windows Vista and higher.
+	    When a read action hangs, this function can cancel IO operations from another thread.
 	*/
 	//CancelIoEx(m_handle, NULL);
 #endif
@@ -901,7 +899,7 @@ void SerialInterface::applyHwControlLinesOptions(PortOptions options, int portLi
 #ifdef _WIN32
 
 	// DTR Line Options
-	if (!(options&PO_DtrDsrFlowControl))
+	if (!(options & PO_DtrDsrFlowControl))
 	{
 		// Flow Control is disabled
 		if ((pLinesOpts == XPLO_Invalid) || (pLinesOpts & XPLO_DTR_Ignore))
@@ -937,7 +935,7 @@ void SerialInterface::applyHwControlLinesOptions(PortOptions options, int portLi
 	}
 
 	// RTS Line Options
-	if (!(options&PO_RtsCtsFlowControl))
+	if (!(options & PO_RtsCtsFlowControl))
 	{
 		// Flow Control is disabled
 		if ((pLinesOpts != XPLO_Invalid) && !(pLinesOpts & XPLO_RTS_Ignore))
@@ -967,7 +965,7 @@ void SerialInterface::applyHwControlLinesOptions(PortOptions options, int portLi
 #else
 
 	// DTR Line
-	if (!(options&PO_DtrDsrFlowControl))
+	if (!(options & PO_DtrDsrFlowControl))
 	{
 		// Flow control is disabled
 		if ((pLinesOpts != XPLO_Invalid) && !(pLinesOpts & XPLO_DTR_Ignore))
@@ -986,7 +984,7 @@ void SerialInterface::applyHwControlLinesOptions(PortOptions options, int portLi
 	}
 
 	// RTS Line
-	if (!(options&PO_RtsCtsFlowControl))
+	if (!(options & PO_RtsCtsFlowControl))
 	{
 		if ((pLinesOpts != XPLO_Invalid) && !(pLinesOpts & XPLO_RTS_Ignore))
 		{

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -95,7 +95,7 @@ MessageExtractor::MessageExtractor(std::shared_ptr<IProtocolManager> const& prot
 	\param messages: Newly extracted messages are stored in this vector. This vector will be cleared upon function entry
 	\returns XRV_OK if one or more messages were successfully extracted. Something else if not
 */
-XsResultValue MessageExtractor::processNewData(XsDevice* devicePtr, XsByteArray const& newData, std::deque<XsMessage> &messages)
+XsResultValue MessageExtractor::processNewData(XsDevice* devicePtr, XsByteArray const& newData, std::deque<XsMessage>& messages)
 {
 	if (!m_protocolManager)
 		return XRV_ERROR;
@@ -133,7 +133,7 @@ XsResultValue MessageExtractor::processNewData(XsDevice* devicePtr, XsByteArray 
 
 		if (location.isValid())
 		{
-			XsByteArray detectedMessage(&raw[(XsSize) (ptrdiff_t) location.m_startPos], (XsSize) (ptrdiff_t) location.m_size, XSDF_None);
+			XsByteArray detectedMessage(&raw[(XsSize)(ptrdiff_t) location.m_startPos], (XsSize)(ptrdiff_t) location.m_size, XSDF_None);
 			if (devicePtr != nullptr)
 				devicePtr->onMessageDetected2(type, detectedMessage);
 
@@ -157,7 +157,7 @@ XsResultValue MessageExtractor::processNewData(XsDevice* devicePtr, XsByteArray 
 							if (location.m_incompletePos > 0)
 							{
 								JLALERTG("Skipping " << location.m_incompletePos << " bytes from the input buffer");
-								popped += (XsSize) (ptrdiff_t) location.m_incompletePos;
+								popped += (XsSize)(ptrdiff_t) location.m_incompletePos;
 							}
 
 							return retval();
@@ -190,21 +190,19 @@ XsResultValue MessageExtractor::processNewData(XsDevice* devicePtr, XsByteArray 
 				}
 
 				// message is valid, remove data from cache
-				popped += (XsSize) (ptrdiff_t) (location.m_size + location.m_startPos);
+				popped += (XsSize)(ptrdiff_t)(location.m_size + location.m_startPos);
 				messages.push_back(message);
 			}
 			else
 			{
 				if (type == XPT_Nmea)
-					popped += (XsSize) (ptrdiff_t) (location.m_size + location.m_startPos);
+					popped += (XsSize)(ptrdiff_t)(location.m_size + location.m_startPos);
 				else
 					return retval();
 			}
 		}
 		else
-		{
 			return retval();
-		}
 	}
 }
 

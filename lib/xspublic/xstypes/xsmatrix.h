@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -102,10 +102,11 @@ XSTYPES_DLL_API void XsMatrix_swap(XsMatrix* a, XsMatrix* b);
 } // extern "C"
 #endif
 #ifndef XSENS_NO_PACK
-#pragma pack(push, 1)
+	#pragma pack(push, 1)
 #endif
-struct XsMatrix {
-XSCPPPROTECTED
+struct XsMatrix
+{
+	XSCPPPROTECTED
 	XsReal* const m_data;		//!< Contained data
 	const XsSize m_rows;		//!< Number of rows in the matrix
 	const XsSize m_cols;		//!< Number of columns in the matrix
@@ -113,8 +114,16 @@ XSCPPPROTECTED
 	const XsSize m_flags;			//!< Flags for data management
 
 #ifdef __cplusplus
+
+#ifdef __ICCARM__
+#pragma diag_suppress=Pa039
+#endif
+
 	//! \brief Return the data management flags of the matrix.
-	inline XsSize flags() const { return m_flags; }
+	inline XsSize flags() const
+	{
+		return m_flags;
+	}
 public:
 	/*! \brief Initialize an XsMatrix object with the specified number of \a rows and \a cols */
 	inline explicit XsMatrix(XsSize rows = 0, XsSize cols = 0, XsSize strde = 0, const XsReal* dat = 0)
@@ -125,7 +134,7 @@ public:
 		, m_flags(0)
 	{
 		if (rows && cols)
-			XsMatrix_construct(this, rows, cols, strde?strde:cols, dat, 0);
+			XsMatrix_construct(this, rows, cols, strde ? strde : cols, dat, 0);
 	}
 
 	/*! \brief Initialize an XsMatrix object from the \a other XsMatrix */
@@ -139,7 +148,7 @@ public:
 		XsMatrix_copy(this, &other);
 	}
 
-#if !defined(SWIG) && !defined(__ADSP21000__)
+#if !defined(SWIG) && !defined(__ADSP21000__) && !defined(__AVR32__)
 	/*! \brief Move-construct an XsMatrix object from the \a other XsMatrix */
 	inline XsMatrix(XsMatrix&& other)
 		: m_data(0)
@@ -338,23 +347,28 @@ public:
 	{
 		XsMatrix_swap(this, &b);
 	}
-	
+
 	/*! \brief swaps the contents \a first with that of \a second */
-	friend void swap(XsMatrix& first, XsMatrix& second) 
-	{ 
+	friend void swap(XsMatrix& first, XsMatrix& second)
+	{
 		first.swap(second);
 	}
+
+#ifdef __ICCARM__
+#pragma diag_default=Pa039
+#endif
+
 #endif
 };
 #ifndef XSENS_NO_PACK
-#pragma pack(pop)
+	#pragma pack(pop)
 #endif
 
 #ifdef __cplusplus
 //! \brief Multiplies all values in the matrix \a m by \a scalar
-inline XsMatrix operator *(XsReal scalar, const XsMatrix &m)
+inline XsMatrix operator *(XsReal scalar, const XsMatrix& m)
 {
-	return (m*scalar);
+	return (m * scalar);
 }
 #endif
 

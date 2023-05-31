@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -76,6 +76,7 @@
 #include "mti3x0device.h"
 #include "mti6x0device.h"
 #include "mti8x0device.h"
+#include "dotdevice.h"
 
 /*! \class DeviceFactory
 	\brief A Factory for the devices
@@ -147,14 +148,14 @@ XsDevice* DeviceFactory::constructDevice(DeviceTypeId deviceTypeId, Communicator
 	return device;
 }
 
-	/*! \brief Creates and initializes a master device with a specified communicator.
-		The type of the new device is retrieved from the device id if the communicator.
-		After construction the device will be initialized.
-		\param[in] communicator The communicator, the function always takes ownership of this pointer
-		\param[in] doInitialize If false, the device will not be initialized
-		\returns the newly created device or null when the device was not created or could not be initialized
-		\note the initializeDevice method should be overridden in derived classes.
-		\note when a created device can not be initialized, it will be deleted again along with the supplied communicator
+/*! \brief Creates and initializes a master device with a specified communicator.
+	The type of the new device is retrieved from the device id if the communicator.
+	After construction the device will be initialized.
+	\param[in] communicator The communicator, the function always takes ownership of this pointer
+	\param[in] doInitialize If false, the device will not be initialized
+	\returns the newly created device or null when the device was not created or could not be initialized
+	\note the initializeDevice method should be overridden in derived classes.
+	\note when a created device can not be initialized, it will be deleted again along with the supplied communicator
 */
 XsDevice* DeviceFactory::createMasterDevice(Communicator* communicator, bool doInitialize)
 {
@@ -167,7 +168,7 @@ XsDevice* DeviceFactory::createMasterDevice(Communicator* communicator, bool doI
 		{
 #ifndef XSENS_DEBUG
 			// this is support debug info, we don't want to spam the debugger windows
-			JLWRITEG("Created master device with id: " << constructedDevice->deviceId() << " and firmware version: "<< constructedDevice->firmwareVersion().toString());
+			JLWRITEG("Created master device with id: " << constructedDevice->deviceId() << " and firmware version: " << constructedDevice->firmwareVersion().toString());
 #endif
 			return constructedDevice;
 		}
@@ -185,18 +186,28 @@ XsDevice* DeviceFactory::createMasterDevice(Communicator* communicator, bool doI
 	\param[in] deviceId the deviceId
 	\returns the DeviceTypeId
 */
-DeviceFactory::DeviceTypeId DeviceFactory::deviceToTypeId(XsDeviceId const & deviceId) const
+DeviceFactory::DeviceTypeId DeviceFactory::deviceToTypeId(XsDeviceId const& deviceId) const
 {
 	if (deviceId.isMti() || deviceId.isMtig())
 	{
-		if (deviceId.isMtig()) return DeviceType::MTIG;
-		if (deviceId.isMtiX00()) return DeviceType::MTI_X00;
-		if (deviceId.isMtiX0()) return DeviceType::MTI_X0;
-		if (deviceId.isMtiX() && deviceId.isGnss()) return DeviceType::MTI_7;
-		if (deviceId.isMtiX()) return DeviceType::MTI_X;
-		if (deviceId.isMti3X0()) return DeviceType::MTI_3X0;
-		if (deviceId.isMti6X0()) return DeviceType::MTI_6X0;
-		if (deviceId.isMti8X0()) return DeviceType::MTI_8X0;
+		if (deviceId.isMtig())
+			return DeviceType::MTIG;
+		if (deviceId.isMtiX00())
+			return DeviceType::MTI_X00;
+		if (deviceId.isMtiX0())
+			return DeviceType::MTI_X0;
+		if (deviceId.isMtiX() && deviceId.isGnss())
+			return DeviceType::MTI_7;
+		if (deviceId.isMtiX())
+			return DeviceType::MTI_X;
+		if (deviceId.isMti3X0())
+			return DeviceType::MTI_3X0;
+		if (deviceId.isMti6X0())
+			return DeviceType::MTI_6X0;
+		if (deviceId.isMti8X0())
+			return DeviceType::MTI_8X0;
+		if (deviceId.isDot())
+			return DeviceType::DOT;
 	}
 
 	return DeviceType::INVALID;
@@ -204,7 +215,7 @@ DeviceFactory::DeviceTypeId DeviceFactory::deviceToTypeId(XsDeviceId const & dev
 
 /*! \brief Tell our device manager to remove any devices matching \a deviceId
 */
-void DeviceFactory::removeExistingDevice(const XsDeviceId &deviceId)
+void DeviceFactory::removeExistingDevice(const XsDeviceId& deviceId)
 {
 	(void) deviceId;
 }
@@ -213,7 +224,7 @@ void DeviceFactory::removeExistingDevice(const XsDeviceId &deviceId)
 	Calls initialize(m_loadedScenarioFile) on the device
 	\param[in] dev The device to initialize.
 	\returns true if initialization is successful.
-	*/
+*/
 bool DeviceFactory::initializeDevice(XsDevice* dev) const
 {
 	if (dev && dev->initialize())
@@ -242,4 +253,5 @@ void DeviceFactory::registerDevices()
 	(void)registerStandaloneDeviceType(DeviceType::MTI_3X0,			&Mti3X0Device::constructStandalone);
 	(void)registerStandaloneDeviceType(DeviceType::MTI_6X0,			&Mti6X0Device::constructStandalone);
 	(void)registerStandaloneDeviceType(DeviceType::MTI_8X0,			&Mti8X0Device::constructStandalone);
+	(void)registerStandaloneDeviceType(DeviceType::DOT, 			&DotDevice::constructStandalone);
 }

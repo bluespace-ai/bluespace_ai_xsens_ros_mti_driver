@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -65,11 +65,14 @@
 #ifndef XPRINTF_H
 #define XPRINTF_H
 
-#include <string>
+#ifdef __cplusplus
+	#include <string>
 
-std::string _xprintf_b(std::string const& fmt_str, int bSize, ...);
-// We use 65500 instead of 65536 to prevent heap fragmentation. There should now be space around the block for
-// heap management data.
-#define xprintf(fmt_str, ...) _xprintf_b(fmt_str, 65500, ##__VA_ARGS__)
+	std::string _xprintf_b(char const* fmt_str, int marker, ...);
+	std::string _xprintf_b(std::string const& fmt_str, int marker, ...);
+
+	#define xprintf(fmt_str, ...) _xprintf_b(fmt_str, 0, ##__VA_ARGS__)
+
+#endif
 
 #endif

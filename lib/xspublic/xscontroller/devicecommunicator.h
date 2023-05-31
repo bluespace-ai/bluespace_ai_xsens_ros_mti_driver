@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,7 +69,7 @@
 #include "messageextractor.h"
 
 #ifdef LOG_COMMUNICATOR_RX_TX
-#include <xstypes/xsfile.h>
+	#include <xstypes/xsfile.h>
 #endif
 
 
@@ -88,14 +88,17 @@ public:
 	XsResultValue gotoMeasurement() override;
 
 	//! \returns The timeout value for gotoConfig function
-	uint32_t gotoConfigTimeout() const { return m_gotoConfigTimeout; }
+	uint32_t gotoConfigTimeout() const
+	{
+		return m_gotoConfigTimeout;
+	}
 	void setGotoConfigTimeout(uint32_t timeout) override;
-	bool writeMessage(const XsMessage &message) override;
+	bool writeMessage(const XsMessage& message) override;
 
-	void handleMessage(const XsMessage &message) override;
+	void handleMessage(const XsMessage& message) override;
 
 	using Communicator::doTransaction;
-	virtual bool doTransaction(const XsMessage &msg, XsMessage &rcv, uint32_t timeout) override;
+	virtual bool doTransaction(const XsMessage& msg, XsMessage& rcv, uint32_t timeout) override;
 
 	void setKeepAlive(bool enable) override;
 
@@ -106,7 +109,7 @@ public:
 	std::deque<XsMessage> readMessagesFromStartOfFile(uint8_t msgId, int maxMsgs = 0) override;
 	void loadLogFile(XsDevice* device) override;
 	void abortLoadLogFile() override;
-	bool openLogFile(const XsString &filename) override;
+	bool openLogFile(const XsString& filename) override;
 	XsString logFileName() const override;
 	XsFilePos logFileSize() const override;
 	XsTimeStamp logFileDate() const override;
@@ -128,14 +131,15 @@ public:
 
 protected:
 	~DeviceCommunicator() override;
-	XsResultValue extractMessages(const XsByteArray &rawIn, std::deque<XsMessage> &messages, RxChannelId channel = 0);
+	XsResultValue extractMessages(const XsByteArray& rawIn, std::deque<XsMessage>& messages, RxChannelId channel = 0);
 
 	/*! \brief Writes a raw data to a device
 		\param data The raw data to write
 		\return XRV_OK if successful
 	*/
-	virtual XsResultValue writeRawData(const XsByteArray &data) = 0;
+	virtual XsResultValue writeRawData(const XsByteArray& data) = 0;
 	RxChannelId addRxChannel();
+	XsSize messageExtractorCount() const;
 	MessageExtractor& messageExtractor(RxChannelId = 0);
 
 #ifdef LOG_COMMUNICATOR_RX_TX

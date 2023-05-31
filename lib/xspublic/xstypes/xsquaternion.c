@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -122,8 +122,8 @@ void XsQuaternion_inverse(const XsQuaternion* thisPtr, XsQuaternion* dest)
 */
 XsReal XsQuaternion_normalized(const XsQuaternion* thisPtr, XsQuaternion* dest)
 {
-	XsReal divisor, length = sqrt(thisPtr->m_w*thisPtr->m_w + thisPtr->m_x*thisPtr->m_x + thisPtr->m_y*thisPtr->m_y + thisPtr->m_z*thisPtr->m_z);
-	divisor = XsMath_one/length;
+	XsReal divisor, length = sqrt(thisPtr->m_w * thisPtr->m_w + thisPtr->m_x * thisPtr->m_x + thisPtr->m_y * thisPtr->m_y + thisPtr->m_z * thisPtr->m_z);
+	divisor = XsMath_one / length;
 	if (thisPtr->m_w < 0)
 		divisor = -divisor;
 
@@ -178,13 +178,13 @@ void XsQuaternion_fromRotationMatrix(XsQuaternion* thisPtr, const XsMatrix* ori)
 	XsReal trace;	// Trace of matrix
 	XsReal s;
 
-	if (!XsMatrix_dimensionsMatch(ori, 3,3))
+	if (!XsMatrix_dimensionsMatch(ori, 3, 3))
 	{
 		XsQuaternion_destruct(thisPtr);
 		return;
 	}
 
-//	XsQuaternion result;
+	//	XsQuaternion result;
 
 	// Calculate trace of matrix
 	// T = 4 - 4x^2 - 4y^2 - 4z^2
@@ -199,12 +199,12 @@ void XsQuaternion_fromRotationMatrix(XsQuaternion* thisPtr, const XsMatrix* ori)
 	// Test if (T > 0.0000001) to avoid large distortions!
 	// If the trace of the matrix is equal to zero, then identify
 	// which major diagonal element has the greatest value
-	if (trace*trace >= XsMath_tinyValue)
+	if (trace * trace >= XsMath_tinyValue)
 	{
 		s = XsMath_two * sqrt(trace);
 		thisPtr->m_w = XsMath_pt25 * s;
 
-		s = XsMath_one/s;
+		s = XsMath_one / s;
 		thisPtr->m_x = (XsMatrix_value(ori, 1, 2) - XsMatrix_value(ori, 2, 1)) * s;
 		thisPtr->m_y = (XsMatrix_value(ori, 2, 0) - XsMatrix_value(ori, 0, 2)) * s;
 		thisPtr->m_z = (XsMatrix_value(ori, 0, 1) - XsMatrix_value(ori, 1, 0)) * s;
@@ -215,7 +215,7 @@ void XsQuaternion_fromRotationMatrix(XsQuaternion* thisPtr, const XsMatrix* ori)
 		s = XsMath_two * sqrt(trace);
 		thisPtr->m_x = XsMath_pt25 * s;
 
-		s = XsMath_one/s;
+		s = XsMath_one / s;
 		thisPtr->m_w = (XsMatrix_value(ori, 1, 2) - XsMatrix_value(ori, 2, 1)) * s;
 		thisPtr->m_y = (XsMatrix_value(ori, 0, 1) + XsMatrix_value(ori, 1, 0)) * s;
 		thisPtr->m_z = (XsMatrix_value(ori, 2, 0) + XsMatrix_value(ori, 0, 2)) * s;
@@ -226,7 +226,7 @@ void XsQuaternion_fromRotationMatrix(XsQuaternion* thisPtr, const XsMatrix* ori)
 		s = XsMath_two * sqrt(trace);
 		thisPtr->m_y = XsMath_pt25 * s;
 
-		s = XsMath_one/s;
+		s = XsMath_one / s;
 		thisPtr->m_w = (XsMatrix_value(ori, 2, 0) - XsMatrix_value(ori, 0, 2)) * s;
 		thisPtr->m_x = (XsMatrix_value(ori, 0, 1) + XsMatrix_value(ori, 1, 0)) * s;
 		thisPtr->m_z = (XsMatrix_value(ori, 1, 2) + XsMatrix_value(ori, 2, 1)) * s;
@@ -237,7 +237,7 @@ void XsQuaternion_fromRotationMatrix(XsQuaternion* thisPtr, const XsMatrix* ori)
 		s = XsMath_two * sqrt(trace);
 		thisPtr->m_z = XsMath_pt25 * s;
 
-		s = XsMath_one/s;
+		s = XsMath_one / s;
 		thisPtr->m_w = (XsMatrix_value(ori, 0, 1) - XsMatrix_value(ori, 1, 0)) * s;
 		thisPtr->m_x = (XsMatrix_value(ori, 2, 0) + XsMatrix_value(ori, 0, 2)) * s;
 		thisPtr->m_y = (XsMatrix_value(ori, 1, 2) + XsMatrix_value(ori, 2, 1)) * s;
@@ -343,9 +343,9 @@ int XsQuaternion_compare(XsQuaternion const* thisPtr, XsQuaternion const* other,
 XsReal XsQuaternion_dotProduct(XsQuaternion const* thisPtr, XsQuaternion const* other)
 {
 	return	(thisPtr->m_w * other->m_w) +
-			(thisPtr->m_x * other->m_x) +
-			(thisPtr->m_y * other->m_y) +
-			(thisPtr->m_z * other->m_z);
+		(thisPtr->m_x * other->m_x) +
+		(thisPtr->m_y * other->m_y) +
+		(thisPtr->m_z * other->m_z);
 }
 
 /*! @} */

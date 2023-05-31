@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -82,21 +82,21 @@ public:
 	typedef unsigned int DeviceTypeId;
 
 	//! \brief A function prototype that provides the device factory and communicator
-	typedef XsDevice* (*MasterConstructFunc)(DeviceFactory & deviceFactory, Communicator* comm);
+	typedef XsDevice* (*MasterConstructFunc)(DeviceFactory& deviceFactory, Communicator* comm);
 
 	//! \brief A function prototype that provides the communicator
 	typedef XsDevice* (*StandaloneConstructFunc)(Communicator* comm);
 
 	virtual XsDevice* createMasterDevice(Communicator* communicator, bool doInitialize = true);
 
-	virtual DeviceTypeId deviceToTypeId(XsDeviceId const & deviceId) const;
+	virtual DeviceTypeId deviceToTypeId(XsDeviceId const& deviceId) const;
 
 	bool registerStandaloneDeviceType(DeviceTypeId deviceTypeId, StandaloneConstructFunc constructFunc);
 	bool registerMasterDeviceType(DeviceTypeId deviceTypeId, MasterConstructFunc constructFunc);
 
 	bool initializeDevice(XsDevice& device) const;
 
-	virtual void removeExistingDevice(XsDeviceId const & deviceId);
+	virtual void removeExistingDevice(XsDeviceId const& deviceId);
 	virtual void registerDevices();
 
 protected:
@@ -109,7 +109,8 @@ private:
 	std::map<DeviceTypeId, StandaloneConstructFunc> m_standaloneConstructors;
 };
 
-namespace DeviceType {
-	static const DeviceFactory::DeviceTypeId INVALID = 0;
+namespace DeviceType
+{
+static const DeviceFactory::DeviceTypeId INVALID = 0;
 }
 #endif

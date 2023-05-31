@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -178,13 +178,13 @@ enum XsDataIdentifier
 	XDI_RetransmissionFlag		= 0x0001,	//!< Bit indicating if the snapshot if from a retransmission
 	XDI_AwindaSnapshot			= 0xC810,	//!< Awinda type snapshot
 	XDI_FullSnapshot			= 0xC820,	//!< Full snapshot
-	XDI_GloveSnapshotLeft		= 0xC830, 	//!< Glove Snapshot for Left Hand
-	XDI_GloveSnapshotRight		= 0xC840, 	//!< Glove Snapshot for Right Hand
+	XDI_GloveSnapshotLeft		= 0xC830,	//!< Glove Snapshot for Left Hand
+	XDI_GloveSnapshotRight		= 0xC840,	//!< Glove Snapshot for Right Hand
 
 	// The numbers of the GloveData items should match the GloveSnapshot items, but in the CA range
 	XDI_GloveDataGroup			= 0xCA00,	//!< Group for usable glove data
-	XDI_GloveDataLeft			= 0xCA30, 	//!< Glove Data for Left Hand
-	XDI_GloveDataRight			= 0xCA40, 	//!< Glove Data for Right Hand
+	XDI_GloveDataLeft			= 0xCA30,	//!< Glove Data for Left Hand
+	XDI_GloveDataRight			= 0xCA40,	//!< Glove Data for Right Hand
 
 	XDI_VelocityGroup			= 0xD000,	//!< Group for velocity related outputs
 	XDI_VelocityXYZ				= 0xD010,	//!< Velocity in XYZ coordinate frame
@@ -204,15 +204,15 @@ typedef enum XsDataIdentifier XsDataIdentifier;
 #ifdef __cplusplus
 inline XsDataIdentifier operator | (XsDataIdentifier a, XsDataIdentifier b)
 {
-	return (XsDataIdentifier) ((int) a | (int) b);
+	return (XsDataIdentifier)((int) a | (int) b);
 }
 
 inline XsDataIdentifier operator & (XsDataIdentifier a, XsDataIdentifier b)
 {
-	return (XsDataIdentifier) ((int) a & (int) b);
+	return (XsDataIdentifier)((int) a & (int) b);
 }
 
-inline XsDataIdentifier operator ~ (XsDataIdentifier a)
+inline XsDataIdentifier operator ~(XsDataIdentifier a)
 {
 	return (XsDataIdentifier) ~((unsigned short)a);
 }

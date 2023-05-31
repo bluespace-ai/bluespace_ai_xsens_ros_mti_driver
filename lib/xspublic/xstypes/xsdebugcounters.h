@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -96,23 +96,68 @@ extern int XsArray_incFreeCount(void);
 
 #else
 
-inline static int XsVector_resetDebugCounts(void)	{ return 0; }
-inline static int XsVector_allocCount(void)			{ return 0; }
-inline static int XsVector_freeCount(void)			{ return 0; }
-inline static int XsVector_incAllocCount(void)		{ return 0; }
-inline static int XsVector_incFreeCount(void)		{ return 0; }
+inline static int XsVector_resetDebugCounts(void)
+{
+	return 0;
+}
+inline static int XsVector_allocCount(void)
+{
+	return 0;
+}
+inline static int XsVector_freeCount(void)
+{
+	return 0;
+}
+inline static int XsVector_incAllocCount(void)
+{
+	return 0;
+}
+inline static int XsVector_incFreeCount(void)
+{
+	return 0;
+}
 
-inline static int XsMatrix_resetDebugCounts(void)	{ return 0; }
-inline static int XsMatrix_allocCount(void)			{ return 0; }
-inline static int XsMatrix_freeCount(void)			{ return 0; }
-inline static int XsMatrix_incAllocCount(void)		{ return 0; }
-inline static int XsMatrix_incFreeCount(void)		{ return 0; }
+inline static int XsMatrix_resetDebugCounts(void)
+{
+	return 0;
+}
+inline static int XsMatrix_allocCount(void)
+{
+	return 0;
+}
+inline static int XsMatrix_freeCount(void)
+{
+	return 0;
+}
+inline static int XsMatrix_incAllocCount(void)
+{
+	return 0;
+}
+inline static int XsMatrix_incFreeCount(void)
+{
+	return 0;
+}
 
-inline static int XsArray_resetDebugCounts(void)	{ return 0; }
-inline static int XsArray_allocCount(void)			{ return 0; }
-inline static int XsArray_freeCount(void)			{ return 0; }
-inline static int XsArray_incAllocCount(void)		{ return 0; }
-inline static int XsArray_incFreeCount(void)		{ return 0; }
+inline static int XsArray_resetDebugCounts(void)
+{
+	return 0;
+}
+inline static int XsArray_allocCount(void)
+{
+	return 0;
+}
+inline static int XsArray_freeCount(void)
+{
+	return 0;
+}
+inline static int XsArray_incAllocCount(void)
+{
+	return 0;
+}
+inline static int XsArray_incFreeCount(void)
+{
+	return 0;
+}
 
 #endif
 

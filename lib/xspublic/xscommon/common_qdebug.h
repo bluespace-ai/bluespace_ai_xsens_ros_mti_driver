@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -66,29 +66,29 @@
 #define COMMON_QDEBUG_H
 
 #ifdef __cplusplus
-#include <QDebug>
+	#include <QDebug>
 
-#define EXT_DEBUG_BODY(msg)  __FILE__ << "(" << __LINE__ << "):" << __FUNCTION__ << msg
+	#define EXT_DEBUG_BODY(msg)  __FILE__ << "(" << __LINE__ << "):" << __FUNCTION__ << msg
 
-#ifdef XSENS_RELEASE
-	#define QTRACE(msg) ((void)0)
-	#define QDEBUG(msg) ((void)0)
-	#define QDEBUG_ACCURATE(msg) ((void)0)
-#else
-//	#ifdef NO_QTRACE
+	#ifdef XSENS_RELEASE
 		#define QTRACE(msg) ((void)0)
-//	#else
-//		#define QTRACE(msg) qDebug() << __FUNCTION__ << msg
-//	#endif
-	#define QDEBUG(msg) qDebug() << __FUNCTION__ << msg
+		#define QDEBUG(msg) ((void)0)
+		#define QDEBUG_ACCURATE(msg) ((void)0)
+	#else
+		//	#ifdef NO_QTRACE
+		#define QTRACE(msg) ((void)0)
+		//	#else
+		//		#define QTRACE(msg) qDebug() << __FUNCTION__ << msg
+		//	#endif
+		#define QDEBUG(msg) qDebug() << __FUNCTION__ << msg
 
-//	#include "xqtime.h"
-//	#define QDEBUG_ACCURATE(msg) qDebug() << xqLogTime() <<  __FUNCTION__ << msg
-#endif // XSENS_RELEASE
+		//	#include "xqtime.h"
+		//	#define QDEBUG_ACCURATE(msg) qDebug() << xqLogTime() <<  __FUNCTION__ << msg
+	#endif // XSENS_RELEASE
 
-#define QWARNING(msg) qWarning() << EXT_DEBUG_BODY(msg)
-#define QCRITICAL(msg) qCritical() << EXT_DEBUG_BODY(msg)
-#define QFATAL(msg) do not use this macro! qFatal has weird side-effects!
+	#define QWARNING(msg) qWarning() << EXT_DEBUG_BODY(msg)
+	#define QCRITICAL(msg) qCritical() << EXT_DEBUG_BODY(msg)
+	#define QFATAL(msg) do not use this macro! qFatal has weird side-effects!
 #endif
 
-#endif	// file guard
+#endif

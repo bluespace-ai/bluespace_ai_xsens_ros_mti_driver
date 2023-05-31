@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -74,7 +74,8 @@
 	\details These values are used by the XsDevice::requestInfo function and
 	XsCallback::onInfoResponse functions.
 */
-enum XsInfoRequest {
+enum XsInfoRequest
+{
 	XIR_BatteryLevel = 0,	//!< Request battery level
 	XIR_GnssSvInfo,		//!< Request Gnss satellite vehicle information
 };

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -83,7 +83,7 @@
 	\param channelLatency The latency of channel
 */
 ProxyCommunicator::ProxyCommunicator(int channelId, uint32_t channelLatency)
-	: m_channelId (channelId)
+	: m_channelId(channelId)
 	, m_channelLatency(channelLatency)
 {
 }
@@ -122,7 +122,7 @@ bool ProxyCommunicator::isPortOpen() const
 	\details If successful information on the connected device is available in the port info \sa portInfo
 	\returns True if successful
 */
-bool ProxyCommunicator::openPort(const XsPortInfo &portInfo, OpenPortStage stage, bool detectRs485)
+bool ProxyCommunicator::openPort(const XsPortInfo& portInfo, OpenPortStage stage, bool detectRs485)
 {
 	auto result = [this]()
 	{
@@ -175,14 +175,14 @@ bool ProxyCommunicator::reopenPort(OpenPortStage stage, bool skipDeviceIdCheck)
 
 /*! \brief Has no effect for the ProxyCommunicator. Always returns false
 */
-bool ProxyCommunicator::isDockedAt(Communicator *) const
+bool ProxyCommunicator::isDockedAt(Communicator*) const
 {
 	return false;
 }
 
 /*! \brief Writes raw data to the communication channel
 */
-XsResultValue ProxyCommunicator::writeRawData(const XsByteArray &data)
+XsResultValue ProxyCommunicator::writeRawData(const XsByteArray& data)
 {
 	onTransmissionRequest(m_channelId, &data);
 	return XRV_OK;
@@ -196,14 +196,14 @@ void ProxyCommunicator::handleReceivedData(const XsByteArray& data)
 }
 
 /*! \brief Write a message and await the reply */
-bool ProxyCommunicator::doTransaction(const XsMessage &msg, XsMessage &rcv, uint32_t timeout)
+bool ProxyCommunicator::doTransaction(const XsMessage& msg, XsMessage& rcv, uint32_t timeout)
 {
 	return SerialCommunicator::doTransaction(msg, rcv, timeout + m_channelLatency);
 }
 
 /*! \brief Has no effect for the ProxyCommunicator
 */
-XsResultValue ProxyCommunicator::readDataToBuffer(XsByteArray& )
+XsResultValue ProxyCommunicator::readDataToBuffer(XsByteArray&)
 {
 	//No action required as data is pushed (no polling required) in the buffer by the handleReceivedData function
 	return XRV_OK;
@@ -211,7 +211,7 @@ XsResultValue ProxyCommunicator::readDataToBuffer(XsByteArray& )
 
 /*! \brief Handles a message received on the communication channel
 */
-void ProxyCommunicator::handleMessage(const XsMessage &msg)
+void ProxyCommunicator::handleMessage(const XsMessage& msg)
 {
 	DeviceCommunicator::handleMessage(msg);
 }

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,32 +68,32 @@
 #include "xsens_math_throw.h"
 
 #ifndef XSENS_MATH_FIRMWARE
-#	ifndef XSENS_EXCEPTION_H
-#		include <xstypes/xsexception.h>
-#	endif
+	#ifndef XSENS_EXCEPTION_H
+		#include <xstypes/xsexception.h>
+	#endif
 #endif
 
 #ifdef XSENS_GENERIC_MATRIX_RANGE_CHECKS
-#	ifdef _MSC_VER
-#		define XSENS_GENERIC_MATRIX_THROW throw(...)
-#	else
-#		define XSENS_GENERIC_MATRIX_THROW
-#	endif
+	#ifdef _MSC_VER
+		#define XSENS_GENERIC_MATRIX_THROW throw(...)
+	#else
+		#define XSENS_GENERIC_MATRIX_THROW
+	#endif
 #else
-#	define XSENS_GENERIC_MATRIX_THROW
+	#define XSENS_GENERIC_MATRIX_THROW
 #endif
 
 #ifndef XSENS_THROW_BAD_ALLOC
-#	ifdef XSENS_NO_EXCEPTIONS
-#		include <assert.h>
-#		define XSENS_THROW_BAD_ALLOC XM_THROW("Bad alloc")
-#	else
-#		define XSENS_THROW_BAD_ALLOC throw std::bad_alloc()
-#	endif
+	#ifdef XSENS_NO_EXCEPTIONS
+		#include <assert.h>
+		#define XSENS_THROW_BAD_ALLOC XM_THROW("Bad alloc")
+	#else
+		#define XSENS_THROW_BAD_ALLOC throw std::bad_alloc()
+	#endif
 #endif
 
 #ifndef _PSTDINT_H_INCLUDED
-#include <xstypes/pstdint.h>
+	#include <xstypes/pstdint.h>
 #endif
 
 #include <stdlib.h>
@@ -102,7 +102,8 @@
 #ifdef __cplusplus
 namespace xsens
 {
-namespace {
+namespace
+{
 /*! \brief Swap the values of two objects of a basic type T through assignment */
 template <typename T>
 inline void swapb(T& a, T& b)
@@ -132,108 +133,118 @@ protected:
 	int m_flags;				//!< Flags for data management.
 
 public:
-		//! Standard constructor, creates a 1x1 matrix.
+	//! Standard constructor, creates a 1x1 matrix.
 	GenericMatrix();
-		//! Construct a matrix with a capacity of at least the given size.
+	//! Construct a matrix with a capacity of at least the given size.
 	explicit GenericMatrix(const uint32_t newRows, const uint32_t newCols, bool zeroValues = true);
-		//! Construct a matrix as a direct copy of another one
+	//! Construct a matrix as a direct copy of another one
 	GenericMatrix(const GenericMatrix<T>& src);
-		//! Construct a matrix as a copy of a raw data buffer
+	//! Construct a matrix as a copy of a raw data buffer
 	explicit GenericMatrix(const uint32_t newRows, const uint32_t newCols, const T* src);
-		//! Construct a matrix using the given buffer, useful when the matrix should be stack allocated.
+	//! Construct a matrix using the given buffer, useful when the matrix should be stack allocated.
 	explicit GenericMatrix(const uint32_t newRows, const uint32_t newCols, T* buffer, XsDataFlags flags);
-		//! Destroy the matrix. This does NOT automatically delete items IN the list.
+	//! Destroy the matrix. This does NOT automatically delete items IN the list.
 	virtual ~GenericMatrix();
 
-		//! Sets the size of the matrix to the new dimensions. The contents should be considered garbage. If zeroValues is set to true a memset 0 is done on the newly created items
+	//! Sets the size of the matrix to the new dimensions. The contents should be considered garbage. If zeroValues is set to true a memset 0 is done on the newly created items
 	void setSize(uint32_t newRows, uint32_t newCols, bool zeroValues = true);
-		//! Retrieves the item at the given row,col. An index beyond the end causes an exception.
+	//! Retrieves the item at the given row,col. An index beyond the end causes an exception.
 	T& get(const uint32_t row, const uint32_t cols) const XSENS_GENERIC_MATRIX_THROW;
-		//! Retrieves a pointer to the first item of the given row. An index beyond the end causes an exception.
-	T* operator [] (const uint32_t row) const XSENS_GENERIC_MATRIX_THROW;
-		//! Returns the number of rows currently in the matrix.
-	uint32_t rows(void) const { return m_rows; }
-		//! Returns the number of cols currently in the matrix.
-	uint32_t cols(void) const { return m_cols; }
-		//! Returns the number of items currently in the matrix.
-	uint32_t count(void) const { return m_rows*m_cols; }
-		//! Returns the number of items currently in the matrix.
-	uint32_t size(void) const { return m_rows*m_cols; }
-		//! Copy a matrix into this one
+	//! Retrieves a pointer to the first item of the given row. An index beyond the end causes an exception.
+	T* operator [](const uint32_t row) const XSENS_GENERIC_MATRIX_THROW;
+	//! Returns the number of rows currently in the matrix.
+	uint32_t rows(void) const
+	{
+		return m_rows;
+	}
+	//! Returns the number of cols currently in the matrix.
+	uint32_t cols(void) const
+	{
+		return m_cols;
+	}
+	//! Returns the number of items currently in the matrix.
+	uint32_t count(void) const
+	{
+		return m_rows * m_cols;
+	}
+	//! Returns the number of items currently in the matrix.
+	uint32_t size(void) const
+	{
+		return m_rows * m_cols;
+	}
+	//! Copy a matrix into this one
 	GenericMatrix<T>& operator = (const GenericMatrix<T>& src);
-		//! Swap a matrix with this one
+	//! Swap a matrix with this one
 	void swap(GenericMatrix<T>& other);
-		//! Swap a matrix with this one
-	friend void swap(GenericMatrix<T>& first, GenericMatrix<T>& second) { first.swap(second); }
-		//! Calls memset 0 on the contents of the matrix
+	//! Swap a matrix with this one
+	friend void swap(GenericMatrix<T>& first, GenericMatrix<T>& second)
+	{
+		first.swap(second);
+	}
+	//! Calls memset 0 on the contents of the matrix
 	void zeroValues();
 };
 
-template <typename T>
-GenericMatrix<T>::GenericMatrix()
+template <typename T> GenericMatrix<T>::GenericMatrix()
 	: m_rows(1)
 	, m_cols(1)
 	, m_flags(XSDF_Managed)
 {
-	m_data = (T*)malloc(m_rows*m_cols * sizeof(T));
+	m_data = (T*)malloc(m_rows * m_cols * sizeof(T));
 
 	if (!m_data)
 		XSENS_THROW_BAD_ALLOC;
 
-	m_allocSize = m_rows*m_cols;
+	m_allocSize = m_rows * m_cols;
 }
 
-template <typename T>
-GenericMatrix<T>::GenericMatrix(uint32_t newRows, uint32_t newCols, bool zeroVals)
+template <typename T> GenericMatrix<T>::GenericMatrix(uint32_t newRows, uint32_t newCols, bool zeroVals)
 	: m_rows(newRows)
 	, m_cols(newCols)
 	, m_flags(XSDF_Managed)
 {
-	m_data = (T*)malloc(sizeof(T) * (size_t)m_rows*m_cols);
+	m_data = (T*)malloc(sizeof(T) * (size_t)m_rows * m_cols);
 
 	if (!m_data)
 		XSENS_THROW_BAD_ALLOC;
 
-	m_allocSize = m_rows*m_cols;
+	m_allocSize = m_rows * m_cols;
 
 	if (zeroVals)
 		zeroValues();
 }
 
-template <typename T>
-GenericMatrix<T>::GenericMatrix(const GenericMatrix<T>& src)
+template <typename T> GenericMatrix<T>::GenericMatrix(const GenericMatrix<T>& src)
 	: m_rows(src.m_rows)
 	, m_cols(src.m_cols)
 	, m_flags(XSDF_Managed)
 {
-	m_data = (T*)malloc(sizeof(T) * (size_t)m_rows*m_cols);
+	m_data = (T*)malloc(sizeof(T) * (size_t)m_rows * m_cols);
 
 	if (!m_data)
 		XSENS_THROW_BAD_ALLOC;
 
-	m_allocSize = m_rows*m_cols;
+	m_allocSize = m_rows * m_cols;
 
-	memcpy(m_data, src.m_data, sizeof(T) * (size_t)m_rows*m_cols);
+	memcpy(m_data, src.m_data, sizeof(T) * (size_t)m_rows * m_cols);
 }
 
-template <typename T>
-GenericMatrix<T>::GenericMatrix(const uint32_t newRows, uint32_t newCols, const T* src)
+template <typename T> GenericMatrix<T>::GenericMatrix(const uint32_t newRows, uint32_t newCols, const T* src)
 	: m_rows(newRows)
 	, m_cols(newCols)
 	, m_flags(XSDF_Managed)
 {
-	m_data = (T*)malloc(sizeof(T) * (size_t)m_rows*m_cols);
+	m_data = (T*)malloc(sizeof(T) * (size_t)m_rows * m_cols);
 
 	if (!m_data)
 		XSENS_THROW_BAD_ALLOC;
 
-	m_allocSize = m_rows*m_cols;
+	m_allocSize = m_rows * m_cols;
 
-	memcpy(m_data, src, sizeof(T) * (size_t)m_rows*m_cols);
+	memcpy(m_data, src, sizeof(T) * (size_t)m_rows * m_cols);
 }
 
-template <typename T>
-GenericMatrix<T>::GenericMatrix(const uint32_t newRows, const uint32_t newCols, T* const buffer, XsDataFlags flags)
+template <typename T> GenericMatrix<T>::GenericMatrix(const uint32_t newRows, const uint32_t newCols, T* const buffer, XsDataFlags flags)
 	: m_rows(newRows)
 	, m_cols(newCols)
 	, m_flags(flags)
@@ -247,19 +258,18 @@ GenericMatrix<T>::GenericMatrix(const uint32_t newRows, const uint32_t newCols, 
 	}
 
 	if (m_flags & XSDF_Managed)
-		m_data = (T*)malloc(sizeof(T) * (size_t)m_rows*m_cols);
+		m_data = (T*)malloc(sizeof(T) * (size_t)m_rows * m_cols);
 
 	if (!m_data)
 		XSENS_THROW_BAD_ALLOC;
 
-	m_allocSize = m_rows*m_cols;
+	m_allocSize = m_rows * m_cols;
 
 	if (m_flags & XSDF_Managed)
-		memcpy(m_data, buffer, sizeof(T) * (size_t)m_rows*m_cols);
+		memcpy(m_data, buffer, sizeof(T) * (size_t)m_rows * m_cols);
 }
 
-template <typename T>
-GenericMatrix<T>::~GenericMatrix()
+template <typename T> GenericMatrix<T>::~GenericMatrix()
 {
 	if (m_flags & XSDF_Managed)
 		free(m_data);
@@ -313,9 +323,9 @@ void GenericMatrix<T>::setSize(uint32_t newRows, uint32_t newCols, bool zeroVals
 
 		if (newSize > 0)
 		{
-			m_data = (T*)malloc(sizeof(T) * (size_t)newRows*newCols);
+			m_data = (T*)malloc(sizeof(T) * (size_t)newRows * newCols);
 			m_flags = XSDF_Managed;
-			m_allocSize = newRows*newCols;
+			m_allocSize = newRows * newCols;
 		}
 	}
 
@@ -323,9 +333,7 @@ void GenericMatrix<T>::setSize(uint32_t newRows, uint32_t newCols, bool zeroVals
 	m_cols = newCols;
 
 	if (!m_data)
-	{
 		XSENS_THROW_BAD_ALLOC;
-	}
 
 	if (zeroVals)
 		zeroValues();
@@ -338,23 +346,23 @@ T& GenericMatrix<T>::get(uint32_t row, uint32_t col) const XSENS_GENERIC_MATRIX_
 	if (row >= m_rows || col >= m_cols)
 		XM_THROW("index out of bounds");
 #endif
-	return m_data[row*m_cols + col];
+	return m_data[row * m_cols + col];
 }
 
 template <typename T>
-T* GenericMatrix<T>::operator [] (const uint32_t row) const XSENS_GENERIC_MATRIX_THROW
+T* GenericMatrix<T>::operator [](const uint32_t row) const XSENS_GENERIC_MATRIX_THROW
 {
 #ifdef XSENS_GENERIC_MATRIX_RANGE_CHECKS
 	if (row >= m_rows)
 		XM_THROW("index out of bounds");
 #endif
-	return &m_data[row*m_cols];
+	return &m_data[row * m_cols];
 }
 
 template <typename T>
 void GenericMatrix<T>::zeroValues()
 {
-	memset(static_cast<void*>(m_data), 0, sizeof(T) * (size_t)m_rows*m_cols);
+	memset(static_cast<void*>(m_data), 0, sizeof(T) * (size_t)m_rows * m_cols);
 }
 
 template <typename T>

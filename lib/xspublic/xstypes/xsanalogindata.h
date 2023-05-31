@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,7 +68,8 @@
 #include "pstdint.h"
 
 /*! \brief Data from analog inputs from sensors. */
-struct XsAnalogInData {
+struct XsAnalogInData
+{
 	uint16_t m_data; /*!< \brief The data */
 #ifdef __cplusplus
 	/*! \brief Construct a nulled analog data item */

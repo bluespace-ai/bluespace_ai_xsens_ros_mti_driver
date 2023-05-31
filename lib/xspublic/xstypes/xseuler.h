@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -89,7 +89,8 @@ XSTYPES_DLL_API void XsEuler_fromQuaternion(struct XsEuler* thisPtr, const struc
 } // extern "C"
 #endif
 
-struct XsEuler {
+struct XsEuler
+{
 #ifdef __cplusplus
 	//! \brief Constructor that creates an Euler object with all angles 0
 	inline XsEuler() : m_x(XsMath_zero), m_y(XsMath_zero), m_z(XsMath_zero) {}
@@ -118,14 +119,14 @@ struct XsEuler {
 	//! \brief Returns the \a index'th euler angle in the object
 	inline XsReal operator[](XsSize index) const
 	{
-		assert (index <= 2);
+		assert(index <= 2);
 		return m_data[index];
 	}
 
 	//! \brief Returns a reference to the \a index'th euler angle in the object
-	inline XsReal &operator[](XsSize index)
+	inline XsReal& operator[](XsSize index)
 	{
-		assert (index <= 2);
+		assert(index <= 2);
 		return m_data[index];
 	}
 
@@ -163,37 +164,58 @@ struct XsEuler {
 	}
 
 	//! \brief Returns the roll or x value
-	inline XsReal roll() const { return m_roll; }
+	inline XsReal roll() const
+	{
+		return m_roll;
+	}
 	//! \brief Returns the pitch or y value
-	inline XsReal pitch() const { return m_pitch; }
+	inline XsReal pitch() const
+	{
+		return m_pitch;
+	}
 	//! \brief Returns the yaw or z value
-	inline XsReal yaw() const { return m_yaw; }
+	inline XsReal yaw() const
+	{
+		return m_yaw;
+	}
 
 	//! \brief Returns the x or roll value
-	inline XsReal x() const { return m_x; }
+	inline XsReal x() const
+	{
+		return m_x;
+	}
 	//! \brief Returns the y or pitch value
-	inline XsReal y() const { return m_y; }
+	inline XsReal y() const
+	{
+		return m_y;
+	}
 	//! \brief Returns the z or yaw value
-	inline XsReal z() const { return m_z; }
+	inline XsReal z() const
+	{
+		return m_z;
+	}
 
 	//! \brief Returns true if the values of this and \a other are within \a tolerance of each other
 	inline bool isEqual(const XsEuler& other, XsReal tolerance) const
 	{
 		return	fabs(m_x - other.m_x) <= tolerance &&
-				fabs(m_y - other.m_y) <= tolerance &&
-				fabs(m_z - other.m_z) <= tolerance;
+			fabs(m_y - other.m_y) <= tolerance &&
+			fabs(m_z - other.m_z) <= tolerance;
 	}
 
 private:
 #endif
 
-	union {
-		struct {
+	union
+	{
+		struct
+		{
 			XsReal m_x;		//!< Stores the x component of the euler triplet
 			XsReal m_y;		//!< Stores the y component of the euler triplet
 			XsReal m_z;		//!< Stores the z component of the euler triplet
 		};
-		struct {
+		struct
+		{
 			XsReal m_roll;		//!< Stores the roll component of the euler triplet
 			XsReal m_pitch;		//!< Stores the pitch component of the euler triplet
 			XsReal m_yaw;		//!< Stores the yaw component of the euler triplet

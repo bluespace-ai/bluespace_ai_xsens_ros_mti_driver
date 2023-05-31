@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -93,7 +93,8 @@ XSTYPES_DLL_API void XsOutputConfiguration_swap(struct XsOutputConfiguration* a,
 	itself to its maximum frequency for the data type. If it is 0xFFFF and reported by the device,
 	the data has no maximum frequency, but is sent along with appropriate packets (ie. packet counter)
 */
-struct XsOutputConfiguration {
+struct XsOutputConfiguration
+{
 	XsDataIdentifier m_dataIdentifier;	//!< The data identifier
 	uint16_t m_frequency;				//!< The frequency
 

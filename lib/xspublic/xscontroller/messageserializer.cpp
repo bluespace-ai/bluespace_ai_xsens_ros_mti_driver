@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -68,6 +68,7 @@
 #include <xstypes/xsoutputconfigurationarray.h>
 #include <xstypes/xscanoutputconfiguration.h>
 #include <xstypes/xscanoutputconfigurationarray.h>
+#include <xstypes/xsdid.h>
 
 
 /*! \class MessageSerializer
@@ -76,9 +77,9 @@
 
 /*!	\brief Default constructor
 */
-MessageSerializer::MessageSerializer(XsMessage &msg, XsSize offset) :
-	m_message(msg),
-	m_index(offset)
+MessageSerializer::MessageSerializer(XsMessage& msg, XsSize offset)
+	: m_message(msg)
+	, m_index(offset)
 {
 
 }
@@ -91,7 +92,7 @@ MessageSerializer::~MessageSerializer()
 	{
 		finalize();
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -100,7 +101,7 @@ MessageSerializer::~MessageSerializer()
 	\param id The data identifier
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(XsDataIdentifier id)
+MessageSerializer& MessageSerializer::operator<<(XsDataIdentifier id)
 {
 	return operator<<((uint16_t)id);
 }
@@ -109,34 +110,37 @@ MessageSerializer &MessageSerializer::operator<<(XsDataIdentifier id)
 	\param id The CAN data identifier
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(XsCanDataIdentifier id)
+MessageSerializer& MessageSerializer::operator<<(XsCanDataIdentifier id)
 {
 	return operator<<((uint8_t)id);
 }
 
 /*! \brief Output stream operator that adds a XsCanIdLenght to the stream
-	\param idl The CAN Id lenght enum value
+	\param idl The CAN Id length enum value
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(XsCanFrameFormat idl)
+MessageSerializer& MessageSerializer::operator<<(XsCanFrameFormat idl)
 {
-	return operator<<((uint8_t)((idl==XCFF_11Bit_Identifier)?0:1));
+	return operator<<((uint8_t)((idl == XCFF_11Bit_Identifier) ? 0 : 1));
 }
 
 /*! \brief Output stream operator that adds a XsDeviceId to the stream
 	\param id The device ID
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(const XsDeviceId &id)
+MessageSerializer& MessageSerializer::operator<<(const XsDeviceId& id)
 {
-	return operator<<(id.legacyDeviceId());
+	operator<<(id.legacyDeviceId());
+	if (!id.isLegacyDeviceId())
+		operator<<((uint32_t)(id.toInt() >> 32));
+	return *this;
 }
 
 /*! \brief Output stream operator that adds a uint8_t to the stream
 	\param value The value to add to the stream
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(uint8_t value)
+MessageSerializer& MessageSerializer::operator<<(uint8_t value)
 {
 	m_message.setDataByte(value, m_index);
 	m_index += sizeof(value);
@@ -147,7 +151,7 @@ MessageSerializer &MessageSerializer::operator<<(uint8_t value)
 	\param value The value to add to the stream
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(uint16_t value)
+MessageSerializer& MessageSerializer::operator<<(uint16_t value)
 {
 	m_message.setDataShort(value, m_index);
 	m_index += sizeof(value);
@@ -158,7 +162,7 @@ MessageSerializer &MessageSerializer::operator<<(uint16_t value)
 	\param value The value to add to the stream
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(uint32_t value)
+MessageSerializer& MessageSerializer::operator<<(uint32_t value)
 {
 	m_message.setDataLong(value, m_index);
 	m_index += sizeof(value);
@@ -169,7 +173,7 @@ MessageSerializer &MessageSerializer::operator<<(uint32_t value)
 	\param value The value to add to the stream
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(uint64_t value)
+MessageSerializer& MessageSerializer::operator<<(uint64_t value)
 {
 	m_message.setDataLongLong(value, m_index);
 	m_index += sizeof(value);
@@ -180,12 +184,12 @@ MessageSerializer &MessageSerializer::operator<<(uint64_t value)
 	\param config The output configuration array
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(const XsOutputConfigurationArray &config)
+MessageSerializer& MessageSerializer::operator<<(const XsOutputConfigurationArray& config)
 {
 	if (config.size() == 0)
 		return (*this << (XsOutputConfiguration(XDI_None, 0)));
 
-	for (auto &cfg : config)
+	for (auto& cfg : config)
 		*this << cfg;
 	return *this;
 }
@@ -194,7 +198,7 @@ MessageSerializer &MessageSerializer::operator<<(const XsOutputConfigurationArra
 	\param cfg The output configuration
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(const XsOutputConfiguration &cfg)
+MessageSerializer& MessageSerializer::operator<<(const XsOutputConfiguration& cfg)
 {
 	return (*this << cfg.m_dataIdentifier << cfg.m_frequency);
 }
@@ -203,12 +207,12 @@ MessageSerializer &MessageSerializer::operator<<(const XsOutputConfiguration &cf
 	\param config The output configuration array
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(const XsCanOutputConfigurationArray &config)
+MessageSerializer& MessageSerializer::operator<<(const XsCanOutputConfigurationArray& config)
 {
 	if (config.size() == 0)
 		return (*this << (XsCanOutputConfiguration(XCFF_11Bit_Identifier, XCDI_Invalid, 0, 0)));
 
-	for (auto &cfg : config)
+	for (auto& cfg : config)
 		*this << cfg;
 	return *this;
 }
@@ -217,7 +221,7 @@ MessageSerializer &MessageSerializer::operator<<(const XsCanOutputConfigurationA
 	\param cfg The output configuration
 	\returns A reference to this object
 */
-MessageSerializer &MessageSerializer::operator<<(const XsCanOutputConfiguration &cfg)
+MessageSerializer& MessageSerializer::operator<<(const XsCanOutputConfiguration& cfg)
 {
 	return (*this << cfg.m_dataIdentifier << cfg.m_frameFormat << cfg.m_id << cfg.m_frequency);
 }
@@ -227,7 +231,7 @@ MessageSerializer &MessageSerializer::operator<<(const XsCanOutputConfiguration 
 	\param data The value to add to the message
 	\param size The size of this value
 */
-void MessageSerializer::append(const uint8_t *data, XsSize size)
+void MessageSerializer::append(const uint8_t* data, XsSize size)
 {
 	m_message.setDataBuffer(data, size, m_index);
 	m_index += size;
@@ -247,11 +251,10 @@ void MessageSerializer::finalize()
 
 /*!	\brief Default constructor
 */
-MessageDeserializer::MessageDeserializer(const XsMessage &msg, XsSize offset) :
-	m_message(msg),
-	m_index(offset)
+MessageDeserializer::MessageDeserializer(const XsMessage& msg, XsSize offset)
+	: m_message(msg)
+	, m_index(offset)
 {
-
 }
 
 /*! \brief Destructor
@@ -264,7 +267,7 @@ MessageDeserializer::~MessageDeserializer()
 	\param value Reference in which the data identifier is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsDataIdentifier &value)
+MessageDeserializer& MessageDeserializer::operator>>(XsDataIdentifier& value)
 {
 	uint16_t v;
 	operator>>(v);
@@ -276,7 +279,7 @@ MessageDeserializer &MessageDeserializer::operator>>(XsDataIdentifier &value)
 	\param value Reference in which the CAN data identifier is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsCanDataIdentifier &value)
+MessageDeserializer& MessageDeserializer::operator>>(XsCanDataIdentifier& value)
 {
 	uint8_t v;
 	operator>>(v);
@@ -288,7 +291,7 @@ MessageDeserializer &MessageDeserializer::operator>>(XsCanDataIdentifier &value)
 	\param value Reference in which the CAN ID length is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsCanFrameFormat &value)
+MessageDeserializer& MessageDeserializer::operator>>(XsCanFrameFormat& value)
 {
 	uint8_t v;
 	operator>>(v);
@@ -300,11 +303,19 @@ MessageDeserializer &MessageDeserializer::operator>>(XsCanFrameFormat &value)
 	\param value Reference in which the device ID is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsDeviceId &value)
+MessageDeserializer& MessageDeserializer::operator>>(XsDeviceId& value)
 {
 	uint32_t v;
 	operator>>(v);
-	value = XsDeviceId(v);
+	if (v & XS_DID64_BIT)
+	{
+		uint32_t u;
+		operator>>(u);
+		uint64_t w = (((uint64_t) u) << 32) | (uint64_t) v;
+		value = XsDeviceId(w);
+	}
+	else
+		value = XsDeviceId(v);
 	return *this;
 }
 
@@ -312,7 +323,7 @@ MessageDeserializer &MessageDeserializer::operator>>(XsDeviceId &value)
 	\param value Reference in which the read value is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(uint8_t &value)
+MessageDeserializer& MessageDeserializer::operator>>(uint8_t& value)
 {
 	value = m_message.getDataByte(m_index);
 	m_index += sizeof(value);
@@ -323,7 +334,7 @@ MessageDeserializer &MessageDeserializer::operator>>(uint8_t &value)
 	\param value Reference in which the read value is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(int8_t &value)
+MessageDeserializer& MessageDeserializer::operator>>(int8_t& value)
 {
 	value = (int8_t)m_message.getDataByte(m_index);
 	m_index += sizeof(value);
@@ -334,7 +345,7 @@ MessageDeserializer &MessageDeserializer::operator>>(int8_t &value)
 	\param value Reference in which the read value is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(uint16_t &value)
+MessageDeserializer& MessageDeserializer::operator>>(uint16_t& value)
 {
 	value = m_message.getDataShort(m_index);
 	m_index += sizeof(value);
@@ -345,7 +356,7 @@ MessageDeserializer &MessageDeserializer::operator>>(uint16_t &value)
 	\param value Reference in which the read value is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(uint32_t &value)
+MessageDeserializer& MessageDeserializer::operator>>(uint32_t& value)
 {
 	value = m_message.getDataLong(m_index);
 	m_index += sizeof(value);
@@ -356,7 +367,7 @@ MessageDeserializer &MessageDeserializer::operator>>(uint32_t &value)
 	\param value Reference in which the read value is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(uint64_t &value)
+MessageDeserializer& MessageDeserializer::operator>>(uint64_t& value)
 {
 	value = m_message.getDataLongLong(m_index);
 	m_index += sizeof(value);
@@ -367,7 +378,7 @@ MessageDeserializer &MessageDeserializer::operator>>(uint64_t &value)
 	\param config Reference in which the output configuration array is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsOutputConfigurationArray &config)
+MessageDeserializer& MessageDeserializer::operator>>(XsOutputConfigurationArray& config)
 {
 	config.clear();
 	while (!atEnd())
@@ -383,7 +394,7 @@ MessageDeserializer &MessageDeserializer::operator>>(XsOutputConfigurationArray 
 	\param cfg Reference in which the output configuration is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsOutputConfiguration &cfg)
+MessageDeserializer& MessageDeserializer::operator>>(XsOutputConfiguration& cfg)
 {
 	return (*this >> cfg.m_dataIdentifier >> cfg.m_frequency);
 }
@@ -392,7 +403,7 @@ MessageDeserializer &MessageDeserializer::operator>>(XsOutputConfiguration &cfg)
 	\param config Reference in which the CAN output configuration array is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsCanOutputConfigurationArray &config)
+MessageDeserializer& MessageDeserializer::operator>>(XsCanOutputConfigurationArray& config)
 {
 	config.clear();
 	while (!atEnd())
@@ -408,7 +419,7 @@ MessageDeserializer &MessageDeserializer::operator>>(XsCanOutputConfigurationArr
 	\param cfg Reference in which the CAN output configuration is stored
 	\returns A reference to this object
 */
-MessageDeserializer &MessageDeserializer::operator>>(XsCanOutputConfiguration &cfg)
+MessageDeserializer& MessageDeserializer::operator>>(XsCanOutputConfiguration& cfg)
 {
 	return (*this >> cfg.m_dataIdentifier >> cfg.m_frameFormat >> cfg.m_id >> cfg.m_frequency);
 }

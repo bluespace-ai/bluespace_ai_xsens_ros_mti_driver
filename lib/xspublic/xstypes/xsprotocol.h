@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,10 +69,12 @@
 	@{
 */
 //! Protocol types, used for MTi6x0 devices.
-enum XsProtocol {
+enum XsProtocol
+{
 	XP_None				= 0,	//!< None
 	XP_Xbus				= 1,	//!< The Xsens Xbus protocol
 	XP_Nmea				= 5,	//!< The NMEA protocol
+	XP_Rtcm				= 6,	//!< RTCM protocol for RTK
 };
 /*! @} */
 typedef enum XsProtocol XsProtocol;

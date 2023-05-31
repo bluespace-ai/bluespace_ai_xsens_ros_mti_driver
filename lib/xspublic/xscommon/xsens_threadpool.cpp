@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -79,7 +79,8 @@
 // Enable this if you want to disable multithreading
 //#define ADD_TASK_EXECUTE_NOW
 
-namespace xsens {
+namespace xsens
+{
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +95,7 @@ int processorCount()
 {
 #if defined(_WIN32)
 	SYSTEM_INFO sysinfo;
-	::GetSystemInfo( &sysinfo );
+	::GetSystemInfo(&sysinfo);
 	return (int) sysinfo.dwNumberOfProcessors;
 #else
 	return sysconf(_SC_NPROCESSORS_ONLN);
@@ -126,7 +127,8 @@ unsigned int ThreadPoolTask::needToWaitFor()
 
 /*! \brief A class that contains a task and some administrative stuff
 */
-class PooledTask {
+class PooledTask
+{
 public:
 	ThreadPoolTask* m_task;		//!< The task that is to be executed
 	unsigned int m_id;			//!< The id that was assigned to the task by the ThreadPool
@@ -223,7 +225,7 @@ protected:
 	unsigned int m_completed;	//!< The number of tasks that this thread has completed so far, excluding incomplete tasks
 	unsigned int m_failed;		//!< The number of tasks that this thread has failed to complete so far due to an exception
 
-	virtual int32_t innerFunction(void);
+	int32_t innerFunction(void) override;
 };
 
 /*! \brief Constructor */
@@ -272,12 +274,12 @@ int32_t PooledThread::innerFunction(void)
 			}
 		}
 #ifdef XSENS_DEBUG
-		catch (std::exception &e)
+		catch (std::exception& e)
 		{
-			const std::type_info &et = typeid(e);
+			const std::type_info& et = typeid(e);
 #ifdef __GNUC__
 			int status;
-			char *realname = abi::__cxa_demangle(et.name(), 0, 0, &status);
+			char* realname = abi::__cxa_demangle(et.name(), 0, 0, &status);
 			fprintf(stderr, "ThreadPool: Caught an unhandled %s(\"%s\")\n", realname, e.what());
 			free(realname);
 #else
@@ -286,7 +288,7 @@ int32_t PooledThread::innerFunction(void)
 			complete = true;
 		}
 #endif
-		catch(...)
+		catch (...)
 		{
 #ifdef XSENS_DEBUG
 			fprintf(stderr, "ThreadPool: Caught an unhandled unknown exception\n");
@@ -382,7 +384,7 @@ ThreadPool::~ThreadPool()
 		for (ThreadSet::iterator it = m_threads.begin(); it != m_threads.end(); ++it)
 			delete *it;
 	}
-	catch(...)
+	catch (...)
 	{
 		// nothing much we can do about this...
 	}
@@ -397,7 +399,7 @@ ThreadPool::~ThreadPool()
 ThreadPool::TaskId ThreadPool::addTask(ThreadPoolTask* task, ThreadPool::TaskId afterId)
 {
 	assert(!m_terminating);
-	std::shared_ptr<PooledTask> tmp(new PooledTask);
+	std::shared_ptr<PooledTask> tmp = std::make_shared<PooledTask>();
 	tmp->m_task = task;
 	Lock safety(&m_safe);
 	tmp->m_id = m_nextId;
@@ -434,7 +436,7 @@ ThreadPool::TaskId ThreadPool::addTask(ThreadPoolTask* task, ThreadPool::TaskId 
 unsigned int ThreadPool::count()
 {
 	Lock safety(&m_safe);
-	return (unsigned int) (m_tasks.size() + m_delaying.size() + m_executing.size());
+	return (unsigned int)(m_tasks.size() + m_delaying.size() + m_executing.size());
 }
 
 /*! \brief Set the number of threads in the ThreadPool
@@ -458,8 +460,13 @@ void ThreadPool::setPoolSize(unsigned int poolsize)
 	{
 		while (poolsize < m_threads.size())
 		{
-			delete *m_threads.begin();
-			m_threads.erase(m_threads.begin());
+			auto it = m_threads.begin();
+			auto thread = *it;
+			safety.unlock();
+			thread->stopThread();
+			safety.lock();
+			delete thread;
+			m_threads.erase(it);
 		}
 	}
 
@@ -509,6 +516,10 @@ std::shared_ptr<PooledTask> ThreadPool::findTask(ThreadPool::TaskId id)
 	if (it != m_tasksSearch.end())
 		return it->second;
 
+	for (auto const& tsk : m_tasks)
+		if (tsk->m_id == id)
+			return tsk;
+
 	return std::shared_ptr<PooledTask>();
 }
 
@@ -532,7 +543,7 @@ bool ThreadPool::doesTaskExist(ThreadPool::TaskId id)
 
 /*! \brief Remove the task with the supplied \a id if it exists, waits for the task to be finished
 */
-void ThreadPool::cancelTask(ThreadPool::TaskId id, bool wait)
+void ThreadPool::cancelTask(ThreadPool::TaskId id, bool wait) noexcept
 {
 	Lock safety(&m_safe);
 	TaskSet::iterator it = m_executing.find(id);
@@ -547,11 +558,27 @@ void ThreadPool::cancelTask(ThreadPool::TaskId id, bool wait)
 
 	it = m_delaying.find(id);
 	if (it != m_delaying.end())
+	{
+		reportTaskComplete(it->second);
 		m_delaying.erase(it);
+	}
 
 	it = m_tasksSearch.find(id);
 	if (it != m_tasksSearch.end())
+	{
+		reportTaskComplete(it->second);
 		m_tasksSearch.erase(it);
+	}
+
+	for (auto tskIt = m_tasks.begin(); tskIt != m_tasks.end(); ++tskIt)
+	{
+		if ((*tskIt)->m_id == id)
+		{
+			reportTaskComplete(*tskIt);
+			m_tasks.erase(tskIt);
+			return;
+		}
+	}
 }
 
 /*! \brief Wait for the task with the given ID to complete
@@ -707,12 +734,20 @@ ThreadPool* gPool = NULL;
 bool gManagePool = true;
 
 /*! \brief Return the global thread pool object, it will be created if it did not yet exist */
-ThreadPool* ThreadPool::instance()
+ThreadPool* ThreadPool::instance() noexcept
 {
 	if (gPool)
 		return gPool;
-	gPool = new ThreadPool;
-	gManagePool = true;
+	try
+	{
+		gPool = new ThreadPool;
+		gManagePool = true;
+	}
+	catch (...)
+	{
+		gPool = nullptr;
+		gManagePool = false;
+	}
 	return gPool;
 }
 

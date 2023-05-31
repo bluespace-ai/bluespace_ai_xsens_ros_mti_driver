@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -76,7 +76,7 @@
 */
 
 /*! \brief Construct an Device Redetector object */
-DeviceRedetector::DeviceRedetector(const XsPortInfo &portInfo)
+DeviceRedetector::DeviceRedetector(const XsPortInfo& portInfo)
 {
 #ifdef XSENS_WINDOWS
 	if (portInfo.isUsb())
@@ -115,7 +115,7 @@ DeviceRedetector::DeviceRedetector(const XsPortInfo &portInfo)
 	\param skipDeviceIdCheck If set to true the it will skip device id check
 	\returns True if successful
 */
-bool DeviceRedetector::redetect(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck)
+bool DeviceRedetector::redetect(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck)
 {
 	FunctionPointer currentFunction;
 	currentFunction = m_detectFunctions[deviceId.deviceType(false)];
@@ -135,7 +135,7 @@ bool DeviceRedetector::redetect(const XsDeviceId &deviceId, XsPortInfo &portInfo
 	\param portInfo Port info
 	\param skipDeviceIdCheck Skip device ID check
 */
-bool DeviceRedetector::redetectNoScan(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck)
+bool DeviceRedetector::redetectNoScan(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck)
 {
 	(void)deviceId;
 	(void)portInfo;
@@ -187,7 +187,7 @@ bool DeviceRedetector::redetectScanPorts(const XsDeviceId& deviceId, XsPortInfo&
 	\param skipDeviceIdCheck If set to true then it will skip device ID check
 	\returns True if successful
 */
-bool DeviceRedetector::redetectEnumerateSerialPorts(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck)
+bool DeviceRedetector::redetectEnumerateSerialPorts(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck)
 {
 	JLDEBUGG("Redetecting device " << deviceId);
 
@@ -223,7 +223,7 @@ bool DeviceRedetector::redetectEnumerateSerialPorts(const XsDeviceId &deviceId, 
 	\param skipDeviceIdCheck If set to true then it will skip device ID check
 	\returns True if successful
 */
-bool DeviceRedetector::redetectOneComPort(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck)
+bool DeviceRedetector::redetectOneComPort(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck)
 {
 	JLDEBUGG("Redetecting device " << deviceId);
 
@@ -276,7 +276,7 @@ bool DeviceRedetector::redetectOneComPort(const XsDeviceId &deviceId, XsPortInfo
 	\param portInfo Port info
 	\param skipDeviceIdCheck Skip device ID check
 */
-bool DeviceRedetector::redetectEnumerateNetworkDevices(const XsDeviceId &deviceId, XsPortInfo &portInfo, bool skipDeviceIdCheck)
+bool DeviceRedetector::redetectEnumerateNetworkDevices(const XsDeviceId& deviceId, XsPortInfo& portInfo, bool skipDeviceIdCheck)
 {
 	(void)deviceId;
 	(void)portInfo;

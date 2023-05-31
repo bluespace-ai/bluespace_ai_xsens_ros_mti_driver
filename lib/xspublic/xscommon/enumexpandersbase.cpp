@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -64,7 +64,7 @@
 
 #include "enumexpandersbase.h"
 
-extern Journaller* gJournal;
+extern Journaller* gJournal;	//lint !e752
 
 JLENUMEXPANDER(XsResultValue,
 	JLENUMCASE(XRV_OK) //!< 0: Operation was performed successfully
@@ -187,7 +187,8 @@ JLENUMEXPANDER(XsResultValue,
 	JLENUMCASE(XRV_GNSSCONFIGURATIONERROR)	//!< 401: A configuration item was refused by the GNSS module
 	JLENUMCASE(XRV_GNSSCOMMTIMEOUT) //!< 402: The communication with the GNSS module timed out
 	JLENUMCASE(XRV_GNSSERROR) //!< 403: Communication between the device and the GNSS module failed
-	JLENUMCASE(XRV_DEVICE_NOT_CALIBRATED)	//!< 404: The EMTS of the device does not contain calibration data
+	JLENUMCASE(XRV_DEVICE_NOT_CALIBRATED) //!< 404: The EMTS of the device does not contain calibration data
+	JLENUMCASE(XRV_FILE_SYSTEM_CORRUPT) //!< 405: The internal file system of the device has become corrupt
 )
 
 JLENUMEXPANDERHEX(XsXbusMessageId,
@@ -422,8 +423,8 @@ JLENUMEXPANDERHEX(XsXbusMessageId,
 	JLENUMCASE(XMID_GnssStatus) // 0xA7,
 	JLENUMCASE(XMID_AdjustUtcTime) // 0xA8,
 	JLENUMCASE(XMID_AdjustUtcTimeAck) // 0xA9,
-	JLENUMCASE(XMID_ReqManufacturerId) // 0xAA,
-	JLENUMCASE(XMID_ManufacturerId) // 0xAB,
+	JLENUMCASE(XMID_ReqAssemblyId) // 0xAA,
+	JLENUMCASE(XMID_AssemblyId) // 0xAB,
 	JLENUMCASE(XMID_ReqAccessControlList) // 0xAE,
 	JLENUMCASE(XMID_AccessControlList) // 0xAF,
 	//JLENUMCASE(XMID_SetAccessControlList) // 0xAE,
@@ -534,11 +535,32 @@ JLENUMEXPANDERHEX(XsXbusMessageId,
 	JLENUMCASE(XMID_ForwardGnssDataAck)
 	JLENUMCASE(XMID_ReqProductVariant)
 	JLENUMCASE(XMID_ProductVariant)
-);
+	JLENUMCASE(XMID_XsbData)
+	JLENUMCASE(XMID_UnlockMaintenanceMode)
+	JLENUMCASE(XMID_UnlockMaintenanceModeAck)
+)
+
+JLENUMEXPANDERBITS(XsOption,
+	JLENUMCASEBITS(XSO_Calibrate)
+	JLENUMCASEBITS(XSO_Orientation)
+	JLENUMCASEBITS(XSO_KeepLastLiveData)
+	JLENUMCASEBITS(XSO_RetainLiveData)
+	JLENUMCASEBITS(XSO_RetainBufferedData)
+	JLENUMCASEBITS(XSO_OrientationInLiveStream)
+	JLENUMCASEBITS(XSO_OrientationInBufferedStream)
+	JLENUMCASEBITS(XSO_ApplyOrientationResetToCalData)
+	JLENUMCASEBITS(XSO_InterpolateMissingData)
+	JLENUMCASEBITS(XSO_SkipDataBundling)
+	JLENUMCASEBITS(XSO_ExpectNoRetransmissionsInFile)
+	JLENUMCASEBITS(XSO_Reserved)
+	JLENUMCASEBITSNONE(XSO_None)
+)
 
 static void forceEnumExpanderInclusion()
 {
 	volatile bool blah = false;
 	JLWRITEG("blah" << XRV_OK << blah);
 	JLWRITEG("blah" << XMID_AcceptMtw << blah);
+	JLWRITEG("blah" << XSO_None << blah);
+	(void) blah;
 }

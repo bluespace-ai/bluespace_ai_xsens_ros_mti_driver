@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,14 +69,16 @@ using namespace xsens;
 
 /*! \brief Linked list item that contains a registered XsCallback handler for CallbackManagerXda
 */
-struct CallbackHandlerXdaItem {
+struct CallbackHandlerXdaItem
+{
 	XsCallbackPlainC* m_handler;	//!< The callback handler
 	CallbackHandlerXdaItem* m_next;	//!< The next item in the list or NULL if this is the last item
 };
 
 /*! \brief Linked list item that contains a chained CallbackManagerXda
 */
-struct CallbackManagerItem {
+struct CallbackManagerItem
+{
 	CallbackManagerXda* m_manager;		//!< The callback managger
 	CallbackManagerItem* m_next;	//!< The next item in the list or NULL if this is the last item
 };
@@ -115,7 +117,7 @@ CallbackManagerXda::~CallbackManagerXda()
 		clearCallbackHandlers(false);
 		delete m_callbackMutex;
 	}
-	catch(...)
+	catch (...)
 	{
 	}
 }
@@ -447,7 +449,7 @@ int CallbackManagerXda::onWriteMessageToLogFile(XsDevice* dev, const XsMessage* 
 			rv = current->m_handler->m_onWriteMessageToLogFile(current->m_handler, dev, message) && rv;
 		current = current->m_next;
 	}
-	return rv?1:0;
+	return rv ? 1 : 0;
 }
 
 //! \brief The XsCallback::onBufferedDataAvailable() callback forwarding function
@@ -516,7 +518,7 @@ void CallbackManagerXda::onError(XsDevice* dev, XsResultValue error)
 }
 
 //! \brief The Xscallback::onNonDataMessage() callback forwarding function
-void CallbackManagerXda::onNonDataMessage(XsDevice* dev, XsMessage const * message)
+void CallbackManagerXda::onNonDataMessage(XsDevice* dev, XsMessage const* message)
 {
 	LockReadWrite locky(m_callbackMutex, LS_Read);
 	CallbackHandlerXdaItem* current = m_handlerList;
@@ -529,7 +531,7 @@ void CallbackManagerXda::onNonDataMessage(XsDevice* dev, XsMessage const * messa
 }
 
 //! \brief The Xscallback::onMessageReceivedFromDevice() callback forwarding function
-void CallbackManagerXda::onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const * rawMessage)
+void CallbackManagerXda::onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const* rawMessage)
 {
 	LockReadWrite locky(m_callbackMutex, LS_Read);
 	CallbackHandlerXdaItem* current = m_handlerList;
@@ -542,7 +544,7 @@ void CallbackManagerXda::onMessageDetected(XsDevice* dev, XsProtocolType type, X
 }
 
 //! \brief The Xscallback::onMessageReceivedFromDevice() callback forwarding function
-void CallbackManagerXda::onMessageReceivedFromDevice(XsDevice* dev, XsMessage const * message)
+void CallbackManagerXda::onMessageReceivedFromDevice(XsDevice* dev, XsMessage const* message)
 {
 	LockReadWrite locky(m_callbackMutex, LS_Read);
 	CallbackHandlerXdaItem* current = m_handlerList;
@@ -555,7 +557,7 @@ void CallbackManagerXda::onMessageReceivedFromDevice(XsDevice* dev, XsMessage co
 }
 
 //! \brief The Xscallback::onMessageSentToDevice() callback forwarding function
-void CallbackManagerXda::onMessageSentToDevice(XsDevice* dev, XsMessage const * message)
+void CallbackManagerXda::onMessageSentToDevice(XsDevice* dev, XsMessage const* message)
 {
 	LockReadWrite locky(m_callbackMutex, LS_Read);
 	CallbackHandlerXdaItem* current = m_handlerList;

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -79,7 +79,7 @@ public:
 		\param device The device to read from
 		\returns XRV_OK if successful
 	*/
-	virtual XsResultValue readLogFile(XsDevice *device) = 0;
+	virtual XsResultValue readLogFile(XsDevice* device) = 0;
 
 	/*! \brief Read a single packet from file
 		\returns XRV_OK is successful

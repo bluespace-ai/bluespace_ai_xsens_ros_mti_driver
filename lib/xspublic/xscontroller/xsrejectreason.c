@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,17 +70,17 @@
 */
 
 /*! \brief Convert the %XsRejectReason to a human readable string */
-const char *XsRejectReason_toString(XsRejectReason r)
+const char* XsRejectReason_toString(XsRejectReason r)
 {
 	switch (r)
 	{
-	XS_ENUM_TO_STR_CASE(XRR_Unknown);
-	XS_ENUM_TO_STR_CASE(XRR_VersionMismatch);
-	XS_ENUM_TO_STR_CASE(XRR_Blacklisted);
-	XS_ENUM_TO_STR_CASE(XRR_StationIsDisconnecting);
-	XS_ENUM_TO_STR_CASE(XRR_SystemIsOperational);
-	default:
-		break;
+			XS_ENUM_TO_STR_CASE(XRR_Unknown);
+			XS_ENUM_TO_STR_CASE(XRR_VersionMismatch);
+			XS_ENUM_TO_STR_CASE(XRR_Blacklisted);
+			XS_ENUM_TO_STR_CASE(XRR_StationIsDisconnecting);
+			XS_ENUM_TO_STR_CASE(XRR_SystemIsOperational);
+		default:
+			break;
 	}
 	return "UnknownReason";
 }

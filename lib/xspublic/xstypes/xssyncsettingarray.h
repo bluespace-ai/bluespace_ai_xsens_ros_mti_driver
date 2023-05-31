@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -87,16 +87,17 @@ XSTYPES_DLL_API void XsSyncSettingArray_construct(XsSyncSettingArray* thisPtr, X
 #ifdef __cplusplus
 } // extern "C"
 
-struct XsSyncSettingArray : public XsArrayImpl<XsSyncSetting, g_xsSyncSettingArrayDescriptor, XsSyncSettingArray> {
+struct XsSyncSettingArray : public XsArrayImpl<XsSyncSetting, g_xsSyncSettingArrayDescriptor, XsSyncSettingArray>
+{
 	//! \brief Constructs an XsSyncSettingArray
 	inline explicit XsSyncSettingArray(XsSize sz = 0, XsSyncSetting const* src = 0)
-		 : ArrayImpl(sz, src)
+		: ArrayImpl(sz, src)
 	{
 	}
 
 	//! \brief Constructs an XsSyncSettingArray as a copy of \a other
 	inline XsSyncSettingArray(XsSyncSettingArray const& other)
-		 : ArrayImpl(other)
+		: ArrayImpl(other)
 	{
 	}
 

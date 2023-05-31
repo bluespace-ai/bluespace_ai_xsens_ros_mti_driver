@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -72,7 +72,7 @@ class ConsoleLogger : public AdditionalLoggerBase
 public:
 	ConsoleLogger(JournalLogLevel logLevel, JournalLogLevel errLevel);
 
-	void log(JournalLogLevel level, char const * file, int line, char const * function, std::string const & msg) override;
+	void log(JournalLogLevel level, char const* file, int line, char const* function, std::string const& msg) override;
 };
 
 #endif

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -85,7 +85,7 @@ bool CommunicatorFactory::registerType(CommunicatorTypeId typeId, CommunicatorCo
 
 /*! \brief Create a communicator based on a port info
 */
-Communicator *CommunicatorFactory::create(const XsPortInfo &portInfo) const
+Communicator* CommunicatorFactory::create(const XsPortInfo& portInfo) const
 {
 	CommunicatorTypeId id = portInfoToCommunicatorId(portInfo);
 	return construct(id);
@@ -93,7 +93,7 @@ Communicator *CommunicatorFactory::create(const XsPortInfo &portInfo) const
 
 /*! \brief Create a communicator based on a filename
 */
-Communicator *CommunicatorFactory::create(const XsString &filename) const
+Communicator* CommunicatorFactory::create(const XsString& filename) const
 {
 	CommunicatorTypeId id = filenameToCommunicatorId(filename);
 	return construct(id);
@@ -101,9 +101,9 @@ Communicator *CommunicatorFactory::create(const XsString &filename) const
 
 /*! \brief Construct a communicator based on \a typeId
 */
-Communicator *CommunicatorFactory::construct(CommunicatorTypeId typeId) const
+Communicator* CommunicatorFactory::construct(CommunicatorTypeId typeId) const
 {
-	Communicator *c = nullptr;
+	Communicator* c = nullptr;
 	if (typeId != CommunicatorType::INVALID)
 	{
 		ConstructorsMap::const_iterator i = m_constructors.find(typeId);

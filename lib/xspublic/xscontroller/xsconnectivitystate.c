@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,18 +70,19 @@
 */
 
 /*! \brief Convert the device state to a human readable string */
-const char *XsConnectivityState_toString(XsConnectivityState s)
+const char* XsConnectivityState_toString(XsConnectivityState s)
 {
-	switch (s) {
-	XS_ENUM_TO_STR_CASE(XCS_Disconnected);
-	XS_ENUM_TO_STR_CASE(XCS_Rejected);
-	XS_ENUM_TO_STR_CASE(XCS_PluggedIn);
-	XS_ENUM_TO_STR_CASE(XCS_Wireless);
-	XS_ENUM_TO_STR_CASE(XCS_WirelessOutOfRange);
-	XS_ENUM_TO_STR_CASE(XCS_File);
-	XS_ENUM_TO_STR_CASE(XCS_Unknown);
-	default:
-		;
+	switch (s)
+	{
+			XS_ENUM_TO_STR_CASE(XCS_Disconnected);
+			XS_ENUM_TO_STR_CASE(XCS_Rejected);
+			XS_ENUM_TO_STR_CASE(XCS_PluggedIn);
+			XS_ENUM_TO_STR_CASE(XCS_Wireless);
+			XS_ENUM_TO_STR_CASE(XCS_WirelessOutOfRange);
+			XS_ENUM_TO_STR_CASE(XCS_File);
+			XS_ENUM_TO_STR_CASE(XCS_Unknown);
+		default:
+			;
 	}
 	return "UnknownState";
 }

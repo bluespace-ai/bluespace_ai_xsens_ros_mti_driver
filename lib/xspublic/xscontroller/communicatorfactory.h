@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -101,10 +101,10 @@ public:
 	typedef Communicator* (*CommunicatorConstructFunc)();
 
 	//! The typedef of the port info match function
-	typedef bool (*PortInfoMatchFunc)(const XsPortInfo &);
+	typedef bool (*PortInfoMatchFunc)(const XsPortInfo&);
 
-	Communicator *create(const XsPortInfo &portInfo) const;
-	Communicator *create(const XsString &filename) const;
+	Communicator* create(const XsPortInfo& portInfo) const;
+	Communicator* create(const XsString& filename) const;
 
 	bool registerType(CommunicatorTypeId typeId, CommunicatorConstructFunc constructFunc, PortInfoMatchFunc matchFunc);
 
@@ -112,13 +112,13 @@ public:
 		\param filename A name of file
 		\returns A communicator type ID
 	*/
-	virtual CommunicatorTypeId filenameToCommunicatorId(const XsString &filename) const = 0;
+	virtual CommunicatorTypeId filenameToCommunicatorId(const XsString& filename) const = 0;
 
 	/*! \brief Match a XsPortInfo to a communicator
 		\param portInfo An information about the port
 		\returns A communicator type ID
 	*/
-	virtual CommunicatorTypeId portInfoToCommunicatorId(const XsPortInfo &portInfo) const = 0;
+	virtual CommunicatorTypeId portInfoToCommunicatorId(const XsPortInfo& portInfo) const = 0;
 
 	/*! \brief Registrates communicator types */
 	virtual void registerCommunicatorTypes() {}
@@ -128,15 +128,19 @@ protected:
 	typedef std::map<CommunicatorTypeId, std::pair<CommunicatorConstructFunc, PortInfoMatchFunc>> ConstructorsMap;
 
 	//! \returns A constant reference to the constructors map
-	ConstructorsMap const& constructors() const { return m_constructors; }
-	virtual Communicator *construct(CommunicatorTypeId communicator) const;
+	ConstructorsMap const& constructors() const
+	{
+		return m_constructors;
+	}
+	virtual Communicator* construct(CommunicatorTypeId communicator) const;
 
 private:
 	ConstructorsMap m_constructors;
 };
 
-namespace CommunicatorType {
-	static const CommunicatorFactory::CommunicatorTypeId INVALID = 0;
+namespace CommunicatorType
+{
+static const CommunicatorFactory::CommunicatorTypeId INVALID = 0;
 }
 
 #endif

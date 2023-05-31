@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -86,13 +86,13 @@ typedef enum XsRejectReason XsRejectReason;
 extern "C" {
 #endif
 
-XDA_DLL_API const char *XsRejectReason_toString(XsRejectReason r);
+XDA_DLL_API const char* XsRejectReason_toString(XsRejectReason r);
 
 #ifdef __cplusplus
 } // extern "C"
 
 /*! \brief \copybrief XsRejectReason_toString \sa XsRejectReason_toString */
-inline const char *toString(XsRejectReason r)
+inline const char* toString(XsRejectReason r)
 {
 	return XsRejectReason_toString(r);
 }

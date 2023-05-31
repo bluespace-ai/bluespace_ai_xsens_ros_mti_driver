@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,17 +69,18 @@
 	@{
 */
 /*! \brief Legacy calibrated data output selection flags */
-enum XsCalibratedDataMode {
+enum XsCalibratedDataMode
+{
 	XCDM_None			= 0,
 	XCDM_Acceleration	= (1 << 0),
 	XCDM_GyroscopeData	= (1 << 1),
 	XCDM_MagneticField	= (1 << 2),
 
-	XCDM_AccGyr = XCDM_Acceleration|XCDM_GyroscopeData,
-	XCDM_AccMag = XCDM_Acceleration|XCDM_MagneticField,
-	XCDM_GyrMag = XCDM_GyroscopeData|XCDM_MagneticField,
+	XCDM_AccGyr = XCDM_Acceleration | XCDM_GyroscopeData,
+	XCDM_AccMag = XCDM_Acceleration | XCDM_MagneticField,
+	XCDM_GyrMag = XCDM_GyroscopeData | XCDM_MagneticField,
 
-	XCDM_All = XCDM_Acceleration|XCDM_GyroscopeData|XCDM_MagneticField
+	XCDM_All = XCDM_Acceleration | XCDM_GyroscopeData | XCDM_MagneticField
 };
 /*! @} */
 typedef enum XsCalibratedDataMode XsCalibratedDataMode;

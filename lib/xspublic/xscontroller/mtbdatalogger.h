@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -74,15 +74,16 @@ class MtbDataLogger : public DataLogger
 {
 public:
 	MtbDataLogger();
-	virtual ~MtbDataLogger();
+	~MtbDataLogger() override;
 
-	virtual bool writeMessage(const XsMessage &message);
+	bool writeMessage(const XsMessage& message) override;
+	bool writeRaw(const XsByteArray& message);
 
-	bool create(const XsString &filename);
-	virtual void close();
+	bool create(const XsString& filename);
+	void close() override;
 	void close(bool deleteFile);
 	XsString filename() const;
-protected:
+
 private:
 	XsResultValue m_lastResult;
 	std::shared_ptr<IoInterfaceFile> m_ioInterfaceFile;

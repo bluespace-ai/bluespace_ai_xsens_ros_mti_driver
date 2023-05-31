@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -85,21 +85,24 @@
 	#define JLL_DISABLE	6
 #endif
 
-enum JournalLogLevel {
-	  JLL_Trace = JLL_TRACE		//!< log all messages, including function entry/exit
+enum JournalLogLevel
+{
+	JLL_Trace = JLL_TRACE		//!< log all messages, including function entry/exit
 	, JLL_Debug = JLL_DEBUG		//!< log all messages, except function entry/exit (trace)
 	, JLL_Alert = JLL_ALERT		//!< only log fatal, error and alert messages
 	, JLL_Error = JLL_ERROR		//!< only log fatal and error messages
 	, JLL_Fatal = JLL_FATAL		//!< only log fatal messages
 	, JLL_Write = JLL_WRITE		//!< only log 'write' messages
-	, JLL_Diable= JLL_DISABLE	//!< don't log any messages
+	, JLL_Disable = JLL_DISABLE	//!< don't log any messages
 };
 
 #ifdef NO_JOURNALLER
-	#ifdef JLDEF_BUILD
-		#undef JLDEF_BUILD
-	#endif
+	#undef JLDEF_BUILD
+	#undef JLDEF_FILE
+	#undef JLDEF_DEBUGGER
 	#define JLDEF_BUILD		JLL_DISABLE
+	#define JLDEF_FILE		JLL_Disable
+	#define JLDEF_DEBUGGER	JLL_Disable
 #endif
 
 #ifdef XSENS_DEBUG

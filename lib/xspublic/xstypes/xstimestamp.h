@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -70,7 +70,7 @@
 
 #ifdef __cplusplus
 #ifndef XSENS_NO_STL
-#include "xsstring.h"
+	#include "xsstring.h"
 #endif
 #include "xstimeinfo.h"
 extern "C" {
@@ -112,7 +112,8 @@ XSTYPES_DLL_API void XsTimeStamp_localToUtcTime_ms(struct XsTimeStamp const* thi
 /*!	\struct XsTimeStamp
 	\brief Class for managing timestamps in a unified way.
 */
-struct XsTimeStamp {
+struct XsTimeStamp
+{
 #ifdef __cplusplus
 	/*! \brief Construct a timestamp with \a t as the time in milliseconds. */
 	inline XsTimeStamp(int64_t t = 0) : m_msTime(t) {}
@@ -121,7 +122,7 @@ struct XsTimeStamp {
 	inline XsTimeStamp(int t) : m_msTime(t) {}
 
 	/*! \brief Construct a timestamp with \a t as the time in seconds. */
-	inline explicit XsTimeStamp(double t) : m_msTime((int64_t)(t*1000.0)) {}
+	inline explicit XsTimeStamp(double t) : m_msTime((int64_t)(t * 1000.0)) {}
 
 	/*! \brief Construct a copy of \a other. */
 	inline XsTimeStamp(const XsTimeStamp& other) : m_msTime(other.m_msTime) {}
@@ -165,113 +166,169 @@ struct XsTimeStamp {
 
 	/*! \brief Get the stored time as milliseconds. */
 	inline int64_t msTime(void) const
-	{ return m_msTime; }
+	{
+		return m_msTime;
+	}
 
 	/*! \brief Set the stored time to \a t milliseconds. */
 	inline void setMsTime(int64_t t)
-	{ m_msTime = t; }
+	{
+		m_msTime = t;
+	}
 
 	/*! \brief Get the time of day component of the stored timestamp in seconds as a double precision value.
 	*/
 	inline double timeOfDay() const
-	{ return XsTimeStamp_timeOfDay(this); }
+	{
+		return XsTimeStamp_timeOfDay(this);
+	}
 
 	/*! \brief Get the time of day component of the stored timestamp in milliseconds
 	*/
 	inline int64_t msTimeOfDay() const
-	{ return m_msTime % (24*60*60*1000); }
+	{
+		return m_msTime % (24 * 60 * 60 * 1000);
+	}
 
 	/*! \brief Return the time as seconds */
 	inline double secTime() const
-	{ return ((double)m_msTime)*0.001; }
+	{
+		return ((double)m_msTime) * 0.001;
+	}
 
 	/*! \brief Set the time as seconds */
 	inline void setSecTime(double t)
-	{ m_msTime = (int64_t) (t*1000.0); }
+	{
+		m_msTime = (int64_t)(t * 1000.0);
+	}
 
 	/*! \brief Get the sum of the current and the given \a other timestamp. \param other The value to add to this \returns The added timestamp values */
 	inline XsTimeStamp operator + (const XsTimeStamp& other) const
-	{ return XsTimeStamp(m_msTime + other.m_msTime); }
+	{
+		return XsTimeStamp(m_msTime + other.m_msTime);
+	}
 
 	/*! \brief Get the current minus the given \a other timestamp. \param other The value to subtract from this \returns The subtracted timestamp values */
 	inline XsTimeStamp operator - (const XsTimeStamp& other) const
-	{ return XsTimeStamp(m_msTime - other.m_msTime); }
+	{
+		return XsTimeStamp(m_msTime - other.m_msTime);
+	}
 
 	/*! \brief Get the result of adding the given \a other timestamp to the current timestamp. */
 	inline XsTimeStamp& operator += (const XsTimeStamp& other)
-	{ m_msTime += other.m_msTime; return *this; }
+	{
+		m_msTime += other.m_msTime;
+		return *this;
+	}
 
 	/*! \brief Get the result of subtracting the given \a other timestamp from the current timestamp. */
 	inline XsTimeStamp& operator -= (const XsTimeStamp& d)
-	{ m_msTime -= d.m_msTime; return *this; }
+	{
+		m_msTime -= d.m_msTime;
+		return *this;
+	}
 
 	/*! \brief Test if the given \a other timestamp is smaller than the current timestamp. */
-	inline bool operator <  (const XsTimeStamp& other) const
-	{ return m_msTime <  other.m_msTime; }
+	inline bool operator < (const XsTimeStamp& other) const
+	{
+		return m_msTime <  other.m_msTime;
+	}
 
 	/*! \brief Test if the given \a other timestamp is smaller than or equal to the current timestamp. */
 	inline bool operator <= (const XsTimeStamp& other) const
-	{ return m_msTime <= other.m_msTime; }
+	{
+		return m_msTime <= other.m_msTime;
+	}
 
 	/*! \brief Test if the given \a other timestamp is equal to the current timestamp. */
 	inline bool operator == (const XsTimeStamp& other) const
-	{ return m_msTime == other.m_msTime; }
+	{
+		return m_msTime == other.m_msTime;
+	}
 
 	/*! \brief Test if the given \a other timestamp is larger than the current timestamp. */
-	inline bool operator >  (const XsTimeStamp& other) const
-	{ return m_msTime >  other.m_msTime; }
+	inline bool operator > (const XsTimeStamp& other) const
+	{
+		return m_msTime >  other.m_msTime;
+	}
 
 	/*! \brief Test if the given \a other timestamp is larger than or equal to the current timestamp. */
 	inline bool operator >= (const XsTimeStamp& other) const
-	{ return m_msTime >= other.m_msTime; }
+	{
+		return m_msTime >= other.m_msTime;
+	}
 
 	/*! \brief Test if the given \a other timestamp is not equal to the current timestamp. */
 	inline bool operator != (const XsTimeStamp& other) const
-	{ return m_msTime != other.m_msTime; }
+	{
+		return m_msTime != other.m_msTime;
+	}
 
 	/*! \brief Test if the given \a other is smaller than the current timestamp. */
-	inline bool operator <  (int other) const
-	{ return m_msTime <  other; }
+	inline bool operator < (int other) const
+	{
+		return m_msTime <  other;
+	}
 
 	/*! \brief Test if the given \a other is smaller than or equal to the current timestamp. */
 	inline bool operator <= (int other) const
-	{ return m_msTime <= other; }
+	{
+		return m_msTime <= other;
+	}
 
 	/*! \brief Test if the given \a other is equal to the current timestamp. */
 	inline bool operator == (int other) const
-	{ return m_msTime == other; }
+	{
+		return m_msTime == other;
+	}
 
 	/*! \brief Test if the given \a other is larger than the current timestamp. */
-	inline bool operator >  (int other) const
-	{ return m_msTime >  other; }
+	inline bool operator > (int other) const
+	{
+		return m_msTime >  other;
+	}
 
 	/*! \brief Test if the given \a other is larger than or equal to the current timestamp. */
 	inline bool operator >= (int other) const
-	{ return m_msTime >= other; }
+	{
+		return m_msTime >= other;
+	}
 
 	/*! \brief Test if the given \a other is not equal to the current timestamp. */
 	inline bool operator != (int other) const
-	{ return m_msTime != other; }
+	{
+		return m_msTime != other;
+	}
 
 	/*! \brief Returns the number of seconds elapsed since the epoch as stored in the XsTimeStamp */
 	inline int64_t secondTime() const
-	{ return m_msTime/1000; }
+	{
+		return m_msTime / 1000;
+	}
 
 	/*! \brief Returns the millisecond part of the time (in the range 0-999) */
 	inline int32_t milliSecondPart() const
-	{ return (int32_t) (m_msTime % 1000); }
+	{
+		return (int32_t)(m_msTime % 1000);
+	}
 
 	/*! \brief Returns the seconds part of the time (in the range 0-59) */
 	inline int32_t secondPart() const
-	{ return (int32_t) ((m_msTime/(1000))%60); }
+	{
+		return (int32_t)((m_msTime / (1000)) % 60);
+	}
 
 	/*! \brief Returns the minutes part of the time (in the range 0-59) */
 	inline int32_t minutePart() const
-	{ return (int32_t) ((m_msTime/(60*1000))%60); }
+	{
+		return (int32_t)((m_msTime / (60 * 1000)) % 60);
+	}
 
 	/*! \brief Returns the hours part of the time (in the range 0-23) */
 	inline int32_t hourPart() const
-	{ return (int32_t) ((m_msTime/(60*60*1000))%24); }
+	{
+		return (int32_t)((m_msTime / (60 * 60 * 1000)) % 24);
+	}
 
 	/*! \brief Returns the current time in ms since the epoch (Jan 1st 1970) */
 	inline static XsTimeStamp now()
@@ -303,19 +360,29 @@ struct XsTimeStamp {
 
 	/*! \brief Increment the timestamp by one ms, prefix */
 	XsTimeStamp& operator++()
-	{ ++m_msTime; return *this; }
+	{
+		++m_msTime;
+		return *this;
+	}
 
 	/*! \brief Increment the timestamp by one ms, postfix */
 	XsTimeStamp operator++(int)
-	{ return XsTimeStamp(m_msTime++); }
+	{
+		return XsTimeStamp(m_msTime++);
+	}
 
 	/*! \brief Decrement the timestamp by one ms, prefix */
 	XsTimeStamp& operator--()
-	{ --m_msTime; return *this; }
+	{
+		--m_msTime;
+		return *this;
+	}
 
 	/*! \brief Decrement the timestamp by one ms, postfix */
 	XsTimeStamp operator--(int)
-	{ return XsTimeStamp(m_msTime--); }
+	{
+		return XsTimeStamp(m_msTime--);
+	}
 
 	/*! \brief Convert the supplied time from (assumed) UTC to local time, using the system's local time zone knowledge
 		\returns The converted time

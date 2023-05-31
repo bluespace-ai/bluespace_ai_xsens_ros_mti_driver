@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -65,10 +65,8 @@
 #ifndef XSCONNECTIVITYSTATE_H
 #define XSCONNECTIVITYSTATE_H
 
-#include "xscontrollerconfig.h"
-
 #ifdef __cplusplus
-#include <ostream>
+	#include <ostream>
 #endif
 
 /*!	\addtogroup enums Global enumerations
@@ -77,7 +75,8 @@
 
 //AUTO namespace xscontroller {
 /*! \brief XsDevice connectivity state identifiers */
-enum XsConnectivityState {
+enum XsConnectivityState
+{
 	XCS_Disconnected,		/*!< Device has disconnected, only limited informational functionality is available. */
 	XCS_Rejected,			/*!< Device has been rejected and is disconnected, only limited informational functionality is available. */
 	XCS_PluggedIn,			/*!< Device is connected through a cable. */
@@ -96,7 +95,7 @@ extern "C" {
 #endif
 
 /*! \brief Convert the device state to a human readable string */
-const char *XsConnectivityState_toString(XsConnectivityState s);
+XDA_DLL_API const char* XsConnectivityState_toString(XsConnectivityState s);
 
 #ifdef __cplusplus
 } // extern "C"
@@ -104,11 +103,11 @@ const char *XsConnectivityState_toString(XsConnectivityState s);
 #ifndef XSENS_NO_STL
 namespace std
 {
-	template<typename _CharT, typename _Traits>
-	basic_ostream<_CharT, _Traits>& operator<<(basic_ostream<_CharT, _Traits>& o, XsConnectivityState const& xs)
-	{
-		return (o << XsConnectivityState_toString(xs));
-	}
+template<typename _CharT, typename _Traits>
+basic_ostream<_CharT, _Traits>& operator<<(basic_ostream<_CharT, _Traits>& o, XsConnectivityState const& xs)
+{
+	return (o << XsConnectivityState_toString(xs));
+}
 }
 #endif
 #endif

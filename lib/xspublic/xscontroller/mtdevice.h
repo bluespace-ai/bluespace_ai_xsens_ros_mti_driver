@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -71,8 +71,9 @@
 
 struct XsFilterProfile;
 
-namespace xsens {
-	class Emts5Public;
+namespace xsens
+{
+class Emts5Public;
 }
 
 /*! \class MtDevice
@@ -82,13 +83,13 @@ namespace xsens {
 class MtDevice : public XsDeviceEx
 {
 public:
-	MtDevice();
 	virtual ~MtDevice();
 
 	bool initialize() override;
 
 	bool isMotionTracker() const override;
 	int updateRateForDataIdentifier(XsDataIdentifier dataType) const override;
+	virtual int getBaseFrequency(XsDataIdentifier dataType = XDI_None) const;
 
 	uint16_t stringOutputType() const override;
 	uint16_t stringSamplePeriod() const override;
@@ -150,19 +151,20 @@ public:
 
 	static int calcFrequency(int baseFrequency, uint16_t skipFactor);
 
-	bool messageLooksSane(const XsMessage &msg) const;
+	bool messageLooksSane(const XsMessage& msg) const;
 	uint32_t supportedStatusFlags() const override;
 
 protected:
+	explicit MtDevice(XsDeviceId const& id);
 	explicit MtDevice(Communicator* comm);
-	explicit MtDevice(XsDevice*, const XsDeviceId &);
+	explicit MtDevice(XsDevice*, const XsDeviceId&);
 
 	virtual void updateFilterProfiles();
 
 	XsFilterProfileArray readFilterProfilesFromDevice() const;
 	virtual void fetchAvailableHardwareScenarios();
 
-	static XsString stripProductCode(const XsString &code);
+	static XsString stripProductCode(const XsString& code);
 
 	uint32_t syncTicksToUs(uint32_t ticks) const;
 	uint32_t usToSyncTicks(uint32_t us) const;
@@ -187,7 +189,7 @@ protected:
 	explicit MtDeviceEx(Communicator* comm) : MtDevice(comm) {}
 
 	//! Construct a device with device id \a childDeviceId for master \a master
-	explicit MtDeviceEx(XsDevice *master, const XsDeviceId &childDeviceId) : MtDevice(master, childDeviceId) {}
+	explicit MtDeviceEx(XsDevice* master, const XsDeviceId& childDeviceId) : MtDevice(master, childDeviceId) {}
 };
 #else
 #include "mtdeviceex.h"

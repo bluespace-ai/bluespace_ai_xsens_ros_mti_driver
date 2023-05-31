@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -107,9 +107,10 @@ MtiBaseDevice::BaseFrequencyResult MtiXDevice::getBaseFrequencyInternal(XsDataId
 
 	if ((dataType & XDI_FullTypeMask) == XDI_AccelerationHR || (dataType & XDI_FullTypeMask) == XDI_RateOfTurnHR)
 	{
+		bool isMtMk4_1_v1 = hardwareVersion().major() == 1;
 		bool isMtMk4_1_v2 = hardwareVersion().major() == 2;
 		result.m_frequency = isMtMk4_1_v2 ? 800 : 1000;
-		result.m_divedable = isMtMk4_1_v2 ? true : false;
+		result.m_divedable = isMtMk4_1_v1 ? false : true;
 
 		return result;
 	}
@@ -118,20 +119,33 @@ MtiBaseDevice::BaseFrequencyResult MtiXDevice::getBaseFrequencyInternal(XsDataId
 	{
 		switch (dataType & XDI_TypeMask)
 		{
-		case XDI_None:					return 100;
-		case XDI_TimestampGroup:		return XDI_MAX_FREQUENCY_VAL;
-		case XDI_StatusGroup:			return 100;
-		case XDI_TemperatureGroup:		return 100;
-		case XDI_OrientationGroup:		return deviceId().isImu() ? 0 : 100;
-		case XDI_AccelerationGroup:		return 100;
-		case XDI_AngularVelocityGroup:	return 100;
-		case XDI_MagneticGroup:			return 100;
+			case XDI_None:
+				return 100;
+			case XDI_TimestampGroup:
+				return XDI_MAX_FREQUENCY_VAL;
+			case XDI_StatusGroup:
+				return 100;
+			case XDI_TemperatureGroup:
+				return 100;
+			case XDI_OrientationGroup:
+				return deviceId().isImu() ? 0 : 100;
+			case XDI_AccelerationGroup:
+				return 100;
+			case XDI_AngularVelocityGroup:
+				return 100;
+			case XDI_MagneticGroup:
+				return 100;
 
-		case XDI_GnssGroup:				return deviceId().isGnss() ? 4 : 0;
-		case XDI_PressureGroup:			return deviceId().isGnss() ? 50 : 0;
-		case XDI_PositionGroup:			return deviceId().isGnss() ? 100 : 0;
-		case XDI_VelocityGroup:			return deviceId().isGnss() ? 100 : 0;
-		default:						return 0;
+			case XDI_GnssGroup:
+				return deviceId().isGnss() ? 4 : 0;
+			case XDI_PressureGroup:
+				return deviceId().isGnss() ? 50 : 0;
+			case XDI_PositionGroup:
+				return deviceId().isGnss() ? 100 : 0;
+			case XDI_VelocityGroup:
+				return deviceId().isGnss() ? 100 : 0;
+			default:
+				return 0;
 		}
 	};
 	result.m_frequency = baseFreq(dataType);
@@ -151,27 +165,27 @@ bool MtiXDevice::hasIccSupport() const
 
 uint32_t MtiXDevice::supportedStatusFlags() const
 {
-	return (uint32_t) (XSF_ExternalClockSynced
-		| (deviceId().isImu() ? 0 : XSF_OrientationValid
-			|XSF_NoRotationMask
-			|XSF_RepresentativeMotion
+	return (uint32_t)(XSF_ExternalClockSynced
+			| (deviceId().isImu() ? 0 : XSF_OrientationValid
+				| XSF_NoRotationMask
+				| XSF_RepresentativeMotion
 			)
-		|XSF_ClipAccX
-		|XSF_ClipAccY
-		|XSF_ClipAccZ
-		|XSF_ClipGyrX
-		|XSF_ClipGyrY
-		|XSF_ClipGyrZ
-		|XSF_ClipMagX
-		|XSF_ClipMagY
-		|XSF_ClipMagZ
-		//|XSF_Retransmitted
-		|XSF_ClippingDetected
-		//|XSF_Interpolated
-		|XSF_SyncIn
-		|XSF_SyncOut
-		//|XSF_FilterMode
-		//|XSF_HaveGnssTimePulse
+			| XSF_ClipAccX
+			| XSF_ClipAccY
+			| XSF_ClipAccZ
+			| XSF_ClipGyrX
+			| XSF_ClipGyrY
+			| XSF_ClipGyrZ
+			| XSF_ClipMagX
+			| XSF_ClipMagY
+			| XSF_ClipMagZ
+			//|XSF_Retransmitted
+			| XSF_ClippingDetected
+			//|XSF_Interpolated
+			| XSF_SyncIn
+			| XSF_SyncOut
+			//|XSF_FilterMode
+			//|XSF_HaveGnssTimePulse
 		);
 }
 

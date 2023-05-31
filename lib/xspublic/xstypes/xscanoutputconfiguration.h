@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -94,7 +94,8 @@ XSTYPES_DLL_API void XsCanOutputConfiguration_swap(struct XsCanOutputConfigurati
 	itself to its maximum frequency for the data type. If it is 0xFFFF and reported by the device,
 	the data has no maximum frequency, but is sent along with appropriate packets (e.g. packet counter)
 */
-struct XsCanOutputConfiguration {
+struct XsCanOutputConfiguration
+{
 	XsCanFrameFormat m_frameFormat;			//!< The frame format of the CAN message
 	XsCanDataIdentifier m_dataIdentifier;	//!< The data identifier
 	uint32_t m_id;							//!< The 11 or 29 bit ID identifier
@@ -102,7 +103,7 @@ struct XsCanOutputConfiguration {
 
 #ifdef __cplusplus
 	//! Constructor, initializes to an empty object
-	XsCanOutputConfiguration()
+	inline XsCanOutputConfiguration()
 		: m_frameFormat(XCFF_11Bit_Identifier)
 		, m_dataIdentifier(XCDI_Invalid)
 		, m_id(0)
@@ -110,20 +111,26 @@ struct XsCanOutputConfiguration {
 	{}
 
 	//! Constructor, initializes to specified values
-	XsCanOutputConfiguration(XsCanFrameFormat il, XsCanDataIdentifier di, uint32_t id, uint16_t freq)
+	inline XsCanOutputConfiguration(XsCanFrameFormat il, XsCanDataIdentifier di, uint32_t id, uint16_t freq)
 		: m_frameFormat(il)
 		, m_dataIdentifier(di)
 		, m_id(id)
 		, m_frequency(freq)
 	{}
 
-	//! Comparison operator
-	bool operator == (const XsCanOutputConfiguration& other) const
+	//! Equality comparison operator
+	inline bool operator == (const XsCanOutputConfiguration& other) const
 	{
 		return (m_frameFormat == other.m_frameFormat &&
 				m_dataIdentifier == other.m_dataIdentifier &&
 				m_id == other.m_id &&
 				m_frequency == other.m_frequency);
+	}
+
+	//! Inequality comparison operator
+	inline bool operator != (const XsCanOutputConfiguration& other) const
+	{
+		return !(*this == other);
 	}
 #endif
 };

@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -76,9 +76,9 @@
 /*! \brief Converts filter profile version and type information to string
 	\param out The string to write to
 */
-void XsFilterProfile_toString(XsFilterProfile const* thisPtr, XsString *out)
+void XsFilterProfile_toString(XsFilterProfile const* thisPtr, XsString* out)
 {
-	char outData[3+1+3+1+1+2*XS_LEN_FILTERPROFILELABEL_TERM];
+	char outData[3 + 1 + 3 + 1 + 1 + 2 * XS_LEN_FILTERPROFILELABEL_TERM];
 	sprintf(outData, "%d.%d %s", thisPtr->m_type, thisPtr->m_version, thisPtr->m_label);
 	XsString_assignCharArray(out, outData);
 }

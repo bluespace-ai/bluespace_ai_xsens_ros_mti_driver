@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -67,17 +67,17 @@
 #include <stdlib.h>
 
 #ifdef ANDROID
-#include <android/log.h>
+	#include <android/log.h>
 #elif defined(USING_UNWIND_LIB)
-#define UNW_LOCAL_ONLY
-#include <libunwind.h>
-#include <cxxabi.h>
-#include <cstdio>
+	#define UNW_LOCAL_ONLY
+	#include <libunwind.h>
+	#include <cxxabi.h>
+	#include <cstdio>
 #endif
 
 #ifdef __arm__
-#define UNW_PRINTF_POINTER "0x%x: "
-#define UNW_PRINTF_NAME_AND_POINTER " (%s+0x%x)"
+	#define UNW_PRINTF_POINTER "0x%x: "
+	#define UNW_PRINTF_NAME_AND_POINTER " (%s+0x%x)"
 #else
 	#include <stdint.h>
 	#if UINTPTR_MAX == 0xffffffff
@@ -139,9 +139,7 @@ void StackWalker::ShowCallstack()
 			std::free(demangled);
 		}
 		else
-		{
 			std::snprintf(&logLine[offset], logLineSize - offset, " (unable to retrieve symbol name)");
-		}
 
 		OnOutput(logLine);
 	}

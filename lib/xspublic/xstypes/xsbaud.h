@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -95,27 +95,28 @@ XSTYPES_DLL_API XsBaudRate XsBaud_numericToRate(int numeric);
 /*! \namespace XsBaud
 	\brief Namespace for Baud rate and Baud code constants and conversions
 */
-namespace XsBaud {
-	/*! \copydoc XsBaud_codeToRate */
-	inline XsBaudRate codeToRate(XsBaudCode baudcode)
-	{
-		return XsBaud_codeToRate(baudcode);
-	}
-	/*! \copydoc XsBaud_rateToCode */
-	inline XsBaudCode rateToCode(XsBaudRate baudrate)
-	{
-		return XsBaud_rateToCode(baudrate);
-	}
-	/*! \copydoc XsBaud_rateToNumeric */
-	inline int rateToNumeric(XsBaudRate baudrate)
-	{
-		return XsBaud_rateToNumeric(baudrate);
-	}
-	/*! \copydoc XsBaud_numericToRate*/
-	inline XsBaudRate numericToRate(int numeric)
-	{
-		return XsBaud_numericToRate(numeric);
-	}
+namespace XsBaud
+{
+/*! \copydoc XsBaud_codeToRate */
+inline XsBaudRate codeToRate(XsBaudCode baudcode)
+{
+	return XsBaud_codeToRate(baudcode);
+}
+/*! \copydoc XsBaud_rateToCode */
+inline XsBaudCode rateToCode(XsBaudRate baudrate)
+{
+	return XsBaud_rateToCode(baudrate);
+}
+/*! \copydoc XsBaud_rateToNumeric */
+inline int rateToNumeric(XsBaudRate baudrate)
+{
+	return XsBaud_rateToNumeric(baudrate);
+}
+/*! \copydoc XsBaud_numericToRate*/
+inline XsBaudRate numericToRate(int numeric)
+{
+	return XsBaud_numericToRate(numeric);
+}
 }
 
 #ifndef XSENS_NO_STL
@@ -123,11 +124,11 @@ namespace XsBaud {
 
 namespace std
 {
-	template<typename _CharT, typename _Traits>
-	basic_ostream<_CharT, _Traits>& operator<<(basic_ostream<_CharT, _Traits>& o, XsBaudRate const& xd)
-	{
-		return (o << XsBaud::rateToNumeric(xd));
-	}
+template<typename _CharT, typename _Traits>
+basic_ostream<_CharT, _Traits>& operator<<(basic_ostream<_CharT, _Traits>& o, XsBaudRate const& xd)
+{
+	return (o << XsBaud::rateToNumeric(xd));
+}
 }
 #endif
 

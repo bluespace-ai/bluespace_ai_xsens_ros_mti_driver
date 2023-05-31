@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -85,16 +85,17 @@ XSTYPES_DLL_API void XsIntArray_construct(XsIntArray* thisPtr, XsSize count, int
 #ifdef __cplusplus
 } // extern "C"
 
-struct XsIntArray : public XsArrayImpl<int, g_xsIntArrayDescriptor, XsIntArray> {
+struct XsIntArray : public XsArrayImpl<int, g_xsIntArrayDescriptor, XsIntArray>
+{
 	//! \brief Constructs an XsIntArray
 	inline explicit XsIntArray(XsSize sz = 0, int const* src = 0)
-		 : ArrayImpl(sz, src)
+		: ArrayImpl(sz, src)
 	{
 	}
 
 	//! \brief Constructs an XsIntArray as a copy of \a other
 	inline XsIntArray(XsIntArray const& other)
-		 : ArrayImpl(other)
+		: ArrayImpl(other)
 	{
 	}
 

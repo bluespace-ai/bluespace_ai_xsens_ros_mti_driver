@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -97,9 +97,7 @@ int compareXsCanOutputConfiguration(XsCanOutputConfiguration const* a, XsCanOutp
 			if (a->m_frequency == b->m_frequency)
 			{
 				if (a->m_id == b->m_id)
-				{
 					return (a->m_frameFormat < b->m_frameFormat) ? -1 : 1;
-				}
 				return (a->m_id < b->m_id) ? -1 : 1;
 			}
 			return (a->m_frequency < b->m_frequency) ? -1 : 1;
@@ -112,7 +110,8 @@ int compareXsCanOutputConfiguration(XsCanOutputConfiguration const* a, XsCanOutp
 
 
 //! \brief Descriptor for XsCanOutputConfigurationArray
-XsArrayDescriptor const g_xsCanOutputConfigurationArrayDescriptor = {
+XsArrayDescriptor const g_xsCanOutputConfigurationArrayDescriptor =
+{
 	sizeof(XsCanOutputConfiguration),
 	XSEXPCASTITEMSWAP swapXsCanOutputConfiguration,	// swap
 	0,												// construct

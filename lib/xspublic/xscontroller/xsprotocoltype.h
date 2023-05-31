@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,11 +69,13 @@
 	@{
 */
 //! Protocol types (XsDevice::enableProtocol())
-enum XsProtocolType {
-	 XPT_Xbus = 0		//!< The Xsens Xbus protocol, enabled by default, always 0
-	,XPT_Nmea			//!< The NMEA protocol, only the messages that can be sent from Xsens devices are recognized
-	,XPT_ImarFsas		//!< An iMAR FSAS communication protocol
-	,XPT_ImarIfog		//!< An iMAR iFog communication protocol
+enum XsProtocolType
+{
+	XPT_Xbus = 0		//!< The Xsens Xbus protocol, enabled by default, always 0
+	, XPT_Nmea			//!< The NMEA protocol, only the messages that can be sent from Xsens devices are recognized
+	, XPT_ImarFsas		//!< An iMAR FSAS communication protocol
+	, XPT_ImarIfog		//!< An iMAR iFog communication protocol
+	, XPT_ImarIfogUart  //!< An iMAR iFog UART communication protocol
 };
 /*! @} */
 typedef enum XsProtocolType XsProtocolType;

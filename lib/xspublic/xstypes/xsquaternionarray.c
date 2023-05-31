@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -73,14 +73,15 @@
 
 
 /*! \copydoc XsArrayDescriptor::itemCompare
-\note Specialization for int*/
+    \note Specialization for int*/
 int compareQuat(XsQuaternion const* a, XsQuaternion const* b)
 {
 	return XsQuaternion_compare(a, b, 0.0);
 }
 
 //! \brief Descriptor for XsQuaternionArray
-XsArrayDescriptor const g_xsQuaternionArrayDescriptor = {
+XsArrayDescriptor const g_xsQuaternionArrayDescriptor =
+{
 	sizeof(XsQuaternion),
 	XSEXPCASTITEMSWAP XsQuaternion_swap,
 	0,											//construct

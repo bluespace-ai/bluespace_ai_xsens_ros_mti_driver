@@ -1,5 +1,5 @@
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,7 @@
 //  
 
 
-//  Copyright (c) 2003-2020 Xsens Technologies B.V. or subsidiaries worldwide.
+//  Copyright (c) 2003-2021 Xsens Technologies B.V. or subsidiaries worldwide.
 //  All rights reserved.
 //  
 //  Redistribution and use in source and binary forms, with or without modification,
@@ -69,12 +69,14 @@
 
 struct CallbackHandlerXdaItem;
 struct CallbackManagerItem;
-namespace xsens {
-	class MutexReadWrite;
+namespace xsens
+{
+class MutexReadWrite;
 }
 struct MtwInfo;
 
-class CallbackManagerXda : public XsCallback {
+class CallbackManagerXda : public XsCallback
+{
 public:
 	void onDeviceStateChanged(XsDevice* dev, XsDeviceState newState, XsDeviceState oldState) override;
 	void onLiveDataAvailable(XsDevice* dev, const XsDataPacket* packet) override;
@@ -89,10 +91,10 @@ public:
 	void onConnectivityChanged(XsDevice* dev, XsConnectivityState newState) override;
 	void onInfoResponse(XsDevice* dev, XsInfoRequest request) override;
 	void onError(XsDevice* dev, XsResultValue error) override;
-	void onNonDataMessage(XsDevice* dev, XsMessage const * message) override;
-	void onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const * rawMessage) override;
-	void onMessageReceivedFromDevice(XsDevice* dev, XsMessage const * message) override;
-	void onMessageSentToDevice(XsDevice* dev, XsMessage const * message) override;
+	void onNonDataMessage(XsDevice* dev, XsMessage const* message) override;
+	void onMessageDetected(XsDevice* dev, XsProtocolType type, XsByteArray const* rawMessage) override;
+	void onMessageReceivedFromDevice(XsDevice* dev, XsMessage const* message) override;
+	void onMessageSentToDevice(XsDevice* dev, XsMessage const* message) override;
 	void onDataAvailable(XsDevice* dev, const XsDataPacket* data) override;
 	void onAllDataAvailable(XsDevicePtrArray* devs, const XsDataPacketPtrArray* packets) override;
 	void onRecordedDataAvailable(XsDevice* dev, const XsDataPacket* data) override;
