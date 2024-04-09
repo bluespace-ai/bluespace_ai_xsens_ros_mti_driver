@@ -94,6 +94,7 @@ private:
 	void registerCallback(PacketCallback *cb);
 	bool handleError(std::string error);
 	void declareCommonParameters();
+	bool configureDevice();
 
 	XsControl *m_control;
 	XsDevice *m_device;
